@@ -82,3 +82,9 @@ def mysalesorderlineitem_post_save_handler(sender,instance,**kwargs):
 			so_line_item = instance,
 			fullfill_qty = instance.qty
 		)
+
+@receiver(pre_save, sender=MySalesOrderReturnLineItem)
+def mysalesorderlineitem_post_save_handler(sender,instance,**kwargs):
+	if instance.reason.is_refundable:
+		instance.credit = instance.so_line_item.price*instance.return_qty
+

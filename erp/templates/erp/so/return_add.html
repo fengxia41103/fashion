@@ -3,7 +3,7 @@
 % load crispy_forms_tags %}
 {% load static %}
 {% block page-header %}
-	FULLFILL 销售订单: {{ object.code }}
+	RETURN 销售订单: {{ object.code }}
 {% endblock %}
 
 {% block content %}
@@ -52,7 +52,7 @@
 	</a>
 </div>
 
-<form action="{% url 'so_fullfill_add' object.id %}" method="POST">
+<form action="{% url 'so_return_add' object.id %}" method="POST">
 {% csrf_token %}
 
 {% for brand,line_items in items.iteritems %}
@@ -65,8 +65,9 @@
 		<th>COLOR</th>
 		<th>PRICE</th>		
 		<th>SIZE</th>
-		<th>QTY BALANCE</th>
-		<th>FULLFILLING QTY</th>
+		<th>QTY MAX</th>
+		<th>RETURN QTY</th>
+		<th>REASON</th>
 	</thead>
 
 	<tbody>
@@ -87,9 +88,9 @@
 			</td><td>
 				{{ line_item.item.size }}
 			</td><td>
-				{{ line_item.qty_balance }}
+				{{ line_item.fullfill_qty }}
 			</td><td class="editt">
-				<input type="number" value="0" name="line-item-{{line_item.id}}" id="{{line_item.id}}" min="0" max="{{ line_item.qty_balance }}" data-toggle="qty" style="width:100px;"/>			
+				<input type="number" value="0" name="line-item-{{line_item.id}}" id="{{line_item.id}}" min="0" max="{{ line_item.fullfill_qty }}" data-toggle="qty" style="width:100px;"/>			
 				<div class="btn-group" role="group" aria-label="">
 					<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
 						<i class="fa fa-minus"></i>
@@ -97,7 +98,13 @@
 					<button type="button" class="btn btn-tiny btn-primary" data-toggle="plus">
 						<i class="fa fa-plus"></i>
 					</button>
-				</div>		
+				</div>
+			</td><td>
+				<select class="my-select" name="reason-{{line_item.id}}">
+					{% for reason in reasons %}
+					<option value="{{ reason.id }}">{{ reason.description}}</option>
+					{% endfor %}
+				</select>		
 			</td></tr>
 			{% endwith %}
 		{% endfor %}
@@ -107,7 +114,7 @@
 
 <button class="btn btn-primary"  type="submit" id="create">
 	<i class="fa fa-save"></i>
-	<span>Create a fullfillment</span>
+	<span>Create a return</span>
 </button>
 <button class="btn btn-default"  id="preview" style="display:none;">
 	<i class="fa fa-save"></i>
@@ -123,35 +130,7 @@
 {% block custom_js %}
 <script type="text/javascript">
 var j$ = jQuery.noConflict();
-j$(document).ready(function(){
-	// // common global widget initializations
-	// var table = j$('table').dataTable({
-	// 	stateSave: true, // must be true
-	// 	paging: false,
-	// 	info: false,
-	// 	"pagingType": "simple",
-	// 	"bFilter": false,
-	// });
-
-	j$('.edit').editable("{%url 'so_fullfill_edit' object.id %}",{
-		submit    : 'Save',
-		cancel    : 'Cancel',
-		onblur    : "ignore",
-		//name      : "sentText",
-		callback : function(value, settings) {
-			console.log(value);
-			console.log(settings);
-
-		    // var json = $.parseJSON(value);
-		    // $("#qty").text(json.status);
-		}		
-	});
-
-	// j$('#create').click( function() {
- //        var data = table.$('input').serialize();
- //        return true; // pass on the event
- //    });	   
-
+j$(document).ready(function(){   
 	j$('[data-toggle="plus"]').click(function(){
 		var current_val = parseInt(j$(this).parent().siblings('input').val());
 		var max_val = parseInt(j$(this).parent().siblings('input').attr('max'));

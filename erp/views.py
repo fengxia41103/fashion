@@ -500,6 +500,41 @@ class MyItemInventoryAdd(FormView):
 
 ###################################################
 #
+#	MySeason views
+#
+###################################################		
+
+class MySeasonList(ListView):
+	model = MySeason
+	template_name = 'erp/season/list.html'
+
+	def get_queryset(self):
+		return MySeason.objects.all().order_by('-name')
+
+class MySeasonDetail(DetailView):
+	model = MySeason
+	template_name = 'erp/season/detail.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(DetailView,self).get_context_data(**kwargs)
+		vendors = set(MyItem.objects.filter(season=self.object).values_list('brand',flat=True))
+		
+		# Get vendor stats
+		vendor_stats = []
+		for v in [MyCRM.objects.get(id=int(v)) for v in vendors]:
+			num_of_items = MyItem.objects.filter(season=self.object,brand=v).count()
+			vendor_stats.append((v,num_of_items))
+		context['vendors'] = vendor_stats
+
+		# Attachment for to upload vendor images
+		# TODO: auto download from Pinterest.
+		context['attachment_form'] = AttachmentForm()
+
+		# Other seasons
+		return context
+
+###################################################
+#
 #	MyBusinessModel views
 #
 ###################################################
@@ -626,6 +661,10 @@ class MySalesOrderList (FilterView):
 				if f == 'sales': context['filters']['sales'] = User.objects.get(id=int(val))
 		return context
 
+class MySalesOrderDelete(DeleteView):
+	model = MySalesOrder
+	success_url = reverse_lazy('so_list')
+
 class MySalesOrderDetail(DetailView):
 	model = MySalesOrder
 	template_name = 'erp/so/detail.html'
@@ -703,6 +742,11 @@ class MySalesOrderLineItemDelete(DeleteView):
 		context['cancel_redirect_url'] = self.get_success_url()
 		return context
 
+###################################################
+#
+#	Sales Order Payment views
+#
+###################################################
 class MySalesOrderPaymentList(ListView):
 	model = MySalesOrderPayment
 	template_name = 'erp/payment/payment/so_list.html'
@@ -722,10 +766,11 @@ class MySalesOrderPaymentAdd(FormView):
 		self.payment = payment
 		return super(FormView, self).form_valid(form)		
 
-class MySalesOrderDelete(DeleteView):
-	model = MySalesOrder
-	success_url = reverse_lazy('so_list')
-
+###################################################
+#
+#	Sales Order Fullfillment views
+#
+###################################################
 class MySalesOrderFullfillmentAdd(DetailView):
 	model = MySalesOrder
 	template_name = 'erp/so/fullfill_add.html'
@@ -802,36 +847,61 @@ class MySalesOrderFullfillmentEdit(UpdateView):
 
 ###################################################
 #
-#	MySeason views
+#	Sales Order Return views
 #
-###################################################		
+###################################################
 
-class MySeasonList(ListView):
-	model = MySeason
-	template_name = 'erp/season/list.html'
-
-	def get_queryset(self):
-		return MySeason.objects.all().order_by('-name')
-
-class MySeasonDetail(DetailView):
-	model = MySeason
-	template_name = 'erp/season/detail.html'
+class MySalesOrderReturnAdd(DetailView):
+	model = MySalesOrder
+	template_name = 'erp/so/return_add.html'
 
 	def get_context_data(self,**kwargs):
 		context = super(DetailView,self).get_context_data(**kwargs)
-		vendors = set(MyItem.objects.filter(season=self.object).values_list('brand',flat=True))
-		
-		# Get vendor stats
-		vendor_stats = []
-		for v in [MyCRM.objects.get(id=int(v)) for v in vendors]:
-			num_of_items = MyItem.objects.filter(season=self.object,brand=v).count()
-			vendor_stats.append((v,num_of_items))
-		context['vendors'] = vendor_stats
 
-		# Attachment for to upload vendor images
-		# TODO: auto download from Pinterest.
-		context['attachment_form'] = AttachmentForm()
-
-		# Other seasons
+		items = {}
+		for line_item in MySalesOrderLineItem.objects.filter(order=self.object).order_by('item__id'):
+			if line_item.fullfill_qty > 0: 
+				brand = line_item.item.item.brand
+				if brand not in items: items[brand] = []
+				items[brand].append(line_item)
+		context['items'] = items
+		context['reasons'] = MyReturnReason.objects.all()
 		return context
 
+	def post(self,request,pk):
+		'''
+		Post to this API will create a sales order fullfillment.
+		'''
+		print self.request.POST
+
+		items = {}
+		for line_id,val in self.request.POST.iteritems():
+			if 'line-item' in line_id and int(val):
+				line_item = MySalesOrderLineItem.objects.get(id=int(line_id.split('-')[-1]))
+				items[line_item.id] = {'item':line_item,'qty':int(val)}
+		for line_id,val in self.request.POST.iteritems():				
+			if 'reason' in line_id:
+				line_item_id = int(line_id.split('-')[-1])
+				if line_item_id in items:
+					return_reason = MyReturnReason.objects.get(id=int(val))
+					items[line_item_id]['reason'] = return_reason
+
+		if len(items):
+			so = MySalesOrder.objects.get(id=pk)
+
+			# Create MySalesOrderFullfillment
+			so_return = MySalesOrderReturn(
+				so=so,
+				created_by = self.request.user
+			)
+			so_return.save()
+
+			# Add return items to MySalesOrderReturn
+			for so_line_item_id,data in items.iteritems():
+				MySalesOrderReturnLineItem(
+					so_return = so_return,
+					so_line_item = data['item'],
+					return_qty = data['qty'],
+					reason = data['reason']
+				).save()
+		return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))

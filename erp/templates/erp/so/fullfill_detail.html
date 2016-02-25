@@ -40,6 +40,16 @@
 		<div class="col-md-2"><label>Fullfilled by</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ so.default_storage }}</div>
 		<div class="col-md-1"></div>		
+	</div><div class="row ">
+		<div class="col-md-2"><label>Fullfilled QTY</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.qty }}</div>
+		<div class="col-md-1"></div>
+		<div class="col-md-2"><label>Fullfilled value</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{{ so.customer.currency }}
+			{{ object.value|floatformat:2 }}
+		</div>
+		<div class="col-md-1"></div>		
 	</div>
 	</div>
 </div>
@@ -66,7 +76,7 @@
 		<th>COLOR</th>
 		<th>PRICE</th>		
 		<th>SIZE</th>
-		<th>QTY BALANCE</th>
+		<th>QTY MAX</th>
 		<th>FULLFILLING QTY</th>
 	</thead>
 
@@ -90,7 +100,7 @@
 			</td><td>
 				{{ inv_item.size }}
 			</td><td>
-				{{ so_line_item.qty_balance }}
+				{{ so_line_item_fullfill.max_qty }}
 			</td><td class="editt">
 				<input type="number" value="{{ so_line_item_fullfill.fullfill_qty }}" name="line-item-fullfill-{{so_line_item_fullfill.id}}" id="{{so_line_item_fullfill.id}}" min="0" max="{{ so_line_item.qty_balance }}" data-toggle="qty" style="width:100px;"/>			
 				<div class="btn-group" role="group" aria-label="">

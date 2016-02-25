@@ -652,6 +652,10 @@ class MySalesOrder(models.Model):
 		return self.fullfill_discount_value - self.total_payment
 	account_receivable = property(_account_receivable)
 
+	def _qty_balance(self):
+		return self.total_qty - self.fullfill_qty
+	qty_balance = property(_qty_balance)
+
 class MySalesOrderLineItem(models.Model):
 	order = models.ForeignKey('MySalesOrder')
 	item = models.ForeignKey('MyItemInventory')
@@ -697,18 +701,16 @@ class MySalesOrderLineItem(models.Model):
 		return self.qty - self.fullfill_qty
 	qty_balance = property(_qty_balance)
 
+	def _return_qty(self):
+		return sum(MySalesOrderReturnLineItem.objects.filter(so_line_item=self).values_list('return_qty',flat=True))
+	return_qty = property(_return_qty)
+
 class MySalesOrderFullfillment(models.Model):
 	'''
 	Fullfillment would require an associated SO.
 	'''
 	so = models.ForeignKey('MySalesOrder')
 
-	# PO is optional. Retail sales, for example, does not require a PO.
-	po = models.ForeignKey(
-		'MyPurchaseOrder',
-		blank = True,
-		null = True
-	)
 	created_on = models.DateField(auto_now_add = True)
 	created_by = models.ForeignKey (
 		User,
@@ -730,18 +732,68 @@ class MySalesOrderFullfillment(models.Model):
 		return sum([f.fullfill_qty for f in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=self)])
 	qty = property(_qty)
 
+	def _value(self):
+		return sum([f.fullfill_value for f in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=self)])
+	value = property(_value)
+
 class MySalesOrderFullfillmentLineItem(models.Model):
 	so_fullfillment = models.ForeignKey('MySalesOrderFullfillment')
-	po_line_item = models.ForeignKey(
-		'MyPurchaseOrderLineItem',
-		null = True,
-		blank = True
-	)
 	so_line_item = models.ForeignKey('MySalesOrderLineItem')
 	fullfill_qty = models.IntegerField(
 		default = 0,
 		validators=[MinValueValidator(0),]
 	)
+	def _fullfill_value(self):
+		return self.fullfill_qty * self.so_line_item.price
+	fullfill_value = property(_fullfill_value)
+
+	def _max_qty(self):
+		'''
+		If to edit this record, max_qty holds the current max qty balance including
+		what is currently saved in this recorded as fullfilled.
+		'''
+		return self.so_line_item.qty_balance+self.fullfill_qty
+	max_qty = property(_max_qty)
+
+class MyReturnReason(MyBaseModel):
+	is_refundable = models.BooleanField(default=True)
+
+class MySalesOrderReturn(models.Model):
+	so = models.ForeignKey('MySalesOrder')
+	created_on = models.DateField(auto_now_add = True)
+	created_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'创建用户',
+		help_text = ''
+	)
+
+	def __unicode__(self):
+		return '%s/%s'%(self.so.code,self.code)
+
+	def _code(self):
+		return 'SORTN%3d' % self.id
+	code = property(_code)
+
+	def _qty(self):
+		return sum([i.return_qty for i in MySalesOrderReturnLineItem.objects.filter(so_return = self)])
+	qty = property(_qty)
+
+	def _credit(self):
+		return sum([i.credit for i in MySalesOrderReturnLineItem.objects.filter(so_return = self)])
+	credit = property(_credit)
+
+class MySalesOrderReturnLineItem(models.Model):
+	so_return = models.ForeignKey('MySalesOrderReturn')
+	so_line_item = models.ForeignKey('MySalesOrderLineItem')
+	return_qty = models.IntegerField(
+		default = 0,
+		validators=[MinValueValidator(0),]
+	)
+	reason = models.ForeignKey('MyReturnReason')
+	credit = models.FloatField(default = 0)
 
 class MySalesOrderPayment(models.Model):
 	PAYMENT_METHOD_CHOICES = (

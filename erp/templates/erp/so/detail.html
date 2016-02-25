@@ -20,12 +20,24 @@
 			Cancel order
 		</button>
 	{% endif %}
-		<button class="btn btn-small">
-			<a href="{% url 'so_fullfill_add' object.id %}">
-				<i class='fa fa-pencil'></i>
-				Create a fullfillment
-			</a>
-		</button>	
+
+	{% if object.qty_balance > 0 %}
+	<button class="btn btn-small">
+		<a href="{% url 'so_fullfill_add' object.id %}">
+			<i class='fa fa-pencil'></i>
+			Create a fullfillment
+		</a>
+	</button>
+	{% endif %}
+
+	{% if object.fullfill_qty > 0 %}
+	<button class="btn btn-small">
+		<a href="{% url 'so_return_add' object.id %}">
+			<i class='fa fa-pencil'></i>
+			Create a return
+		</a>
+	</button>	
+	{% endif %}
 </div>
 
 {# order header #}

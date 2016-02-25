@@ -1,5 +1,6 @@
 # forms.py
 from django import forms
+from django.forms import formset_factory
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from erp.models import *
@@ -61,4 +62,3 @@ class SalesOrderPaymentAddForm(ModelForm):
 		model = MySalesOrderPayment
 		fields = ['so','usage','payment_method','amount']		
 		widgets = {'so': HiddenInput()}
-			

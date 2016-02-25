@@ -16,29 +16,30 @@
 	<thead>
 		<tr>
 		<th rowspan="2"></th>
-		<th rowspan="2">Code</th>
-		<th rowspan="2">Customer</th>
-		<th rowspan="2">Sales</th>
-		<th colspan="3">Order Summary</th>
-		<th colspan="4">Fullfillments</th>
-		<th colspan="2">Payments</th>
+		<th rowspan="2">SALES TYPE</th>
+		<th rowspan="2">CODE</th>
+		<th rowspan="2">CUSTOMER</th>
+		<th rowspan="2">SALES</th>
+		<th colspan="3">ORDER SUMMARY</th>
+		<th colspan="4">FULLFILLMENTS</th>
+		<th colspan="2">PAYMENTS</th>
 		</tr>
 
 		<tr>
 			{# order details #}
 			<th>QTY</th>
-			<th>Order Value</th>
-			<th>Discount</th>
+			<th>ORDER VALUE</th>
+			<th>DISCOUNT</th>
 
 			{# fullfillment #}
 			<th>QTY</th>
-			<th>Value</th>
-			<th>Rate by QTY</th>
-			<th>Rate by Value</th>
+			<th>VALUE</th>
+			<th>RATE BY QTY</th>
+			<th>RATE BY VALUE</th>
 
 			{# payment #}
-			<th>Paid</th>
-			<th>Balance</th>
+			<th>PAID</th>
+			<th>BALANCE</th>
 		<tr>
 	</thead>
 	<tbody>
@@ -56,6 +57,8 @@
 			| <a data-toggle="modal" data-target="#so-delete-{{obj.id}}">Cancel</a>
 			{% endif %}
 
+		</td><td>
+			{{ obj.business_model }}
 		</td><td>
 			{{ obj.code }}
 			{% if obj.is_sold_at_cost %}

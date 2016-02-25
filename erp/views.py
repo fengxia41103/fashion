@@ -670,7 +670,7 @@ class MySalesOrderAddItem(TemplateView):
 
 	def post(self,request):
 		so = int(request.POST['so'])
-		item_inv = request.POST['item-inv']
+		item_inv = request.POST['item-inv'].replace(',','')
 		qty = int(request.POST['qty'])
 
 		so = MySalesOrder.objects.get(id=so)

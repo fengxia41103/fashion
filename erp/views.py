@@ -746,8 +746,6 @@ class MySalesOrderFullfillmentAdd(DetailView):
 		'''
 		Post to this API will create a sales order fullfillment.
 		'''
-		print self.request.POST
-
 		items = []
 		for line_id,qty in self.request.POST.iteritems():
 			if 'line-item' in line_id and int(qty):
@@ -771,17 +769,36 @@ class MySalesOrderFullfillmentAdd(DetailView):
 				).save()
 		return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))
 
-class MySalesOrderFullfillmentEdit(DetailView):
+class MySalesOrderFullfillmentDetail(DetailView):
+	model = MySalesOrderFullfillment
+	template_name = 'erp/so/fullfill_detail.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(DetailView,self).get_context_data(**kwargs)
+
+		items = {}
+		for line_item in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=self.object).order_by('so_line_item__id'):
+			brand = line_item.so_line_item.item.item.brand
+			if brand not in items: items[brand] = []
+			items[brand].append(line_item)
+		context['items'] = items
+		return context
+
+class MySalesOrderFullfillmentEdit(UpdateView):
 	model = MySalesOrderFullfillment
 
 	def post(self,request,pk):
-		print request.POST
-		so_line_item_id = int(request.POST['id'])
-		value = int(request.POST['value'])
-		so_line_item = MySalesOrderLineItem.objects.get(id=so_line_item_id)
-
-		return HttpResponse(json.dumps(value), 
-			content_type='application/javascript')	
+		items = []
+		for line_id,qty in self.request.POST.iteritems():
+			if 'line-item-fullfill' in line_id:
+				qty = int(qty)		
+				f = MySalesOrderFullfillmentLineItem.objects.get(id=int(line_id.split('-')[-1]))			
+				if qty and qty != f.fullfill_qty: 
+					f.fullfill_qty = qty
+					f.save() # update FullfillLineItem qty
+				elif qty == 0: # equal to delete this line item
+					f.delete()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################
 #

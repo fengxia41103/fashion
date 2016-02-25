@@ -132,7 +132,9 @@
 					<tbody>
 						{% for f in object.fullfillments %}
 							<tr><td>
-								{{ f.code }}
+								<a href="{% url 'so_fullfill_detail' f.id %}">
+									{{ f.code }}
+								</a>
 							</td><td>
 								{{ f.qty }}
 							</td><td>

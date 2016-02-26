@@ -70,6 +70,9 @@ urlpatterns = patterns(
 
 		# Sales order return
 		url(r'^so/return/add/(?P<pk>\d+)/$', views.MySalesOrderReturnAdd.as_view(), name='so_return_add'),		
+		url(r'^so/return/(?P<pk>\d+)/$', views.MySalesOrderReturnDetail.as_view(), name='so_return_detail'),
+		url(r'^so/return/edit/(?P<pk>\d+)/$', views.MySalesOrderReturnEdit.as_view(), name='so_return_edit'),		
+		url(r'^so/return/delete/(?P<pk>\d+)/$', views.MySalesOrderReturnDelete.as_view(), name='so_return_delete'),		
 
 		# Sales order payment
 		url(r'^so/payments/$', views.MySalesOrderPaymentList.as_view(), name='so_payment_list'),						

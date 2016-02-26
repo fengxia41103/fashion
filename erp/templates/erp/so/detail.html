@@ -197,7 +197,7 @@
 					<tbody>
 						{% for f in object.returns %}
 							<tr><td>
-								<a href="">
+								<a href="{% url 'so_return_detail' f.id %}">
 									{{ f.code }}
 								</a>
 							</td><td>

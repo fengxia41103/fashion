@@ -912,3 +912,32 @@ class MySalesOrderReturnAdd(DetailView):
 					reason = data['reason']
 				).save()
 		return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))
+
+class MySalesOrderReturnDetail(DetailView):
+	model = MySalesOrderReturn
+	template_name = 'erp/so/return_detail.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(DetailView,self).get_context_data(**kwargs)
+
+		items = {}
+		for line_item in MySalesOrderReturnLineItem.objects.filter(so_return=self.object).order_by('so_line_item__id'):
+			brand = line_item.so_line_item.item.item.brand
+			if brand not in items: items[brand] = []
+			items[brand].append(line_item)
+		context['items'] = items
+		return context
+
+class MySalesOrderReturnEdit(UpdateView):
+	model = MySalesOrderReturn
+
+	def post(self,request,pk):
+		items = []
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])	
+
+class MySalesOrderReturnDelete(DeleteView):
+	model = MySalesOrderReturn
+	template_name = 'erp/common/delete_form.html'
+
+	def get_success_url(self):
+		return reverse_lazy('so_detail',kwargs={'pk':self.object.so.id})

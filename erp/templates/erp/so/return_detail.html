@@ -3,7 +3,7 @@
 % load crispy_forms_tags %}
 {% load static %}
 {% block page-header %}
-	Edit FULLFILLMENT {{ object.code }}
+	Edit RETURN {{ object.code }}
 {% endblock %}
 
 {% block content %}
@@ -36,18 +36,15 @@
 				</a>
 			</span>
 		</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Fullfilled by</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ so.default_storage }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>	
 	</div><div class="row ">
-		<div class="col-md-2"><label>Fullfilled QTY</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.qty }}</div>
+		<div class="col-md-2"><label>Returned QTY</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.return_qty }}</div>
 		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Fullfilled value</label></div>
+		<div class="col-md-2"><label>Customer credit</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{ so.customer.currency }}
-			{{ object.value|floatformat:2 }}
+			{{ object.credit|floatformat:2 }}
 		</div>
 		<div class="col-md-1"></div>		
 	</div>
@@ -63,10 +60,10 @@
 	</a>
 </div>
 
-<form action="{% url 'so_fullfill_edit' so.id %}" method="POST">
+<form action="{% url 'so_return_edit' so.id %}" method="POST">
 {% csrf_token %}
 
-{% for brand,so_line_item_fullfills in items.iteritems %}
+{% for brand,so_returns in items.iteritems %}
 <h2>{{ brand }}</h2>
 <table class="table table-striped table-hover" id="fullfill">
 	<thead>
@@ -76,15 +73,15 @@
 		<th>COLOR</th>
 		<th>PRICE</th>		
 		<th>SIZE</th>
-		<th>QTY MAX</th>
-		<th>FULLFILLING QTY</th>
+		<th>FULLFILLED QTY</th>
+		<th>RETURNING QTY</th>
 	</thead>
 
 	<tbody>
-		{% for so_line_item_fullfill in so_line_item_fullfills %}
-			{% with so_line_item_fullfill.so_line_item.item.item as item %}
-			{% with so_line_item_fullfill.so_line_item as so_line_item %}
-			{% with so_line_item_fullfill.so_line_item.item as inv_item %}
+		{% for so_return in so_returns %}
+			{% with so_return.so_line_item.item.item as item %}
+			{% with so_return.so_line_item as so_line_item %}
+			{% with so_return.so_line_item.item as inv_item %}
 			<tr><td>
 				{{ inv_item.code }}
 			</td><td>
@@ -100,9 +97,9 @@
 			</td><td>
 				{{ inv_item.size }}
 			</td><td>
-				{{ so_line_item_fullfill.max_qty }}
+				{{ so_line_item.fullfill_qty }}
 			</td><td class="editt">
-				<input type="number" value="{{ so_line_item_fullfill.fullfill_qty }}" name="line-item-fullfill-{{so_line_item_fullfill.id}}" id="{{so_line_item_fullfill.id}}" min="0" max="{{ so_line_item_fullfill.max_qty }}" data-toggle="qty" style="width:100px;"/>			
+				<input type="number" value="{{ so_return.return_qty }}" name="line-item-{{so_return.id}}" id="{{so_return.id}}" min="0" max="{{ so_line_item.fullfill_qty }}" data-toggle="qty" style="width:100px;"/>			
 				<div class="btn-group" role="group" aria-label="">
 					<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
 						<i class="fa fa-minus"></i>
@@ -133,7 +130,7 @@
 	<span>Reset</span>
 </button>
 <button class="btn btn-default danger"
-	data-toggle="modal" data-target="#so-fullfill-delete">
+	data-toggle="modal" data-target="#so-return-delete">
 	<i class='fa fa-pencil'></i>
 	Delete
 </button>
@@ -143,10 +140,10 @@
 {% endblock %}
 
 {% block modal %}
-{# Delete SO FULLFILL modal #}
-<div id="so-fullfill-delete" class="modal fade" role="dialog">
+{# Delete SO RETURN modal #}
+<div id="so-return-delete" class="modal fade" role="dialog">
 <div class="modal-dialog">
-<form action="{% url 'so_fullfill_delete' object.id %}" method="POST">
+<form action="{% url 'so_return_delete' object.id %}" method="POST">
  
     <!-- Modal content-->
     <div class="modal-content">
@@ -160,7 +157,7 @@
       {# Modal body #}
       <div class="modal-body alert alert-warning">	
 			{% csrf_token %}
-			<p>This fullfillment is about to be deleted. All associated fullfillment records will
+			<p>This return is about to be deleted. All associated fullfillment records will
 			be removed also..</p>
 
 			<p>

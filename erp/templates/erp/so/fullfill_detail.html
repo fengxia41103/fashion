@@ -102,7 +102,7 @@
 			</td><td>
 				{{ so_line_item_fullfill.max_qty }}
 			</td><td class="editt">
-				<input type="number" value="{{ so_line_item_fullfill.fullfill_qty }}" name="line-item-fullfill-{{so_line_item_fullfill.id}}" id="{{so_line_item_fullfill.id}}" min="0" max="{{ so_line_item.qty_balance }}" data-toggle="qty" style="width:100px;"/>			
+				<input type="number" value="{{ so_line_item_fullfill.fullfill_qty }}" name="line-item-fullfill-{{so_line_item_fullfill.id}}" id="{{so_line_item_fullfill.id}}" min="0" max="{{ so_line_item_fullfill.max_qty }}" data-toggle="qty" style="width:100px;"/>			
 				<div class="btn-group" role="group" aria-label="">
 					<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
 						<i class="fa fa-minus"></i>
@@ -131,8 +131,54 @@
 <button class="btn btn-secondary"  id="reset" style="display:none;">
 	<i class="fa fa-save"></i>
 	<span>Reset</span>
-</button>     
+</button>
+<button class="btn btn-default danger"
+	data-toggle="modal" data-target="#so-fullfill-delete">
+	<i class='fa fa-pencil'></i>
+	Delete
+</button>
 </form>
 
 {% endwith %}
+{% endblock %}
+
+{% block modal %}
+{# Delete SO FULLFILL modal #}
+<div id="so-fullfill-delete" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'so_fullfill_delete' object.id %}" method="POST">
+ 
+    <!-- Modal content-->
+    <div class="modal-content">
+
+    	{# Modal header #}
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">To Cancel {{ object.code }}</h4>
+      </div>
+
+      {# Modal body #}
+      <div class="modal-body alert alert-warning">	
+			{% csrf_token %}
+			<p>This fullfillment is about to be deleted. All associated fullfillment records will
+			be removed also..</p>
+
+			<p>
+			Are you sure to delete this?
+			</p>
+      </div>
+
+      {# Modal footer #}
+      <div class="modal-footer">
+		<button class="btn btn-primary" type="submit">
+			<i class="fa fa-check">Yes</i>
+		</button>      
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+        	<i class="fa fa-close">No</i>
+        </button>
+      </div>
+    </div>
+</form>          
+</div>
+</div>
 {% endblock %}

@@ -845,6 +845,13 @@ class MySalesOrderFullfillmentEdit(UpdateView):
 					f.delete()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+class MySalesOrderFullfillmentDelete(DeleteView):
+	model = MySalesOrderFullfillment
+	template_name = 'erp/common/delete_form.html'
+
+	def get_success_url(self):
+		return reverse_lazy('so_detail',kwargs={'pk':self.object.so.id})
+
 ###################################################
 #
 #	Sales Order Return views

@@ -645,16 +645,28 @@ class MySalesOrder(models.Model):
 		return sum([p.amount for p in MySalesOrderPayment.objects.filter(so=self)])
 	total_payment = property(_total_payment)
 
+	def _qty_balance(self):
+		return self.total_qty - self.fullfill_qty + self.return_qty
+	qty_balance = property(_qty_balance)
+
+	def _returns(self):
+		return MySalesOrderReturn.objects.filter(so=self).order_by('created_on')
+	returns = property(_returns)
+
+	def _return_qty(self):
+		return sum([r.return_qty for r in MySalesOrderReturn.objects.filter(so=self)])
+	return_qty = property(_return_qty)
+
+	def _credit(self):
+		return sum([r.credit for r in MySalesOrderReturn.objects.filter(so=self)])
+	credit = property(_credit)
+
 	def _account_receivable(self):
 		'''
 		AR is computed by actual fullfilled value instead of what's on order.
 		'''
-		return self.fullfill_discount_value - self.total_payment
+		return self.fullfill_discount_value - (self.total_payment)
 	account_receivable = property(_account_receivable)
-
-	def _qty_balance(self):
-		return self.total_qty - self.fullfill_qty
-	qty_balance = property(_qty_balance)
 
 class MySalesOrderLineItem(models.Model):
 	order = models.ForeignKey('MySalesOrder')
@@ -690,7 +702,7 @@ class MySalesOrderLineItem(models.Model):
 
 	def _fullfill_qty(self):
 		qty=MySalesOrderFullfillmentLineItem.objects.filter(so_line_item=self).values_list('fullfill_qty',flat=True)
-		return sum(qty)
+		return sum(qty)-self.return_qty
 	fullfill_qty = property(_fullfill_qty)
 
 	def _fullfill_rate(self):
@@ -704,6 +716,10 @@ class MySalesOrderLineItem(models.Model):
 	def _return_qty(self):
 		return sum(MySalesOrderReturnLineItem.objects.filter(so_line_item=self).values_list('return_qty',flat=True))
 	return_qty = property(_return_qty)
+
+	def _credit(self):
+		return sum(MySalesOrderReturnLineItem.objects.filter(so_line_item=self,reason__is_refundable=True).values_list('credit',flat=True))
+	credit = property(_credit)
 
 class MySalesOrderFullfillment(models.Model):
 	'''
@@ -777,12 +793,12 @@ class MySalesOrderReturn(models.Model):
 		return 'SORTN%3d' % self.id
 	code = property(_code)
 
-	def _qty(self):
+	def _return_qty(self):
 		return sum([i.return_qty for i in MySalesOrderReturnLineItem.objects.filter(so_return = self)])
-	qty = property(_qty)
+	return_qty = property(_return_qty)
 
 	def _credit(self):
-		return sum([i.credit for i in MySalesOrderReturnLineItem.objects.filter(so_return = self)])
+		return sum([i.credit for i in MySalesOrderReturnLineItem.objects.filter(so_return = self,reason__is_refundable=True)])
 	credit = property(_credit)
 
 class MySalesOrderReturnLineItem(models.Model):

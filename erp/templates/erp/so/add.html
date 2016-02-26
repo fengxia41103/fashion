@@ -21,34 +21,6 @@
 {% block custom_js %}
 <script type="text/javascript">
 j$(document).ready(function(){
-	// // common global widget initializations
-	// var table = j$('table').dataTable({
-	// 	stateSave: true, // must be true
-	// 	paging: false,
-	// 	info: false,
-	// 	"pagingType": "simple",
-	// 	"bFilter": false,
-	// });
-
-	j$('.edit').editable("{%url 'so_fullfill_edit' object.id %}",{
-		submit    : 'Save',
-		cancel    : 'Cancel',
-		onblur    : "ignore",
-		//name      : "sentText",
-		callback : function(value, settings) {
-			console.log(value);
-			console.log(settings);
-
-		    // var json = $.parseJSON(value);
-		    // $("#qty").text(json.status);
-		}		
-	});
-
-	// j$('#create').click( function() {
- //        var data = table.$('input').serialize();
- //        return true; // pass on the event
- //    });	   
-
 	j$('[data-toggle="plus"]').click(function(){
 		var current_val = parseInt(j$(this).parent().siblings('input').val());
 		var max_val = parseInt(j$(this).parent().siblings('input').attr('max'));

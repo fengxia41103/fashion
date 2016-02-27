@@ -344,7 +344,7 @@ class MyVendorAdd(CreateView):
 	model = MyCRM
 	template_name = 'erp/common/add_form.html'
 	success_url = reverse_lazy('vendor_list')
-	fields = ['contact','phone','home_currency','std_discount']
+	fields = ['contact','phone','currency','std_discount']
 
 	def form_valid(self, form):
 		form.instance.crm_type = 'V'
@@ -397,7 +397,7 @@ class MyCustomerAdd(CreateView):
 	model = MyCRM
 	template_name = 'erp/common/add_form.html'
 	success_url = reverse_lazy('customer_list')
-	fields = ['contact','phone','home_currency','std_discount']
+	fields = ['contact','phone','currency','std_discount']
 
 	def form_valid(self, form):
 		form.instance.crm_type = 'C'

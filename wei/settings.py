@@ -103,15 +103,30 @@ elif DEPLOY_TYPE=='production':
     	#    'ENGINE': 'django.db.backends.sqlite3',
     	#    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     	#}
-        	'default': {
-                	'ENGINE': 'django.db.backends.mysql', 
-                	'NAME': PRODUCTION_DB,
-                	'USER': PRODUCTION_DB_USER,
-                	'PASSWORD': PRODUCTION_DB_PWD,
-                	'HOST': AWS_MYSQL_ENDPOINT,   # Or an IP Address that your DB is hosted on
-                	'PORT': PRODUCTION_DB_PORT,
-        	}
+    	'default': {
+            	'ENGINE': 'django.db.backends.mysql', 
+            	'NAME': PRODUCTION_DB,
+            	'USER': PRODUCTION_DB_USER,
+            	'PASSWORD': PRODUCTION_DB_PWD,
+            	'HOST': AWS_MYSQL_ENDPOINT,   # Or an IP Address that your DB is hosted on
+            	'PORT': PRODUCTION_DB_PORT,
+    	}
 	}
+elif DEPLOY_TYPE == 'test':
+    DATABASES = {
+        #'default': {
+        #    'ENGINE': 'django.db.backends.sqlite3',
+        #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #}
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', 
+            'NAME': 'wei',
+            'USER': DEV_DB_USER,
+            'PASSWORD': DEV_DB_PWD,
+            'HOST': "192.168.1.101",   # Or an IP Address that your DB is hosted on
+            'PORT': DEV_DB_PORT,
+        }
+    }    
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -169,7 +184,7 @@ COMPRESS_PRECOMPILERS = (
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # django-devserver
-if DEPLOY_TYPE=='dev':
+if DEPLOY_TYPE in ['dev','test']:
     DEVSERVER_MODULES = (
         'devserver.modules.sql.SQLRealTimeModule',
         'devserver.modules.sql.SQLSummaryModule',
@@ -185,10 +200,10 @@ if DEPLOY_TYPE=='dev':
 
 # S3 storages
 
-if DEPLOY_TYPE =='dev':
+if DEPLOY_TYPE in ['dev','test']:
     STATIC_ROOT='/var/www/static'
     MEDIA_ROOT = '/var/www/media'
-    MEDIA_URL='http://localhost/media/'
+    MEDIA_URL='http://'+DEV_HOST+'/media/'
 elif DEPLOY_TYPE=='production':
     DEFAULT_FILE_STORAGE = 's3_folder_storage.s3.DefaultStorage'
     STATICFILES_STORAGE = 's3_folder_storage.s3.StaticStorage'

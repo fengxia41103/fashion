@@ -13,15 +13,15 @@
 
 
 {% block content %}
-<div class="btn-group" role="group" aria-label="...">
+<ul class="list-inline">
 	{% for season in object_list %}
-	<button class="btn" type="button">
+	<li>
 	<a href="{% url 'season_detail' season.id %}">{{ season.name }}/</a>
-	</button>
+	</li>
 	{% endfor %}
-</div>
+</ul>
 
-<div class="my-multicol-4">
+<div class="my-multicol-2">
 {% for season in object_list %}
 <section class="pin-card" style="" id="{{vendor.id}}">
 	<div class="page-header">

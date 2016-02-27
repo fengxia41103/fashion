@@ -233,7 +233,7 @@ class MyItemAdd(CreateView):
 class MyItemEdit (UpdateView):
 	model = MyItem
 	template_name = 'erp/common/edit_form.html'
-	fields = ['name','description','help_text','season','brand','color','price','order_deadline','size_chart','is_active']
+	fields = ['name','description','help_text','season','brand','color','price','size_chart','is_active']
 
 	def get_success_url(self):
 		return reverse_lazy('item_detail', kwargs={'pk':self.get_object().id})
@@ -712,7 +712,7 @@ class MySalesOrderAddItem(TemplateView):
 		item_inv = request.POST['item-inv'].replace(',','')
 		qty = int(request.POST['qty'])
 
-		so = MySalesOrder.objects.get(id=so)
+		MySalesOrder.objects.get(id=so)
 		item_inv = MyItemInventory.objects.get(id=int(item_inv))
 
 		if so.is_sold_at_cost: price = item_inv.item.converted_cost

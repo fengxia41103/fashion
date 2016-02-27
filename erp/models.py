@@ -661,6 +661,10 @@ class MySalesOrder(models.Model):
 		return sum([r.credit for r in MySalesOrderReturn.objects.filter(so=self)])
 	credit = property(_credit)
 
+	def _refundable_qty(self):
+		return sum([r.refundable_qty for r in MySalesOrderReturn.objects.filter(so=self)])
+	refundable_qty = property(_refundable_qty)
+
 	def _account_receivable(self):
 		'''
 		AR is computed by actual fullfilled value instead of what's on order.
@@ -702,7 +706,7 @@ class MySalesOrderLineItem(models.Model):
 
 	def _fullfill_qty(self):
 		qty=MySalesOrderFullfillmentLineItem.objects.filter(so_line_item=self).values_list('fullfill_qty',flat=True)
-		return sum(qty)-self.return_qty
+		return sum(qty)-self.refundable_qty
 	fullfill_qty = property(_fullfill_qty)
 
 	def _fullfill_rate(self):
@@ -721,6 +725,10 @@ class MySalesOrderLineItem(models.Model):
 		return sum(MySalesOrderReturnLineItem.objects.filter(so_line_item=self,reason__is_refundable=True).values_list('credit',flat=True))
 	credit = property(_credit)
 
+	def _refundable_qty(self):
+		return sum(MySalesOrderReturnLineItem.objects.filter(so_line_item=self,reason__is_refundable=True).values_list('return_qty',flat=True))		
+	refundable_qty = property(_refundable_qty)
+	
 class MySalesOrderFullfillment(models.Model):
 	'''
 	Fullfillment would require an associated SO.
@@ -800,6 +808,10 @@ class MySalesOrderReturn(models.Model):
 	def _credit(self):
 		return sum([i.credit for i in MySalesOrderReturnLineItem.objects.filter(so_return = self,reason__is_refundable=True)])
 	credit = property(_credit)
+
+	def _refundable_qty(self):
+		return sum([i.return_qty for i in MySalesOrderReturnLineItem.objects.filter(so_return = self,reason__is_refundable=True)])
+	refundable_qty = property(_refundable_qty)
 
 class MySalesOrderReturnLineItem(models.Model):
 	so_return = models.ForeignKey('MySalesOrderReturn')

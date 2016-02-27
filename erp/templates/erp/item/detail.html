@@ -212,7 +212,6 @@ Related Sales Orders
 				<div class="col-md-5">
 
 					<select class="my-select" name="so" id="so">
-						<option value="0">Create a new order</option>
 						{% for so in sales_orders %}
 						<option value="{{ so.id }}">{{ so }}</option>
 						{% endfor %}

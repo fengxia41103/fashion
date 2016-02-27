@@ -15,32 +15,12 @@
 	<table class="table table-striped table-hover table-responsive">
 	<thead>
 		<tr>
-		<th rowspan="2"></th>
-		<th rowspan="2">SALES TYPE</th>
-		<th rowspan="2">CODE</th>
-		<th rowspan="2">CUSTOMER</th>
-		<th rowspan="2">SALES</th>
-		<th colspan="3">ORDER SUMMARY</th>
-		<th colspan="4">FULLFILLMENTS</th>
-		<th colspan="2">PAYMENTS</th>
+		<th></th>
+		<th>SALES TYPE</th>
+		<th>CODE</th>
+		<th>CUSTOMER</th>
+		<th>SALES</th>
 		</tr>
-
-		<tr>
-			{# order details #}
-			<th>QTY</th>
-			<th>ORDER VALUE</th>
-			<th>DISCOUNT</th>
-
-			{# fullfillment #}
-			<th>QTY</th>
-			<th>VALUE</th>
-			<th>RATE BY QTY</th>
-			<th>RATE BY VALUE</th>
-
-			{# payment #}
-			<th>PAID</th>
-			<th>BALANCE</th>
-		<tr>
 	</thead>
 	<tbody>
 		{% for obj in object_list %}
@@ -72,24 +52,6 @@
 			{{ obj.customer }}
 		</td><td>
 			{{ obj.sales }}
-		</td><td>
-			{{ obj.total_qty}}
-		</td><td>
-			{{ obj.total_discount_value|floatformat:2 }}
-		</td><td>
-			{{ obj.discount }}
-		</td><td>
-			{{ obj.fullfill_qty }}
-		</td><td>
-			{{ obj.fullfill_std_value }}
-		</td><td>
-			{{ obj.fullfill_rate_by_qty|floatformat:0 }}%
-		</td><td>
-			{{ obj.fullfill_rate_by_value|floatformat:0 }}%
-		</td><td>
-			{{ obj.total_payment }}
-		</td><td>
-			{{ obj.account_receivable }}
 		</td></tr>
     	{% endfor %}
 	</tbody>

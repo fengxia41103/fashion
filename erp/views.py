@@ -154,9 +154,17 @@ def item_attachment_add_view(request, pk):
 	tmp_form = AttachmentForm (request.POST, request.FILES)
 
 	if tmp_form.is_valid():
+		item = MyItem.objects.get(id=pk)
 		t=tmp_form.save(commit=False)
-		t.name = request.FILES['file'].name
-		t.content_object = MyItem.objects.get(id=pk)
+
+		# file name is random 15 characters
+		root,ext = os.path.splitext(request.FILES['file'].name)
+		t.name = '%s%s'%(MyUtility().legal_characters(15),ext)
+
+		# description will be item.name by default
+		if not t.description: t.description = item.name
+
+		t.content_object = item
 		t.created_by = request.user
 		t.save()	
 	return HttpResponseRedirect(reverse_lazy('item_detail',kwargs={'pk':pk}))
@@ -165,9 +173,16 @@ def crm_attachment_add_view(request, pk):
 	tmp_form = AttachmentForm (request.POST, request.FILES)
 
 	if tmp_form.is_valid():
+		crm = MyCRM.objects.get(id=pk)
 		t=tmp_form.save(commit=False)
-		t.name = request.FILES['file'].name
-		t.content_object = MyCRM.objects.get(id=pk)
+		
+		root,ext = os.path.splitext(request.FILES['file'].name)
+		t.name = '%s%s'%(MyUtility().legal_characters(15),ext)
+		
+		# description will be item.name by default
+		if not t.description: t.description = item.name
+
+		t.content_object = crm
 		t.created_by = request.user
 		t.save()	
 	return HttpResponseRedirect(request.META['HTTP_REFERER'])
@@ -300,10 +315,6 @@ class MyItemDetail(DetailView):
 
 		# List all open SO that user can add this item to
 		context['sales_orders'] = filter(lambda x: x.is_editable,MySalesOrder.objects.all().order_by('id'))
-
-		# vendor item form
-		vendor_item, created = MyVendorItem.objects.get_or_create(product = self.object)
-		context['vendor_item_form'] = VendorItemForm(instance = vendor_item )
 
 		# related sales orders
 		item_invs = MyItemInventory.objects.filter(item=self.object)

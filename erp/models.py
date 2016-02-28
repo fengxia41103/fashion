@@ -114,7 +114,9 @@ class Attachment (models.Model):
 	)
 	description = models.CharField (
 		max_length = 64,
-		default = 'default description',
+		null = True,
+		blank = True,
+		default = '',
 		verbose_name = u'附件描述'
 	)
 	file = models.FileField (

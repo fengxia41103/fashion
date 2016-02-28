@@ -123,7 +123,7 @@ elif DEPLOY_TYPE == 'test':
             'NAME': 'wei',
             'USER': DEV_DB_USER,
             'PASSWORD': DEV_DB_PWD,
-            'HOST': "192.168.1.101",   # Or an IP Address that your DB is hosted on
+            'HOST': DEV_DB_HOST,   # Or an IP Address that your DB is hosted on
             'PORT': DEV_DB_PORT,
         }
     }    

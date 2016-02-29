@@ -62,12 +62,19 @@
 			<a data-toggle="modal" data-target="#new_vendor_item">
 				<i class='fa fa-pencil'></i>
 				Add vendor
-			</a>	
+			</a>
 		{% endif %}
 
 		<h1 style="font-weight:bold;font-size:40px;">{{ object.name|upper }}</h1>
 		<p><span class="item-label">CODE:</span>{{ object.code }}</p>
-		<p class="item-style">{{object.currency}} {{ object.price|floatformat:0 }}</p>
+		
+		{# Price #}
+		<p class="item-style">
+			{{object.currency}} {{ object.price|floatformat:0 }}
+			{% if user.is_superuser %}
+				<span class="pull-right">x {{ object.multiplier|floatformat:2 }}</span>
+			{% endif %}
+		</p>
 		
 		{# Available colors #}
 		<span class="item-label">COLOR:</span><span class="item-value">{{ object.color }}</span>
@@ -124,6 +131,19 @@
 			{% endfor %}
 			</ul>
 		</div>
+
+		{# Vendor item info #}
+		{% if user.is_superuser and vendor_items %}
+		<div>
+			<h4 class="page-header">Available From</h4>
+
+			{% for vendor_item in vendor_items %}
+				<p><span class="item-label">{{ vendor_item.vendor }} </span>:
+					{{vendor_item.currency }} {{ vendor_item.price|floatformat:2 }}
+				</p>
+			{% endfor %}
+		</div>		
+		{% endif %}
 	</div>
 </div>	
 
@@ -293,7 +313,6 @@ Related Sales Orders
 </form>
 </div>
 </div>
-
 {% endblock %}
 
 {% block custom_js %}

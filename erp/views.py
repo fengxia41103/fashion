@@ -328,6 +328,7 @@ class MyItemDetail(DetailView):
 		context['related_sales_orders'] = MySalesOrder.objects.filter(id__in=related_sales_order_ids)
 
 		# vendor item form
+		context['vendor_items'] = MyVendorItem.objects.filter(product=self.object)
 		context['vendor_item_form'] = VendorItemAddForm(
 			initial={
 				'vendor': self.object.brand,
@@ -335,7 +336,7 @@ class MyItemDetail(DetailView):
 				'product': self.object,
 				'minimal_qty': 1
 			}
-		)
+		)			
 		return context
 
 class MyItemListByVendor(TemplateView):

@@ -21,16 +21,25 @@ You are about to delete this record. Are you sure?
 	<div class="form-actions">
 		<div class="pull-left"></div>
 		<div class="pull-right">
-			<a href="{{ cancel_redirect_url }}">
-				<button class="btn btn-small btn-default">
+			<a href="{{ cancel_redirect_url }}" class="btn btn-small btn-default">
 				<i class="fa fa-hand-o-left"></i>
 				Back
-				</button>
 			</a>
 			<input class="btn btn-small btn-primary btn-danger" type="submit" value="Delete" />
 
 		</div>		
 	</div>
 </form>
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+var j$ = jQuery.noConflict();
+j$(document).ready(function(){
+	j$('#btn-back').click(function(){
+		return false;
+	});
+});
+</script>
 {% endblock %}
 

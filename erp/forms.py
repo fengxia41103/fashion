@@ -60,6 +60,7 @@ class SalesOrderPaymentAddForm(ModelForm):
 		widgets = {'so': HiddenInput()}
 
 class VendorItemAddForm(ModelForm):
+	price = forms.FloatField(min_value = 1, initial=1.0)
 	class Meta:
 		model = MyVendorItem
 		fields = ['product','vendor','price','currency','order_deadline','delivery_date','minimal_qty']	

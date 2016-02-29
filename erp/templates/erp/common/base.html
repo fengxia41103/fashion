@@ -75,7 +75,10 @@
 	{# visjs #}
 	<link rel="stylesheet" type="text/css" href="{% static 'visjs/vis.min.css' %}">
 
-	<!-- JQuery lib -->
+    {# google fonts #}
+	<link href='http://fonts.googleapis.com/css?family=Abril+Fatface' rel='stylesheet' type='text/css'>	 
+
+	{# JQuery lib #}
 	<script type="text/javascript" src="{% static 'jquery/jquery-2.1.3.min.js' %}"></script>
 {% endblock %}
 
@@ -189,7 +192,12 @@
 								Search product
 							</a>						
 						</li>										
-
+						<li>					
+							<a href="{% url 'vendor_item_list' %}">
+								<i class="fa fa-pencil"></i>
+								Search vendor products
+							</a>						
+						</li>
 						<li class="divider"></li>
 						<li>
 							<a href="{% url 'item_add' %}">
@@ -392,10 +400,13 @@
      <script type="text/javascript"   
     	src="{% static 'stickyheader/jquery.stickytableheaders.min.js' %}">
     </script>
-
-    {# google fonts #}
-<link href='http://fonts.googleapis.com/css?family=Abril+Fatface' rel='stylesheet' type='text/css'>	 
     
+    {# jquery validate #}
+     <script type="text/javascript"   
+    	src="{% static 'validator/jquery.validate.min.js' %}">
+    </script>
+    
+
 	<script type="text/javascript">
 		var j$ = jQuery.noConflict();
 
@@ -473,6 +484,9 @@
 			j$('.dropdown-menu').find('form').click(function (e) {
 				e.stopPropagation();
 			});
+
+			// form validate
+			j$('form').validate();
 
 			// datepicker
 		    j$('.dateinput').datepicker({ 

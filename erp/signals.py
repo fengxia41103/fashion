@@ -8,12 +8,27 @@ def mysizechart_pre_save_hanelder(sender, instance, **kwargs):
 
 @receiver(post_save, sender=MyItem)
 def myitem_post_save_handler(sender, instance, created, **kwargs):
-	# Create MyVendorItem
-	vendor_item,created = MyVendorItem.objects.get_or_create(
-		vendor = instance.brand,
-		currency = instance.brand.currency,
-		product = instance
-	)
+	'''
+	Create MyItemInventory upon creation of MyItem
+	'''
+	# Location and Storage
+	location = MyLocation.objects.filter(crm = instance.brand)			
+	if len(location): location = location[0]
+	else: 
+		# Get location
+		location = MyLocation(crm=instance.brand)
+		location.save()
+
+	# Create a storage
+	storage, created = MyStorage.objects.get_or_create(location=location,is_primary=True)
+	
+	# Create MyItemInventory			
+	for size in instance.size_chart.size.split(','):
+		MyItemInventory(
+			item = instance,
+			size = size,
+			storage = storage
+		).save()	
 
 @receiver(pre_save, sender=MyItem)
 def myitem_pre_save_handler(sender, instance, **kwargs):
@@ -39,7 +54,10 @@ def myitem_pre_save_handler(sender, instance, **kwargs):
 				if len(location): location = location[0]
 				else: 
 					# Get location
-					location = MyLocation(crm=instance.brand)
+					location = MyLocation(
+						name = instance.brand.name,
+						crm = instance.brand
+					)
 					location.save()
 
 				# Create a storage

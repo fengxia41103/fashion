@@ -232,7 +232,6 @@ class MyCompany(MyBaseModel):
 class MyLocation (models.Model):
 	crm = models.ForeignKey('MyCRM')	
 	name = models.CharField(
-		default = None,
 		max_length = 32,
 		verbose_name = u'名称'
 	)	
@@ -335,10 +334,14 @@ class MyVendorItem(models.Model):
 		null = True,
 		blank = True
 	)
-	price = models.FloatField(default = 0)
+	price = models.FloatField(
+		default = 0,
+		validators=[MinValueValidator(0.0),]
+	)
 	msrp = models.FloatField(
 		null = True,
 		blank = True,
+		validators=[MinValueValidator(0.0),],		
 		verbose_name = u'MSRP'
 	)
 	currency = models.ForeignKey('MyCurrency')
@@ -360,7 +363,12 @@ class MyVendorItem(models.Model):
 	)
 
 	# Minimal qty per line item
-	minimal_qty = models.IntegerField(default = 1)	
+	minimal_qty = models.IntegerField(default = 1)
+
+	def _discount(self):
+		if self.msrp: return (self.msrp-self.price)/self.msrp
+		else: return ''
+	discount = property(_discount)
 
 class MySeason(models.Model):
 	name = models.CharField(

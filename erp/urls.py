@@ -79,6 +79,9 @@ urlpatterns = patterns(
 		url(r'^so/payment/add/$', views.MySalesOrderPaymentAdd.as_view(), name='so_payment_add'),
 
 		# VendorItem
+		url(r'^vendor/items/$', views.MyVendorItemList.as_view(), name='vendor_item_list'),	
 		url(r'^vendor/item/add/$', views.MyVendorItemAdd.as_view(), name='vendor_item_add'),
+		url(r'^vendor/item/edit/(?P<pk>\d+)/$', views.MyVendorItemEdit.as_view(), name='vendor_item_edit'),
+		url(r'^vendor/item/delete/(?P<pk>\d+)/$', views.MyVendorItemDelete.as_view(), name='vendor_item_delete'),
 
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

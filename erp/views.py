@@ -977,7 +977,6 @@ class MySalesOrderReturnDelete(DeleteView):
 class MyVendorItemAdd(FormView):
 	form_class = VendorItemAddForm
 	vendor_item = None
-
 	def form_valid(self, form):
 		messages.info(
             self.request,
@@ -989,4 +988,55 @@ class MyVendorItemAdd(FormView):
 		return super(FormView, self).form_valid(form)
 
 	def get_success_url(self):
-		return reverse_lazy('item_detail', kwargs={'pk':self.vendor_item.product.pk})		
+		return reverse_lazy('item_detail', kwargs={'pk':self.vendor_item.product.pk})
+
+class MyVendorItemDelete(DeleteView):
+	model = MyVendorItem
+	template_name = 'erp/common/delete_form.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(DeleteView, self).get_context_data(**kwargs)
+		context['title'] = u'Delete vendor item'
+		context['list_url'] = reverse_lazy('vendor_item_list')
+		context['cancel_redirect_url'] = self.get_success_url()
+		return context	
+
+	def get_success_url(self):
+		return reverse_lazy('item_detail', kwargs={'pk':self.object.product.pk})
+
+class MyVendorItemListFilter (FilterSet):
+	class Meta:
+		model = MyVendorItem
+		fields = {
+			'sku':['contains'],
+			'vendor':['exact'],
+			'order_deadline':['lte'],
+			'delivery_date':['lte'],
+		}
+
+class MyVendorItemList (FilterView):
+	template_name = 'erp/item/vendor_item_list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MyVendorItemListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'vendor': context['filters']['vendor'] = MyCRM.objects.get(id=int(val))
+				if f == 'currency': context['filters']['currency'] = MyCurrency.objects.get(id=int(val))
+				if f == 'product': context['filters']['item'] = MyItem.objects.get(id=int(val))
+
+		return context
+
+class MyVendorItemEdit(UpdateView):
+	model = MyVendorItem
+	template_name = 'erp/common/edit_form.html'
+	class Meta:
+		exclude = ('product','vendor','currency')

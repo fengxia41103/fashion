@@ -138,8 +138,11 @@
 			<h4 class="page-header">Available From</h4>
 
 			{% for vendor_item in vendor_items %}
-				<p><span class="item-label">{{ vendor_item.vendor }} </span>:
+				<p class="flabel"><span class="item-label">{{ vendor_item.vendor }} </span>:
 					{{vendor_item.currency }} {{ vendor_item.price|floatformat:2 }}
+					<a href="{% url 'vendor_item_delete' vendor_item.id %}">
+						<i class="glyphicon glyphicon-remove my-filter-value-close"></i>
+					</a>
 				</p>
 			{% endfor %}
 		</div>		

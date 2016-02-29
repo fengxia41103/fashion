@@ -97,8 +97,9 @@ class HomeView (TemplateView):
 ###################################################
 class LoginView(FormView):
 	template_name = 'registration/login.html'
-	success_url = reverse_lazy('item_list')
+	success_url = reverse_lazy('season_list')
 	form_class = AuthenticationForm
+
 	def form_valid(self,form):
 		username = form.cleaned_data['username']
 		password = form.cleaned_data['password']
@@ -180,7 +181,7 @@ def crm_attachment_add_view(request, pk):
 		t.name = '%s%s'%(MyUtility().legal_characters(15),ext)
 		
 		# description will be item.name by default
-		if not t.description: t.description = item.name
+		if not t.description: t.description = crm.name
 
 		t.content_object = crm
 		t.created_by = request.user
@@ -234,6 +235,8 @@ class MyItemAdd(CreateView):
 
 	def form_valid(self, form):
 		form.instance.created_by = self.request.user
+
+		# force item price in RMB
 		currency,created = MyCurrency.objects.get_or_create(abbrev='RMB')
 		form.instance.currency = currency
 		return super(CreateView, self).form_valid(form)
@@ -243,6 +246,9 @@ class MyItemAdd(CreateView):
 		context['title'] = u'New item'
 		context['list_url'] = self.success_url
 		return context
+
+	def get_success_url(self):
+		return reverse_lazy('item_detail', kwargs={'pk':self.object.pk})
 
 @class_view_decorator(login_required)
 class MyItemEdit (UpdateView):
@@ -272,7 +278,7 @@ class MyItemDelete (DeleteView):
 		return context		
 
 class MyItemListFilter (FilterSet):
-	brand = ModelChoiceFilter(queryset=MyCRM.objects.filter(crm_type='V').order_by('name'))
+	brand = ModelChoiceFilter(queryset=MyCRM.objects.vendors().order_by('name'))
 	season = ModelChoiceFilter(queryset=MySeason.objects.all().order_by('name'))
 
 	class Meta:
@@ -320,6 +326,16 @@ class MyItemDetail(DetailView):
 		item_invs = MyItemInventory.objects.filter(item=self.object)
 		related_sales_order_ids = set(MySalesOrderLineItem.objects.filter(item__in=item_invs).values_list('order',flat=True))
 		context['related_sales_orders'] = MySalesOrder.objects.filter(id__in=related_sales_order_ids)
+
+		# vendor item form
+		context['vendor_item_form'] = VendorItemAddForm(
+			initial={
+				'vendor': self.object.brand,
+				'currency': self.object.brand.currency,
+				'product': self.object,
+				'minimal_qty': 1
+			}
+		)
 		return context
 
 class MyItemListByVendor(TemplateView):
@@ -355,7 +371,7 @@ class MyVendorAdd(CreateView):
 	model = MyCRM
 	template_name = 'erp/common/add_form.html'
 	success_url = reverse_lazy('vendor_list')
-	fields = ['contact','phone','currency','std_discount']
+	fields = ['name','description','contact','phone','currency']
 
 	def form_valid(self, form):
 		form.instance.crm_type = 'V'
@@ -408,7 +424,7 @@ class MyCustomerAdd(CreateView):
 	model = MyCRM
 	template_name = 'erp/common/add_form.html'
 	success_url = reverse_lazy('customer_list')
-	fields = ['contact','phone','currency','std_discount']
+	fields = ['name','description','contact','phone','currency','std_discount']
 
 	def form_valid(self, form):
 		form.instance.crm_type = 'C'
@@ -495,7 +511,7 @@ class MyItemInventoryAdd(FormView):
 	def form_valid(self, form):
 		messages.info(
             self.request,
-            "You have successfully changed your email notifications"
+            "Items have been added to inventory"
         )		
 
 		# Call utility function to parse
@@ -621,7 +637,7 @@ class MySalesOrderAdd(FormView):
 	def form_valid(self, form):
 		messages.info(
             self.request,
-            "You have successfully changed your email notifications"
+            "Your sales order has been created."
         )		
 
 		# Create sales order
@@ -890,8 +906,6 @@ class MySalesOrderReturnAdd(DetailView):
 		'''
 		Post to this API will create a sales order fullfillment.
 		'''
-		print self.request.POST
-
 		items = {}
 		for line_id,val in self.request.POST.iteritems():
 			if 'line-item' in line_id and int(val):
@@ -952,3 +966,26 @@ class MySalesOrderReturnDelete(DeleteView):
 
 	def get_success_url(self):
 		return reverse_lazy('so_detail',kwargs={'pk':self.object.so.id})
+
+###################################################
+#
+#	MyVendorItem views
+#
+###################################################
+
+class MyVendorItemAdd(FormView):
+	form_class = VendorItemAddForm
+	vendor_item = None
+
+	def form_valid(self, form):
+		messages.info(
+            self.request,
+            "Your vendor item has been created."
+        )		
+
+		# Create sales order
+		self.vendor_item = form.save()
+		return super(FormView, self).form_valid(form)
+
+	def get_success_url(self):
+		return reverse_lazy('item_detail', kwargs={'pk':self.vendor_item.product.pk})		

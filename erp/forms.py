@@ -29,7 +29,7 @@ class ItemInventoryAddForm(ItemInventoryAdjustForm):
 	reason = forms.ChoiceField(choices = REASON_CHOICES)
 
 class SalesOrderBaseForm(ModelForm):
-	customer = forms.ModelChoiceField(queryset=MyCRM.objects.filter(Q(crm_type='C')|Q(crm_type='B')))
+	customer = forms.ModelChoiceField(queryset=MyCRM.objects.customers())
 	class Meta:
 		model = MySalesOrder
 		fields = ('customer','sales','business_model','discount','default_storage')
@@ -48,17 +48,24 @@ class SalesOrderAddForm(SalesOrderBaseForm):
 		fields = SalesOrderBaseForm.Meta.fields + ('items',)
 
 class SalesOrderEditForm(ModelForm):
-	customer = forms.ModelChoiceField(queryset=MyCRM.objects.filter(Q(crm_type='C')|Q(crm_type='B')))
+	customer = forms.ModelChoiceField(queryset=MyCRM.objects.customers())
 	discount = forms.FloatField(max_value=1.0,min_value=0.0)
 	class Meta:
 		model = MySalesOrder
-
-class VendorItemForm(ModelForm):
-	class Meta:
-		model = MyVendorItem
 
 class SalesOrderPaymentAddForm(ModelForm):
 	class Meta:
 		model = MySalesOrderPayment
 		fields = ['so','usage','payment_method','amount']		
 		widgets = {'so': HiddenInput()}
+
+class VendorItemAddForm(ModelForm):
+	class Meta:
+		model = MyVendorItem
+		fields = ['product','vendor','price','currency','order_deadline','delivery_date','minimal_qty']	
+		widgets = {
+			'product': HiddenInput(),
+			'vendor': HiddenInput(), 
+			'currency': HiddenInput()
+		}
+		

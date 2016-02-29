@@ -77,4 +77,8 @@ urlpatterns = patterns(
 		# Sales order payment
 		url(r'^so/payments/$', views.MySalesOrderPaymentList.as_view(), name='so_payment_list'),						
 		url(r'^so/payment/add/$', views.MySalesOrderPaymentAdd.as_view(), name='so_payment_add'),
+
+		# VendorItem
+		url(r'^vendor/item/add/$', views.MyVendorItemAdd.as_view(), name='vendor_item_add'),
+
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

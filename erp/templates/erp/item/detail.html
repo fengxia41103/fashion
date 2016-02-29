@@ -57,6 +57,12 @@
 				<i class="fa fa-pencil"></i>
 				Edit
 			</a>
+
+			{# Create vendor item #}
+			<a data-toggle="modal" data-target="#new_vendor_item">
+				<i class='fa fa-pencil'></i>
+				Add vendor
+			</a>	
 		{% endif %}
 
 		<h1 style="font-weight:bold;font-size:40px;">{{ object.name|upper }}</h1>
@@ -117,7 +123,7 @@
 				</li>
 			{% endfor %}
 			</ul>
-		</div>		
+		</div>
 	</div>
 </div>	
 
@@ -155,7 +161,7 @@ Related Sales Orders
 {% endblock %}
 
 {% block modal %}
-<!-- Modal -->
+{# Upload item image #}
 <div id="upload-form" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -189,7 +195,7 @@ Related Sales Orders
   </div>
 </div>
 
-<!-- Modal -->
+{# Select order to add this item #}
 <div id="select-cart" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->
@@ -256,6 +262,38 @@ Related Sales Orders
     </div>
   </div>
 </div>
+
+{# Add vendor item modal #}
+<div id="new_vendor_item" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'vendor_item_add' %}" method="POST">
+    <!-- Modal content-->
+    <div class="modal-content">
+		{# Modal header #}
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Add sourcing information</h4>
+		</div>
+
+	    {# Modal body #}
+	    <div class="modal-body">		
+			{% csrf_token %}
+			{{ vendor_item_form|crispy }}
+		</div>
+
+	      {# Modal footer #}
+		<div class="modal-footer">
+			<button class="btn btn-primary"  type="submit">
+				<i class="fa fa-save"></i>
+				<span>Create</span>
+			</button>      
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		</div>
+	</div>
+</form>
+</div>
+</div>
+
 {% endblock %}
 
 {% block custom_js %}

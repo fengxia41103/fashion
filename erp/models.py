@@ -332,8 +332,15 @@ class MyVendorItem(models.Model):
 	sku = models.CharField(
 		max_length = 32,
 		default = '',
+		null = True,
+		blank = True
 	)
 	price = models.FloatField(default = 0)
+	msrp = models.FloatField(
+		null = True,
+		blank = True,
+		verbose_name = u'MSRP'
+	)
 	currency = models.ForeignKey('MyCurrency')
 	product = models.ForeignKey('MyItem')
 
@@ -412,7 +419,10 @@ class MyItem(MyBaseModel):
 	available_left_in_days = property(_available_left_in_days)
 
 	def _converted_cost(self):
-		vendor_item = MyVendorItem.objects.filter(product=self,vendor=self.brand)[0]
+		vendor_item = MyVendorItem.objects.filter(product=self,vendor=self.brand)
+		if len(vendor_item): vendor_item = vendor_item[0]
+		else: return 0
+
 		exchange_rate = None
 		converted_cost = 0
 		try:

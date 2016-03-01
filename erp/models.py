@@ -355,13 +355,6 @@ class MyVendorItem(models.Model):
 		blank = True,
 	)
 
-	# Default delivery date. This is a promise that vendor give
-	# regarding this item. However, it can change per order basis.
-	delivery_date = models.DateField(
-		null = True,
-		blank = True
-	)
-
 	# Minimal qty per line item
 	minimal_qty = models.IntegerField(default = 1)
 

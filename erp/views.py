@@ -605,7 +605,8 @@ def add_item_to_sales_order(quick_notion,so):
 			item_inv, created = MyItemInventory.objects.get_or_create(
 				item = item,
 				size = size.upper(),
-				storage = so.default_storage
+				storage = so.default_storage,
+				item_type = 'New' # we are filling ORDER using New items
 			)
 
 			# Create SO line item
@@ -932,26 +933,13 @@ class MySalesOrderReturnAdd(DetailView):
 
 			# Add return items to MySalesOrderReturn
 			for so_line_item_id,data in items.iteritems():
-				return_line_item = MySalesOrderReturnLineItem(
+				MySalesOrderReturnLineItem(
 					so_return = so_return,
 					so_line_item = data['item'],
 					return_qty = data['qty'],
 					reason = data['reason']
-				)
-				return_line_item.save()
-
-
-				# Create audition trail. This will add these returned item
-				# back into local inventory.
-				if data['reason'].is_refundable:
-					MyItemInventoryMoveAudit(
-						created_by = self.request.user,
-						inv = data['item'].item,
-						out = False, # we are putting items back into inventory
-						qty = data['qty'],
-						content_object = return_line_item, # save RETURN_LINE_ITEM reference
-						reason = data['reason'].name
-					).save()				
+				).save()
+			
 		return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))
 
 class MySalesOrderReturnDetail(DetailView):
@@ -979,16 +967,6 @@ class MySalesOrderReturnEdit(UpdateView):
 				line_item = MySalesOrderReturnLineItem.objects.get(id=int(line_id.split('-')[-1]))
 				line_item.return_qty = int(val)
 				line_item.save()
-
-				# Update associated InventoryAudit
-				inv_audit = MyItemInventoryMoveAudit.objects.filter(
-					object_id=line_item.id,
-					content_type = ContentType.objects.get_for_model(line_item)
-				)
-				if len(inv_audit): 
-					inv_audit = inv_audit[0]
-					inv_audit.qty = int(val)
-					inv_audit.save()
 
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])	
 

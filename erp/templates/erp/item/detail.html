@@ -92,9 +92,13 @@
 			
 			<ul class="list-inline" id="size-chart">
 				{% for item_inv in object.myiteminventory_set.all %}
-				<li data-object="{{ item_inv.id }}"><span class="item-size">
-					{{ item_inv.size }}
-				</span></li>
+					{% if item_inv.is_active %}
+						<li data-object="{{ item_inv.id }}">
+							<span class="item-size text-center" data-toggle="tooltip" title="{{ item_inv.theoretical }} in stock" disabled="disabled">
+								{{ item_inv.size }}
+							</span>
+						</li>
+					{% endif %}
 				{% endfor %}
 			</ul>
 		</div>
@@ -122,7 +126,6 @@
 		{# Related colors, same style #}
 		<div>
 			<h4 class="page-header">Available In Colors</h4>
-
 			<ul class="list-inline">
 			{% for style in same_styles %}
 				<li>
@@ -136,13 +139,10 @@
 				</li>
 			{% endfor %}
 			</ul>
-		</div>
 
-		{# Vendor item info #}
-		{% if user.is_superuser and vendor_items %}
-		<div>
+			{# Vendor item info #}
+			{% if user.is_superuser and vendor_items %}
 			<h4 class="page-header">Available From</h4>
-
 			{% for vendor_item in vendor_items %}
 				<p class="flabel"><span class="item-label">{{ vendor_item.vendor }} </span>:
 					{{vendor_item.currency }} {{ vendor_item.price|floatformat:2 }}
@@ -151,12 +151,14 @@
 					</a>
 				</p>
 			{% endfor %}
-		</div>		
-		{% endif %}
+			{% endif %}			
+		</div>
 	</div>
 </div>	
 
+
 {# Related Order Section #}
+<div class="row">
 <h2 class="page-header">
 <i class="fa fa-book"></i>
 Related Sales Orders
@@ -187,6 +189,7 @@ Related Sales Orders
 	{% endfor %}
 	</tbody>
 </table>
+</div>
 {% endblock %}
 
 {% block modal %}

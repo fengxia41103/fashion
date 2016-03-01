@@ -18,7 +18,22 @@ from django.core.mail import send_mail
 from django.core.validators import MaxValueValidator, MinValueValidator
 from localflavor.us.forms import USPhoneNumberField
 
-
+######################################################
+#
+#	Global variables
+#
+#####################################################
+ITEM_TYPE_CHOICES = (
+	('New','New'),
+	('Refurbished','Reburshied'),
+	('Defect','Defect'),
+	('Sample','Sample')
+)
+######################################################
+#
+#	Abstract models
+#
+#####################################################	
 class MyBaseModel (models.Model):
 	# fields
 	hash = models.CharField (
@@ -483,6 +498,16 @@ class MyItemInventory(models.Model):
 		validators=[MinValueValidator(0),]
 	)
 
+	# This allows us to deactivate individual size
+	is_active = models.BooleanField(default=True)
+
+	# Item type
+	item_type = models.CharField(
+		max_length = 16,
+		default = 'New',
+		choices = ITEM_TYPE_CHOICES
+	)
+	
 	def _theoretical(self):
 		inv = 0
 		for audit in MyItemInventoryMoveAudit.objects.filter(inv = self):
@@ -494,6 +519,11 @@ class MyItemInventory(models.Model):
 	def _code(self):
 		return 'INV-%06d'%self.id
 	code = property(_code)
+
+	def _is_resellable(self):
+		if self.item_type in ['New','Refurbished']: return True
+		else: return False
+	is_resellable = property(_is_resellable)
 
 class MyItemInventoryMoveAudit(models.Model):
 	created_on = models.DateField(auto_now_add = True)
@@ -795,6 +825,11 @@ class MySalesOrderFullfillmentLineItem(models.Model):
 
 class MyReturnReason(MyBaseModel):
 	is_refundable = models.BooleanField(default=True)
+	result_type = models.CharField(
+		max_length = 16,
+		default = 'Refurbished',
+		choices = ITEM_TYPE_CHOICES
+	)
 
 	def __unicode__(self):
 		if self.is_refundable: return '* %s' % (self.description)

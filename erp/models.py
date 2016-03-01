@@ -418,7 +418,7 @@ class MyItem(MyBaseModel):
 	code = property(_code)
 
 	def _product_id(self):
-		return '#%06d' % self.id
+		return '%06d' % self.id
 	product_id = property(_product_id)
 
 	def _available_left_in_days():

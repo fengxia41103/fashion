@@ -4,13 +4,19 @@
 {% load static %}
 {% block page-header %}
 <ol class="breadcrumb">
-  <li><a href="{% url 'season_list' %}" 
+  	<li><a href="{% url 'season_list' %}" 
 		<i class="fa fa-list-ul"></i>
 		ALL
 	</a></li>
-  <li><a href="{% url 'season_detail' object.season.id %}">{{ object.season }}</a></li>
-  <li><a href="{%url 'item_list_by_vendor' object.season.id object.brand.id %}">{{ object.brand }}</a></li>
-  <li class="active">{{ object.product_id }}</li>
+  	<li><a href="{% url 'season_detail' object.season.id %}">{{ object.season }}</a></li>
+  	<li>
+  		<a href="{%url 'item_list_by_vendor' object.season.id object.brand.id %}">
+  		{{ object.brand }}</a>
+  	</li>
+  	<li class="active">{{ object.product_id }}
+	  	{# barcode #}
+		<img class="text-right" id="barcode">
+	</li>
 </ol>	
 {% endblock %}
 
@@ -385,6 +391,14 @@ j$(document).ready(function(){
 			j$('#select-cart').modal('hide');
         });		
 	})
+
+	console.log("{{ object.product_id }}");
+
+	// barcode, https://github.com/lindell/JsBarcode
+	j$("#barcode").JsBarcode(
+		"{{ object.product_id }}",
+		{format:"CODE39", displayValue:false, fontSize:16}
+	);
 });
 </script>
 {% endblock %}

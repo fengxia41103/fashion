@@ -73,7 +73,7 @@
 		<th>COLOR</th>
 		<th>PRICE</th>		
 		<th>SIZE</th>
-		<th>FULLFILLED QTY</th>
+		<th>Max QTY</th>
 		<th>RETURNING QTY</th>
 	</thead>
 
@@ -97,9 +97,9 @@
 			</td><td>
 				{{ inv_item.size }}
 			</td><td>
-				{{ so_line_item.fullfill_qty }}
+				{{ so_return.max_qty }}
 			</td><td class="editt">
-				<input type="number" value="{{ so_return.return_qty }}" name="line-item-{{so_return.id}}" id="{{so_return.id}}" min="0" max="{{ so_line_item.fullfill_qty }}" data-toggle="qty" style="width:100px;"/>			
+				<input type="number" value="{{ so_return.return_qty }}" name="line-item-{{so_return.id}}" id="{{so_return.id}}" min="0" max="{{so_return.max_qty}}" data-toggle="qty" style="width:100px;"/>			
 				<div class="btn-group" role="group" aria-label="">
 					<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
 						<i class="fa fa-minus"></i>

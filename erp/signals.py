@@ -106,3 +106,6 @@ def mysalesorderlineitem_post_save_handler(sender,instance,**kwargs):
 	if instance.reason.is_refundable:
 		instance.credit = instance.so_line_item.price*instance.return_qty
 
+
+
+

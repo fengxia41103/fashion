@@ -18,6 +18,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count,Max,Min,Avg
+from django.contrib.contenttypes.models import ContentType
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -931,12 +932,26 @@ class MySalesOrderReturnAdd(DetailView):
 
 			# Add return items to MySalesOrderReturn
 			for so_line_item_id,data in items.iteritems():
-				MySalesOrderReturnLineItem(
+				return_line_item = MySalesOrderReturnLineItem(
 					so_return = so_return,
 					so_line_item = data['item'],
 					return_qty = data['qty'],
 					reason = data['reason']
-				).save()
+				)
+				return_line_item.save()
+
+
+				# Create audition trail. This will add these returned item
+				# back into local inventory.
+				if data['reason'].is_refundable:
+					MyItemInventoryMoveAudit(
+						created_by = self.request.user,
+						inv = data['item'].item,
+						out = False, # we are putting items back into inventory
+						qty = data['qty'],
+						content_object = return_line_item, # save RETURN_LINE_ITEM reference
+						reason = data['reason'].name
+					).save()				
 		return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))
 
 class MySalesOrderReturnDetail(DetailView):
@@ -958,7 +973,23 @@ class MySalesOrderReturnEdit(UpdateView):
 	model = MySalesOrderReturn
 
 	def post(self,request,pk):
-		items = []
+		items = {}
+		for line_id,val in self.request.POST.iteritems():
+			if 'line-item' in line_id and int(val):
+				line_item = MySalesOrderReturnLineItem.objects.get(id=int(line_id.split('-')[-1]))
+				line_item.return_qty = int(val)
+				line_item.save()
+
+				# Update associated InventoryAudit
+				inv_audit = MyItemInventoryMoveAudit.objects.filter(
+					object_id=line_item.id,
+					content_type = ContentType.objects.get_for_model(line_item)
+				)
+				if len(inv_audit): 
+					inv_audit = inv_audit[0]
+					inv_audit.qty = int(val)
+					inv_audit.save()
+
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])	
 
 class MySalesOrderReturnDelete(DeleteView):
@@ -1010,8 +1041,7 @@ class MyVendorItemListFilter (FilterSet):
 		fields = {
 			'sku':['contains'],
 			'vendor':['exact'],
-			'order_deadline':['lte'],
-			'delivery_date':['lte'],
+			'order_deadline':['lte']
 		}
 
 class MyVendorItemList (FilterView):

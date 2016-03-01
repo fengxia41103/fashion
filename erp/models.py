@@ -515,12 +515,13 @@ class MyItemInventoryMoveAudit(models.Model):
 	out = models.BooleanField(default = False)
 	qty = models.IntegerField(default = 0)
 
-	# Linked PO or SO
-	so = models.ForeignKey(
-		'MySalesOrderFullfillment',
-		null = True,
-		blank = True,
-	)
+	# Link to actions tat caused inventory change
+	# generic foreign key to base model
+	# so we can link attachment to any model defined below
+	content_type = models.ForeignKey(ContentType)
+	object_id = models.PositiveIntegerField()
+	content_object = GenericForeignKey('content_type', 'object_id')
+
 	reason = models.TextField(default='')
 
 class MyBusinessModel(MyBaseModel):
@@ -795,6 +796,10 @@ class MySalesOrderFullfillmentLineItem(models.Model):
 class MyReturnReason(MyBaseModel):
 	is_refundable = models.BooleanField(default=True)
 
+	def __unicode__(self):
+		if self.is_refundable: return '* %s' % (self.description)
+		else: return self.description
+
 class MySalesOrderReturn(models.Model):
 	so = models.ForeignKey('MySalesOrder')
 	created_on = models.DateField(auto_now_add = True)
@@ -835,6 +840,10 @@ class MySalesOrderReturnLineItem(models.Model):
 	)
 	reason = models.ForeignKey('MyReturnReason')
 	credit = models.FloatField(default = 0)
+
+	def _max_qty(self):
+		return self.so_line_item.fullfill_qty+self.return_qty
+	max_qty = property(_max_qty)
 
 class MySalesOrderPayment(models.Model):
 	PAYMENT_METHOD_CHOICES = (

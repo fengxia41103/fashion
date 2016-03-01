@@ -27,8 +27,8 @@ class MyItemAdmin(admin.ModelAdmin):
 admin.site.register(MyItem,MyItemAdmin)
 
 class MyVendorItemAdmin(admin.ModelAdmin):
-	list_filter=['vendor','currency','order_deadline','delivery_date']
-	list_display=('vendor','product','price','order_deadline','delivery_date','minimal_qty')
+	list_filter=['vendor','currency','order_deadline']
+	list_display=('vendor','product','price','order_deadline','minimal_qty')
 admin.site.register(MyVendorItem,MyVendorItemAdmin)
 
 admin.site.register(MyUOM)

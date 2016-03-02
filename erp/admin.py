@@ -31,6 +31,10 @@ class MyVendorItemAdmin(admin.ModelAdmin):
 	list_display=('vendor','product','price','order_deadline','minimal_qty')
 admin.site.register(MyVendorItem,MyVendorItemAdmin)
 
+class MyReturnReasonAdmin(admin.ModelAdmin):
+	list_display = ('category','name','description','result_type','code')
+admin.site.register(MyReturnReason,MyReturnReasonAdmin)
+
 admin.site.register(MyUOM)
 admin.site.register(MyFiscalYear)
 admin.site.register(MyStorage)
@@ -46,4 +50,3 @@ admin.site.register(MySalesOrderFullfillment)
 admin.site.register(MySalesOrderFullfillmentLineItem)
 admin.site.register(MySizeChart)
 admin.site.register(MyBusinessModel)
-admin.site.register(MyReturnReason)

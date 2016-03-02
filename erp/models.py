@@ -824,11 +824,27 @@ class MySalesOrderFullfillmentLineItem(models.Model):
 	max_qty = property(_max_qty)
 
 class MyReturnReason(MyBaseModel):
+	CATEGORY_CHOICES = (
+		('Small','Sizing too small'),
+		('Large','Sizing too large'),
+		('Quality','Quality/Satisfaction'),
+		('Color','Color'),
+		('Service','Service'),
+	)
 	is_refundable = models.BooleanField(default=True)
 	result_type = models.CharField(
 		max_length = 16,
 		default = 'Refurbished',
 		choices = ITEM_TYPE_CHOICES
+	)
+	category = models.CharField(
+		max_length = 16,
+		choices = CATEGORY_CHOICES
+	)
+	code = models.CharField(
+		max_length = 8,
+		default = '',
+		unique = True
 	)
 
 	def __unicode__(self):

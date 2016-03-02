@@ -107,41 +107,27 @@ def MySalesOrderReturnLineItem_pre_save_handler(sender,instance,**kwargs):
 	if instance.reason.is_refundable:
 		instance.credit = instance.so_line_item.price*instance.return_qty
 
-@receiver(post_save, sender=MySalesOrderReturnLineItem)
-def MySalesOrderReturnLineItem_post_save_handler(sender, instance, **kwargs):
-	# Create inventory item based on new item type
-	old_inv_item = instance.so_line_item.item
-	inv_item, created = MyItemInventory.objects.get_or_create(
-		item = old_inv_item.item,
-		size = old_inv_item.size,
-		storage = old_inv_item.storage,
-		withdrawable = old_inv_item.withdrawable,
-		physical = 0,
-		is_active = True,
-		item_type = instance.reason.result_type
-	)
-
-	# Create inventory trail. This will add these returned item
-	# back into local inventory.
-	existing = MyItemInventoryMoveAudit.objects.filter(
-		object_id = instance.id,
-		content_type = ContentType.objects.get_for_model(instance)
-	)
-	if len(existing): # if we are editing a RETURN record
-		inv_audit = existing[0]
-		inv_audit.qty = instance.return_qty
-		inv_audit.save()
-	else: # if we are creating a new RETURN record
-		MyItemInventoryMoveAudit(
-			created_by = instance.so_return.created_by,
-			inv = inv_item, # item_inventory object
-			out = False, # we are putting items back into inventory
-			qty = instance.return_qty,
-			# object_id = instance.id, # save RETURN_LINE_ITEM reference
-			# content_type = ContentType.objects.get_for_model(instance),
-			content_object = instance,
-			reason = 'Sales order RETURN: %s' % instance.reason.description
-		).save()	
-
-
-
+@receiver(post_save, sender=MySalesOrderReturn)
+def MySalesOrderReturn_post_save_handler(sender, instance, **kwargs):
+	if instance.reviewed_on:
+		for return_line_item in MySalesOrderReturnLineItem.objects.filter(so_return=instance):
+			old_inv_item = return_line_item.so_line_item.item
+			inv_item, created = MyItemInventory.objects.get_or_create(
+				item = old_inv_item.item,
+				size = old_inv_item.size,
+				storage = old_inv_item.storage,
+				item_type = return_line_item.reason.result_type
+			)
+			inv_item.qty += return_line_item.return_qty
+			inv_item.save()
+			
+			MyItemInventoryMoveAudit(
+				created_by = instance.created_by,
+				inv = inv_item, # item_inventory object
+				out = False, # we are putting items back into inventory
+				qty = return_line_item.return_qty,
+				# object_id = instance.id, # save RETURN_LINE_ITEM reference
+				# content_type = ContentType.objects.get_for_model(instance),
+				content_object = return_line_item,
+				reason = 'Sales order RETURN: %s' % return_line_item.reason.description
+			).save()			

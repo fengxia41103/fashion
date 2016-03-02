@@ -860,7 +860,22 @@ class MySalesOrderReturn(models.Model):
 		null = True,
 		default = None,
 		verbose_name = u'创建用户',
-		help_text = ''
+		help_text = '',
+		related_name = 'loggers'
+	)
+	reviewed_on = models.DateField(
+		null = True,
+		blank = True,
+		default = None
+	)
+	reviewed_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Reviewer',
+		help_text = '',
+		related_name = 'reviewers'
 	)
 
 	def __unicode__(self):
@@ -881,6 +896,10 @@ class MySalesOrderReturn(models.Model):
 	def _refundable_qty(self):
 		return sum([i.return_qty for i in MySalesOrderReturnLineItem.objects.filter(so_return = self,reason__is_refundable=True)])
 	refundable_qty = property(_refundable_qty)
+
+	def _is_editable(self):
+		return self.reviewed_on is None
+	is_editable = property(_is_editable)
 
 class MySalesOrderReturnLineItem(models.Model):
 	so_return = models.ForeignKey('MySalesOrderReturn')

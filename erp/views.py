@@ -940,7 +940,7 @@ class MySalesOrderReturnAdd(DetailView):
 					reason = data['reason']
 				).save()
 			
-		return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))
+		return HttpResponseRedirect(reverse_lazy('so_return_detail',kwargs={'pk':so_return.id}))
 
 class MySalesOrderReturnDetail(DetailView):
 	model = MySalesOrderReturn
@@ -970,12 +970,22 @@ class MySalesOrderReturnEdit(UpdateView):
 
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])	
 
+@class_view_decorator(login_required)
 class MySalesOrderReturnDelete(DeleteView):
 	model = MySalesOrderReturn
 	template_name = 'erp/common/delete_form.html'
 
 	def get_success_url(self):
 		return reverse_lazy('so_detail',kwargs={'pk':self.object.so.id})
+
+@class_view_decorator(login_required)
+class MySalesOrderReturnReview(TemplateView):
+	def post(self,request,pk):
+		so_return = MySalesOrderReturn.objects.get(id=int(pk))
+		so_return.reviewed_by = self.request.user
+		so_return.reviewed_on = dt.now()
+		so_return.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################
 #

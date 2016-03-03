@@ -159,6 +159,12 @@
 					</tbody>
 				</table>
 			</ul>
+
+			{# Batch fullfill #}
+			<a class="pull-right" data-toggle="modal" data-target="#batch-finalize-fullfill">
+				<i class='fa fa-lock'></i>
+				finalize all
+			</a>			
 			{% else %}
 				&nbsp;
 			{% endif %}
@@ -494,11 +500,14 @@
       </div>
 
       {# Modal body #}
-      <div class="modal-body alert alert-warning">	
+      <div class="modal-body">	
 			{% csrf_token %}
-			<p>Order cancellation is not recoverable.</p>
-
 			<p>
+			Order cancellation is not recoverable. All history of this order will 
+			be lost.
+			</p>
+
+			<p class="alert alert-warning">
 			Are you sure to cancel this order?
 			</p>
       </div>
@@ -514,6 +523,46 @@
       </div>
     </div>
 </form>          
+</div>
+</div>
+
+{# Batch finalizing fullfillments modal #}
+<div id="batch-finalize-fullfill" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'so_fullfill_review_batch' object.id %}" method="POST">
+	{% csrf_token %}
+	
+    <!-- Modal content-->
+    <div class="modal-content">
+		{# Modal header #}
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Finalize fullfillments</h4>
+		</div>
+
+	    {# Modal body #}
+	    <div class="modal-body">			
+	    	<p>
+			This will finalize all open fullfillments that are associated
+			with this sales order. You will not
+			be able make further change to it Once a fullfillment has been finalized.
+			</p>
+
+			<p class="alert alert-warning">
+			Are you sure to proceed?
+			</p>
+		</div>
+
+	      {# Modal footer #}
+		<div class="modal-footer">
+			<button class="btn btn-primary"  type="submit">
+				<i class="fa fa-lock"></i>
+				<span>Yes</span>
+			</button>      
+	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+		</div>
+	</div>
+</form>
 </div>
 </div>
 

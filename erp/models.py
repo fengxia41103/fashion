@@ -615,9 +615,11 @@ class MySalesOrder(models.Model):
 
 	def _is_editable(self):
 		'''
-		Sales order becomes locked when there has been fullfillment or a payment
+		Sales order becomes locked when there has been fullfillment or a payment.
+		Since return is only available when there has been fullfillments, it is
+		sufficient to check fullfillment.
 		'''
-		return self.total_payment == 0
+		return self.total_payment == 0 and self.fullfill_qty == 0
 	is_editable = property(_is_editable)
 
 	def _life_in_days(self):

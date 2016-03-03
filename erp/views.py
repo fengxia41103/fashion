@@ -888,12 +888,31 @@ class MySalesOrderFullfillmentDelete(DeleteView):
 
 @class_view_decorator(login_required)
 class MySalesOrderFullfillmentReview(TemplateView):
+	'''
+	Finalize a SO fullfillment. Once finalized, the fullfillment will not be editable.
+	'''
 	def post(self,request,pk):
-		so_return = MySalesOrderFullfillment.objects.get(id=int(pk))
-		so_return.reviewed_by = self.request.user
-		so_return.reviewed_on = dt.now()
-		so_return.save()
+		fullfill = MySalesOrderFullfillment.objects.get(id=int(pk))
+		fullfill.reviewed_by = self.request.user
+		fullfill.reviewed_on = dt.now()
+		fullfill.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MySalesOrderFullfillmentReviewBatch(TemplateView):
+	'''
+	Batch finalize all fullfillments that are linked to a SO.
+	'''
+	def post(self,request,pk):
+		so = MySalesOrder.objects.get(id=int(pk))
+		for fullfill in MySalesOrderFullfillment.objects.filter(so=so):
+			if not fullfill.is_editable: continue
+			
+			fullfill.reviewed_by = self.request.user
+			fullfill.reviewed_on = dt.now()
+			fullfill.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
 
 ###################################################
 #

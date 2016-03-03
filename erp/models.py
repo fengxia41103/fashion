@@ -786,9 +786,23 @@ class MySalesOrderFullfillment(models.Model):
 		null = True,
 		default = None,
 		verbose_name = u'创建用户',
-		help_text = ''
+		help_text = '',
+		related_name = "fullfillment_loggers"
 	)
-
+	reviewed_on = models.DateField(
+		null = True,
+		blank = True,
+		default = None
+	)
+	reviewed_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Reviewer',
+		help_text = '',
+		related_name = 'fullfillment_reviewers'
+	)
 	def __unicode__(self):
 		return '%s/%s'%(self.so.code,self.code)
 
@@ -803,6 +817,10 @@ class MySalesOrderFullfillment(models.Model):
 	def _value(self):
 		return sum([f.fullfill_value for f in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=self)])
 	value = property(_value)
+
+	def _is_editable(self):
+		return self.reviewed_on is None
+	is_editable = property(_is_editable)
 
 class MySalesOrderFullfillmentLineItem(models.Model):
 	so_fullfillment = models.ForeignKey('MySalesOrderFullfillment')
@@ -861,7 +879,7 @@ class MySalesOrderReturn(models.Model):
 		default = None,
 		verbose_name = u'创建用户',
 		help_text = '',
-		related_name = 'loggers'
+		related_name = 'so_return_loggers'
 	)
 	reviewed_on = models.DateField(
 		null = True,
@@ -875,7 +893,7 @@ class MySalesOrderReturn(models.Model):
 		default = None,
 		verbose_name = u'Reviewer',
 		help_text = '',
-		related_name = 'reviewers'
+		related_name = 'so_return_reviewers'
 	)
 
 	def __unicode__(self):

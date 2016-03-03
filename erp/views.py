@@ -801,6 +801,8 @@ class MySalesOrderPaymentAdd(FormView):
 #	Sales Order Fullfillment views
 #
 ###################################################
+
+@class_view_decorator(login_required)
 class MySalesOrderFullfillmentAdd(DetailView):
 	model = MySalesOrder
 	template_name = 'erp/so/fullfill_add.html'
@@ -859,6 +861,7 @@ class MySalesOrderFullfillmentDetail(DetailView):
 		context['items'] = items
 		return context
 
+@class_view_decorator(login_required)
 class MySalesOrderFullfillmentEdit(UpdateView):
 	model = MySalesOrderFullfillment
 
@@ -875,12 +878,22 @@ class MySalesOrderFullfillmentEdit(UpdateView):
 					f.delete()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+@class_view_decorator(login_required)
 class MySalesOrderFullfillmentDelete(DeleteView):
 	model = MySalesOrderFullfillment
 	template_name = 'erp/common/delete_form.html'
 
 	def get_success_url(self):
 		return reverse_lazy('so_detail',kwargs={'pk':self.object.so.id})
+
+@class_view_decorator(login_required)
+class MySalesOrderFullfillmentReview(TemplateView):
+	def post(self,request,pk):
+		so_return = MySalesOrderFullfillment.objects.get(id=int(pk))
+		so_return.reviewed_by = self.request.user
+		so_return.reviewed_on = dt.now()
+		so_return.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################
 #

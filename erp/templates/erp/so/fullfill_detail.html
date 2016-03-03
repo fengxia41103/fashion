@@ -4,6 +4,9 @@
 {% load static %}
 {% block page-header %}
 	Edit FULLFILLMENT {{ object.code }}
+	{% if not object.is_editable %}
+		<i class="fa fa-lock"></i>
+	{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -14,6 +17,20 @@
 		Back to view order
 	</a>
 </div>
+
+{% if object.is_editable %}
+{# review #}
+<div class="text-center">
+	<p><form action="{% url 'so_fullfill_review' object.id %}" method="POST">
+		{% csrf_token %}
+		<button class="btn my-command-btn"  type="submit" id="create">
+			<i class="fa fa-save"></i>
+			<span>Finalize this fullfillment</span>
+		</button>
+		</form>
+	</p>
+</div>
+{% endif %}
 
 {# order header #}
 {% with object.so as so %}
@@ -51,9 +68,24 @@
 		</div>
 		<div class="col-md-1"></div>		
 	</div>
+
+	{% if not object.is_editable %}
+		<div class="row ">
+			<div class="col-md-2"><label>Reviewed by</label></div>
+			<div class="col-md-3 my-sf-display-border">{{ object.reviewed_by }}</div>
+			<div class="col-md-1"></div>
+			<div class="col-md-2"><label>Reviewed on</label></div>
+			<div class="col-md-3 my-sf-display-border">
+				{{ object.reviewed_on }}
+			</div>
+			<div class="col-md-1"></div>		
+		</div>
+	{% endif %}
+
 	</div>
 </div>
 
+{% if object.is_editable %}
 <div class="btn-group" role="group" aria-label="">
 	<a  id="btn-clear-all" data-toggle="tooltip" title="Click to clear all inputs">
 		<i class="fa fa-minus">&nbsp;Clear all</i>
@@ -62,6 +94,8 @@
 		<i class="fa fa-plus">&nbsp;Fullfill all</i>
 	</a>
 </div>
+{% endif %}
+
 
 <form action="{% url 'so_fullfill_edit' so.id %}" method="POST">
 {% csrf_token %}
@@ -102,15 +136,19 @@
 			</td><td>
 				{{ so_line_item_fullfill.max_qty }}
 			</td><td class="editt">
-				<input type="number" value="{{ so_line_item_fullfill.fullfill_qty }}" name="line-item-fullfill-{{so_line_item_fullfill.id}}" id="{{so_line_item_fullfill.id}}" min="0" max="{{ so_line_item_fullfill.max_qty }}" data-toggle="qty" style="width:100px;"/>			
-				<div class="btn-group" role="group" aria-label="">
-					<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
-						<i class="fa fa-minus"></i>
-					</button>
-					<button type="button" class="btn btn-tiny btn-primary" data-toggle="plus">
-						<i class="fa fa-plus"></i>
-					</button>
-				</div>		
+				{% if object.is_editable %}
+					<input type="number" value="{{ so_line_item_fullfill.fullfill_qty }}" name="line-item-fullfill-{{so_line_item_fullfill.id}}" id="{{so_line_item_fullfill.id}}" min="0" max="{{ so_line_item_fullfill.max_qty }}" data-toggle="qty" style="width:100px;"/>			
+					<div class="btn-group" role="group" aria-label="">
+						<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
+							<i class="fa fa-minus"></i>
+						</button>
+						<button type="button" class="btn btn-tiny btn-primary" data-toggle="plus">
+							<i class="fa fa-plus"></i>
+						</button>
+					</div>	
+				{% else %}
+					{{ so_line_item_fullfill.fullfill_qty }}
+				{% endif %}	
 			</td></tr>
 			{% endwith %}
 			{% endwith %}
@@ -120,6 +158,7 @@
 </table>
 {% endfor %}
 
+{% if object.is_editable %}
 <button class="btn btn-primary"  type="submit" id="create">
 	<i class="fa fa-save"></i>
 	<span>Update</span>
@@ -137,6 +176,7 @@
 	<i class='fa fa-pencil'></i>
 	Delete
 </button>
+{% endif %}
 </form>
 
 {% endwith %}

@@ -146,6 +146,9 @@
 							<tr><td>
 								<a href="{% url 'so_fullfill_detail' f.id %}">
 									{{ f.code }}
+									{% if not f.is_editable %}
+										<i class="fa fa-lock"></i>
+									{% endif %}
 								</a>
 							</td><td>
 								{{ f.qty }}
@@ -199,6 +202,9 @@
 							<tr><td>
 								<a href="{% url 'so_return_detail' f.id %}">
 									{{ f.code }}
+									{% if not f.is_editable %}
+										<i class="fa fa-lock"></i>
+									{% endif %}									
 								</a>
 							</td><td>
 								{{ f.return_qty }}

@@ -33,6 +33,10 @@
 			| <a href="{% url 'so_fullfill_add' obj.id %}">Fullfill</a>
 			{% endif %}
 
+			{% if obj.fullfill_qty > 0 %}
+			| <a href="{% url 'so_return_add' obj.id %}">Return</a>
+			{% endif %}
+
 			{# cancel order shortcut #}
 			{% if obj.is_editable %}
 			| <a data-toggle="modal" data-target="#so-delete-{{obj.id}}">Cancel</a>

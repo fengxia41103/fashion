@@ -913,7 +913,6 @@ class MySalesOrderFullfillmentReviewBatch(TemplateView):
 			fullfill.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
-
 ###################################################
 #
 #	Sales Order Return views
@@ -1017,6 +1016,22 @@ class MySalesOrderReturnReview(TemplateView):
 		so_return.reviewed_by = self.request.user
 		so_return.reviewed_on = dt.now()
 		so_return.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+@class_view_decorator(login_required)
+class MySalesOrderReturnReviewBatch(TemplateView):
+	'''
+	Batch finalize all returns that are linked to a SO.
+	'''
+	def post(self,request,pk):
+		so = MySalesOrder.objects.get(id=int(pk))
+		for so_return in MySalesOrderReturn.objects.filter(so=so):
+			if not so_return.is_editable: continue
+			
+			so_return.reviewed_by = self.request.user
+			so_return.reviewed_on = dt.now()
+			so_return.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################

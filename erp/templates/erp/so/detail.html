@@ -545,7 +545,7 @@
 	    	<p>
 			This will finalize all open fullfillments that are associated
 			with this sales order. You will not
-			be able make further change to it Once a fullfillment has been finalized.
+			be able make further change to it once a fullfillment has been finalized.
 			</p>
 
 			<p class="alert alert-warning">
@@ -566,6 +566,45 @@
 </div>
 </div>
 
+{# Batch finalizing returns modal #}
+<div id="batch-finalize-return" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'so_return_review_batch' object.id %}" method="POST">
+	{% csrf_token %}
+	
+    <!-- Modal content-->
+    <div class="modal-content">
+		{# Modal header #}
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Finalize returns</h4>
+		</div>
+
+	    {# Modal body #}
+	    <div class="modal-body">			
+	    	<p>
+			This will finalize all open returns that are associated
+			with this sales order. You will not
+			be able make further change to it once a return has been finalized.
+			</p>
+
+			<p class="alert alert-warning">
+			Are you sure to proceed?
+			</p>
+		</div>
+
+	      {# Modal footer #}
+		<div class="modal-footer">
+			<button class="btn btn-primary"  type="submit">
+				<i class="fa fa-lock"></i>
+				<span>Yes</span>
+			</button>      
+	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+		</div>
+	</div>
+</form>
+</div>
+</div>
 {% endblock %}
 
 {% block custom_js %}

@@ -118,8 +118,6 @@ def MySalesOrderReturn_post_save_handler(sender, instance, **kwargs):
 				storage = old_inv_item.storage,
 				item_type = return_line_item.reason.result_type
 			)
-			inv_item.qty += return_line_item.return_qty
-			inv_item.save()
 			
 			MyItemInventoryMoveAudit(
 				created_by = instance.created_by,
@@ -130,4 +128,4 @@ def MySalesOrderReturn_post_save_handler(sender, instance, **kwargs):
 				# content_type = ContentType.objects.get_for_model(instance),
 				content_object = return_line_item,
 				reason = 'Sales order RETURN: %s' % return_line_item.reason.description
-			).save()			
+			).save()

@@ -77,6 +77,7 @@ urlpatterns = patterns(
 		url(r'^so/return/delete/(?P<pk>\d+)/$', views.MySalesOrderReturnDelete.as_view(), name='so_return_delete'),		
 		url(r'^so/return/review/(?P<pk>\d+)/$', views.MySalesOrderReturnReview.as_view(), name='so_return_review'),		
 		url(r'^so/return/review/batch/(?P<pk>\d+)/$', views.MySalesOrderReturnReviewBatch.as_view(), name='so_return_review_batch'),		
+		url(r'^so/return/review/undo/(?P<pk>\d+)/$', views.MySalesOrderReturnReviewUndo.as_view(), name='so_return_review_undo'),		
 
 		# Sales order payment
 		url(r'^so/payments/$', views.MySalesOrderPaymentList.as_view(), name='so_payment_list'),						

@@ -986,6 +986,8 @@ class MySalesOrderReturnDetail(DetailView):
 			if brand not in items: items[brand] = []
 			items[brand].append(line_item)
 		context['items'] = items
+		context['reasons'] = MyReturnReason.objects.all()
+
 		return context
 
 class MySalesOrderReturnEdit(UpdateView):
@@ -998,7 +1000,10 @@ class MySalesOrderReturnEdit(UpdateView):
 				line_item = MySalesOrderReturnLineItem.objects.get(id=int(line_id.split('-')[-1]))
 				line_item.return_qty = int(val)
 				line_item.save()
-
+			elif 'reason' in line_id and int(val):
+				line_item = MySalesOrderReturnLineItem.objects.get(id=int(line_id.split('-')[-1]))
+				line_item.reason = MyReturnReason.objects.get(id=int(val))
+				line_item.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])	
 
 @class_view_decorator(login_required)
@@ -1018,7 +1023,6 @@ class MySalesOrderReturnReview(TemplateView):
 		so_return.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
-
 @class_view_decorator(login_required)
 class MySalesOrderReturnReviewBatch(TemplateView):
 	'''
@@ -1032,6 +1036,15 @@ class MySalesOrderReturnReviewBatch(TemplateView):
 			so_return.reviewed_by = self.request.user
 			so_return.reviewed_on = dt.now()
 			so_return.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MySalesOrderReturnReviewUndo(TemplateView):
+	def post(self,request,pk):
+		so_return = MySalesOrderReturn.objects.get(id=int(pk))
+		so_return.reviewed_by = None
+		so_return.reviewed_on = None
+		so_return.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################

@@ -30,6 +30,20 @@
 		</form>
 	</p>
 </div>
+{% else %}
+	{% if user.is_superuser%}
+	{# Undo review #}
+	<div class="text-center">
+		<p><form action="{% url 'so_return_review_undo' object.id %}" method="POST">
+			{% csrf_token %}
+			<button class="btn my-command-btn"  type="submit" id="create">
+				<i class="fa fa-unlock"></i>
+				<span>Reopen</span>
+			</button>
+			</form>
+		</p>
+	</div>
+	{% endif %}
 {% endif %}
 
 {# order header #}
@@ -106,6 +120,7 @@
 		<th>SIZE</th>
 		<th>Max QTY</th>
 		<th>RETURNING QTY</th>
+		<th>REASON</th>
 	</thead>
 
 	<tbody>
@@ -143,6 +158,16 @@
 				{% else %}
 					{{ so_return.return_qty }}
 				{% endif %}
+			</td><td>
+				<select class="my-select" name="reason-{{so_return.id}}">
+				{% for reason in reasons %}
+					{% if so_return.reason == reason %}
+						<option value="{{ reason.id }}" selected="selected">{{ reason }}</option>
+					{% else %}
+						<option value="{{ reason.id }}">{{ reason }}</option>
+					{% endif %}
+				{% endfor %}
+				</select>	
 			</td></tr>
 			{% endwith %}
 			{% endwith %}
@@ -192,12 +217,13 @@
       </div>
 
       {# Modal body #}
-      <div class="modal-body alert alert-warning">	
+      <div class="modal-body">	
 			{% csrf_token %}
-			<p>This return is about to be deleted. All associated fullfillment records will
-			be removed also..</p>
-
 			<p>
+			This return is about to be deleted. Inventory and sales order will be update accordingly.
+			</p>
+
+			<p class="alert alert-warning">
 			Are you sure to delete this?
 			</p>
       </div>

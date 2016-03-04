@@ -119,7 +119,7 @@ def MySalesOrderReturn_post_save_handler(sender, instance, **kwargs):
 				item_type = return_line_item.reason.result_type
 			)
 			
-			MyItemInventoryMoveAudit(
+			MyItemInventoryTheoreticalAudit(
 				created_by = instance.created_by,
 				inv = inv_item, # item_inventory object
 				out = False, # we are putting items back into inventory
@@ -134,7 +134,7 @@ def MySalesOrderReturn_post_save_handler(sender, instance, **kwargs):
 def MySalesOrderFullfillment_post_save_handler(sender, instance, **kwargs):
 	if instance.reviewed_on:
 		for item in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=instance):
-			MyItemInventoryMoveAudit(
+			MyItemInventoryTheoreticalAudit(
 				created_by = instance.created_by,
 				inv = item.so_line_item.item, # item_inventory object
 				out = True, # we are withdrawing item from inventory

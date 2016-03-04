@@ -495,7 +495,7 @@ def add_to_inventory(storage,quick_notion,out,reason,created_by):
 			)
 
 			# Create MyItemInventoryAudit
-			audit = MyItemInventoryMoveAudit(
+			audit = MyItemInventoryTheoreticalAudit(
 				created_by = created_by,
 				inv = item_inv,
 				out = False, # We are adding to inventory
@@ -506,7 +506,7 @@ def add_to_inventory(storage,quick_notion,out,reason,created_by):
 	return {'errors':errors, 'items':items}
 
 class MyItemInventoryAdd(FormView):
-	template_name = 'erp/item/inv_add.html'
+	template_name = 'erp/inv/initial_add.html'
 	form_class = ItemInventoryAddForm
 	success_url = '#'
 
@@ -526,6 +526,23 @@ class MyItemInventoryAdd(FormView):
 		)
 
 		return super(FormView, self).form_valid(form)
+
+class MyItemInventoryPhysicalAdd(TemplateView):
+	template_name = 'erp/inv/physical_add.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(TemplateView, self).get_context_data(**kwargs)
+
+		storage = MyStorage.objects.get(id = int(kwargs['storage']))
+		vendor = MyCRM.objects.get(id = int(kwargs['vendor']))
+
+		context['storage'] = storage
+		context['storages'] = MyStorage.objects.exclude(id=storage.id)
+		context['inv_items'] = MyItemInventory.objects.filter(storage=storage,item__brand=vendor)
+		return context
+
+	def post(self, request):
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################
 #

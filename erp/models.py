@@ -493,9 +493,8 @@ class MyItemInventory(models.Model):
 	storage = models.ForeignKey('MyStorage')
 	withdrawable = models.BooleanField(default = True)
 
-	physical = models.IntegerField(
+	physical = models.PositiveIntegerField(
 		default = 0,
-		validators=[MinValueValidator(0),]
 	)
 
 	# This allows us to deactivate individual size
@@ -525,7 +524,7 @@ class MyItemInventory(models.Model):
 		else: return False
 	is_resellable = property(_is_resellable)
 
-class MyItemInventoryMoveAudit(models.Model):
+class MyItemInventoryPhysicalAudit(models.Model):
 	created_on = models.DateField(auto_now_add = True)
 
 	# instance fields
@@ -534,7 +533,31 @@ class MyItemInventoryMoveAudit(models.Model):
 		blank = True,
 		null = True,
 		default = None,
-		verbose_name = u'创建用户',
+		verbose_name = u'Auditor',
+		help_text = ''
+	)
+	inv = models.ForeignKey('MyItemInventory')
+	physical = models.PositiveIntegerField(default = 0)
+	theoretical = models.IntegerField(default = 0)	
+
+	def _diff(self):
+		return self.physical - self.theoretical
+	diff = property(_diff)
+
+	def _is_clean(self):
+		return self.diff == 0
+	is_clean = property(_is_clean)
+
+class MyItemInventoryTheoreticalAudit(models.Model):
+	created_on = models.DateField(auto_now_add = True)
+
+	# instance fields
+	created_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Auditor',
 		help_text = ''
 	)
 
@@ -1012,7 +1035,12 @@ class MyPurchaseOrder(MyBaseModel):
 	# There is always a SO linked to a PO!
 	# For WH PO, we will still create a SO, using SH or SZ as client.
 	# This enforces payment settlement between even internal parties.
-	so = models.ForeignKey('MySalesOrder')
+	so = models.ForeignKey(
+		'MySalesOrder',
+		null = True,
+		blank = True,
+		verbose_name = u'Sales order'
+	)
 	vendor = models.ForeignKey('MyCRM')
 	created_on = models.DateField(auto_now_add = True)
 

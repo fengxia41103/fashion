@@ -33,8 +33,11 @@ urlpatterns = patterns(
 		url(r'^item/(?P<pk>\d+)/$', views.MyItemDetail.as_view(), name='item_detail'),		
 		url(r'^item/(?P<pk>\d+)/edit/$', views.MyItemEdit.as_view(), name='item_edit'),
 		url(r'^item/(?P<pk>\d+)/delete/$', views.MyItemDelete.as_view(), name='item_delete'),
-		url(r'^item/inv/add/$', views.MyItemInventoryAdd.as_view(), name='item_inv_add'),	
 		url(r'^items/(?P<season>\d+)/(?P<brand>\d+)/$', views.MyItemListByVendor.as_view(), name='item_list_by_vendor'),		
+
+		# inventory
+		url(r'^item/inv/add/$', views.MyItemInventoryAdd.as_view(), name='item_inv_add'),	
+		url(r'^item/inv/physical/(?P<storage>\d+)/(?P<vendor>\d+)/$', views.MyItemInventoryPhysicalAdd.as_view(), name='item_inv_physical_add'),	
 
 		# season
 		url(r'^seasons/$', views.MySeasonList.as_view(), name='season_list'),		

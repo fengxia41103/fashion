@@ -55,7 +55,7 @@
 		</td><td>
 			{{ obj.multiplier|floatformat:2 }}
 		</td><td>
-			{% if obj.total_theoretical > 0 %}
+			{% if obj.total_theoretical != 0 %}
 				<div class="dropdown">
 					<a href="" class="" data-toggle="dropdown">
 						<i class="fa fa-bar-chart"></i>

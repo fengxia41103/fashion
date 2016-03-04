@@ -844,7 +844,7 @@ class MySalesOrderFullfillmentAdd(DetailView):
 					so_line_item = so_line_item,
 					fullfill_qty = int(qty)
 				).save()
-		return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))
+		return HttpResponseRedirect(reverse_lazy('so_fullfill_detail',kwargs={'pk':fullfill.id}))
 
 class MySalesOrderFullfillmentDetail(DetailView):
 	model = MySalesOrderFullfillment

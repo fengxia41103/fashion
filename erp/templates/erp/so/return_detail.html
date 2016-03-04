@@ -159,15 +159,19 @@
 					{{ so_return.return_qty }}
 				{% endif %}
 			</td><td>
-				<select class="my-select" name="reason-{{so_return.id}}">
-				{% for reason in reasons %}
-					{% if so_return.reason == reason %}
-						<option value="{{ reason.id }}" selected="selected">{{ reason }}</option>
-					{% else %}
-						<option value="{{ reason.id }}">{{ reason }}</option>
-					{% endif %}
-				{% endfor %}
-				</select>	
+				{% if object.is_editable %}
+					<select class="my-select" name="reason-{{so_return.id}}">
+					{% for reason in reasons %}
+						{% if so_return.reason == reason %}
+							<option value="{{ reason.id }}" selected="selected">{{ reason }}</option>
+						{% else %}
+							<option value="{{ reason.id }}">{{ reason }}</option>
+						{% endif %}
+					{% endfor %}
+					</select>
+				{% else %}
+					{{ so_return.reason }}
+				{% endif %}
 			</td></tr>
 			{% endwith %}
 			{% endwith %}

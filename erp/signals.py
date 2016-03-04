@@ -129,3 +129,16 @@ def MySalesOrderReturn_post_save_handler(sender, instance, **kwargs):
 				content_object = return_line_item,
 				reason = 'Sales order RETURN: %s' % return_line_item.reason.description
 			).save()
+
+@receiver(post_save, sender=MySalesOrderFullfillment)
+def MySalesOrderFullfillment_post_save_handler(sender, instance, **kwargs):
+	if instance.reviewed_on:
+		for item in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=instance):
+			MyItemInventoryMoveAudit(
+				created_by = instance.created_by,
+				inv = item.so_line_item.item, # item_inventory object
+				out = True, # we are withdrawing item from inventory
+				qty = item.fullfill_qty,
+				content_object = item,
+				reason = 'Sales order FULLFILLMENT'
+			).save()

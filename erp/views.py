@@ -971,7 +971,9 @@ class MySalesOrderReturnAdd(DetailView):
 					reason = data['reason']
 				).save()
 			
-		return HttpResponseRedirect(reverse_lazy('so_return_detail',kwargs={'pk':so_return.id}))
+			return HttpResponseRedirect(reverse_lazy('so_return_detail',kwargs={'pk':so_return.id}))
+		else:
+			return HttpResponseRedirect(reverse_lazy('so_detail',kwargs={'pk':pk}))
 
 class MySalesOrderReturnDetail(DetailView):
 	model = MySalesOrderReturn

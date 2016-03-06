@@ -257,6 +257,7 @@ class MyLocation (models.Model):
 		null = True,
 		blank = True,
 	)
+	is_primary = models.BooleanField(default=False)
 
 	def _code(self):
 		return u'%s-%s' %(self.crm,self.name)
@@ -265,9 +266,21 @@ class MyLocation (models.Model):
 	def __unicode__(self):
 		return self.code
 
+	def _primary_storage(self):
+		primary,created = MyStorage.objects.get_or_create(location=self,is_primary=True)
+		return primary
+	primary_storage = property(_primary_storage)
+
+	def _inv_items(self):
+		return MyItemInventory.objects.filter(storage__location = self)
+	inv_items = property(_inv_items)
+
 class MyStorage (models.Model):
 	location = models.ForeignKey('MyLocation')
-	is_primary = models.BooleanField(default=True)
+	is_primary = models.BooleanField(default=False)
+
+	def __unicode__(self):
+		return self.code
 
 	def _code(self):
 		return u'%s-%d (%s)' %(self.location,self.id, self.location.abbrev)
@@ -283,8 +296,9 @@ class MyStorage (models.Model):
 		return sum(qty)
 	theoretical = property(_theoretical)
 
-	def __unicode__(self):
-		return self.code
+	def _inv_items(self):
+		return MyItemInventory.objects.filter(storage=self)
+	inv_items = property(_inv_items)
 
 class MyCRMCustomManager(models.Manager):
 	def vendors(self):
@@ -421,6 +435,9 @@ class MyItem(MyBaseModel):
 		blank = True
 	)
 
+	def __unicode__(self):
+		return u'%s | %s' %(self.name,self.color)
+
 	def _code(self):
 		return u'%s-%s' %(self.name,self.color)
 	code = property(_code)
@@ -481,8 +498,22 @@ class MyItem(MyBaseModel):
 		return qty
 	theoretical = property(_theoretical)
 
-	def __unicode__(self):
-		return u'%s | %s' %(self.name,self.color)
+	def _is_so_ready(self):
+		'''
+		Item is SO ready if the following conditions are met:
+		1. has a known price: price > 0, and
+		2. physical > 0 (have some in local stock), or has a known vendor price (can be ordered)
+		'''
+		return self.price>0 and (self.physical>0 or self.converted_cost>0)
+	is_so_ready = property(_is_so_ready)
+
+	def _is_po_ready(self):
+		'''
+		Item is PO ready if the following conditions are met:
+		1. has a known vendor price (can be ordered)
+		'''
+		return self.converted_cost>0
+	is_po_ready = property(_is_po_ready)
 
 class MyItemInventory(models.Model):
 	item = models.ForeignKey('MyItem')
@@ -509,7 +540,7 @@ class MyItemInventory(models.Model):
 	
 	def _theoretical(self):
 		inv = 0
-		for audit in MyItemInventoryMoveAudit.objects.filter(inv = self):
+		for audit in MyItemInventoryPhysicalAudit.objects.filter(inv = self):
 			if audit.out: inv -= audit.qty
 			else: inv += audit.qty
 		return inv
@@ -519,10 +550,10 @@ class MyItemInventory(models.Model):
 		return 'INV-%06d'%self.id
 	code = property(_code)
 
-	def _is_resellable(self):
+	def _is_so_ready(self):
 		if self.item_type in ['New','Refurbished']: return True
 		else: return False
-	is_resellable = property(_is_resellable)
+	is_so_ready = property(_is_so_ready)
 
 class MyItemInventoryPhysicalAudit(models.Model):
 	created_on = models.DateField(auto_now_add = True)
@@ -1027,7 +1058,7 @@ class MySalesOrderPayment(models.Model):
 		return self.usage == 'deposit'
 	is_deposit = property(_is_deposit)
 
-class MyPurchaseOrder(MyBaseModel):
+class MyPurchaseOrder(models.Model):
 	'''
 	Attachment will be invoice, packing list, shipment info.
 	'''
@@ -1039,9 +1070,10 @@ class MyPurchaseOrder(MyBaseModel):
 		'MySalesOrder',
 		null = True,
 		blank = True,
-		verbose_name = u'Sales order'
+		verbose_name = u'Associated sales order'
 	)
 	vendor = models.ForeignKey('MyCRM')
+	location = models.ForeignKey('MyLocation')
 	created_on = models.DateField(auto_now_add = True)
 
 	# instance fields
@@ -1053,6 +1085,40 @@ class MyPurchaseOrder(MyBaseModel):
 		verbose_name = u'创建用户',
 		help_text = ''
 	)
+
+	# order placed on
+	placed_on = models.DateField(
+		null = True,
+		blank = True,
+		verbose_name = u'Order placed on'
+	)
+
+	def __unicode__(self):
+		return u'%s for %s'%(self.code,self.vendor)
+
+	def _code(self):
+		return 'PO%d-%04d'%(dt.now().year,self.id)
+	code = property(_code)
+
+	def _is_editable(self):
+		return self.placed_on is None
+	is_editable = property(_is_editable)
+
+	def _order_qty(self):
+		return sum(MyPurchaseOrderLineItem.objects.filter(po=self).values_list('qty',flat=True))
+	order_qty = property(_order_qty)
+
+	def _available_in(self):
+		return set(MyPurchaseOrderLineItem.objects.filter(po=self).values('available_in',flat=True))
+	available_in = property(_available_in)
+
+	def _line_items(self):
+		return MyPurchaseOrderLineItem.objects.filter(po=self)
+	line_items = property(_line_items)
+
+	def _order_value(self):
+		return sum(filter(lambda x: x is not None,[item.value for item in self.line_items]))
+	order_value = property(_order_value)
 
 class MyPurchaseOrderLineItem(models.Model):
 	ESTIMATED_MONTH_CHOICES = (
@@ -1073,12 +1139,23 @@ class MyPurchaseOrderLineItem(models.Model):
 		(U'DEC',u'DEC'),
 	)
 	po = models.ForeignKey('MyPurchaseOrder')
-	so_line_item = models.ForeignKey('MySalesOrderLineItem')
-	invoiced_qty = models.IntegerField(default = 0)
-	packinglist_qty = models.IntegerField(default = 0)
+	inv_item = models.ForeignKey('MyItemInventory')
+	qty = models.PositiveIntegerField(default = 1)
 	available_in = models.CharField(
 		max_length = 8,
 		null = True,
 		blank = True,
 		choices = ESTIMATED_MONTH_CHOICES
 	)
+
+	def _price(self):
+		item = self.inv_item.item
+		vendor_items = MyVendorItem.objects.filter(vendor=self.po.vendor,product=item).order_by('price')
+		if len(vendor_items): return vendor_items[0].price
+		else: return None
+	price = property(_price)
+
+	def _value(self):
+		if self.price: return self.price*self.qty
+		else: return None
+	value = property(_value)

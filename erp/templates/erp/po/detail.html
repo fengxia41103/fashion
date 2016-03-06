@@ -1,0 +1,92 @@
+{% extends "erp/common/base.html" %}
+
+{% block page-header %}
+	采购订单: {{ object.code }}
+	{% if not object.is_editable %}
+		<i class="fa fa-lock"></i>
+	{% endif %}
+	<a href="{% url 'po_add' %}" class="btn btn-xs addlink">
+		<i class="fa fa-plus"></i>
+		Add
+	</a>
+{% endblock %}
+
+{% block content %}
+{# order header #}
+<h2>Summary</h2>
+<div class="panel panel-default">
+  	<div class="panel-body">
+	<div class="row ">
+		<div class="col-md-2"><label>Vendor</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.vendor }}</div>
+		<div class="col-md-1"></div>
+		<div class="col-md-2"><label>Created on</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.created_on }}</div>
+		<div class="col-md-1"></div>		
+	</div><div class="row ">
+		<div class="col-md-2"><label>Associated SO</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{% if object.so %}
+				<a href="{% url 'so_detail' object.so.id %}"{{ object.so }}/>
+			{% else %}
+				N/A
+			{% endif %}
+		</div>
+		<div class="col-md-1"></div>
+		<div class="col-md-2"><label>Total QTY</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.order_qty|floatformat:0 }}</div>
+		<div class="col-md-1"></div>		
+	</div><div class="row ">
+		<div class="col-md-2"><label>Total line items</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{{ object.line_items|length }}
+		</div>
+		<div class="col-md-1"></div>
+		<div class="col-md-2"><label>Total VALUE</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{{ object.vendor.currency}}{{ object.order_value|floatformat:2 }}
+		</div>
+		<div class="col-md-1"></div>		
+	</div>
+	</div>
+</div>
+
+<table class="table table-striped table-hover table-responsive">
+	<thead>
+		<th>INVENTORY SKU</th>
+		<th>PRODUCT ID</th>
+		<th>STYLE</th>
+		<th>COLOR</th>
+		<th>SIZE</th>
+		<th>UNIT PRICE</th>
+		<th>ORDER QTY</th>
+		<th>ORDER VALUE</th>
+	</thead>
+
+	<tbody>
+	{% for line_item in object.line_items %}
+		{% with line_item.inv_item as inv_item %}
+		{% with inv_item.item as item %}
+		<tr><td>
+			{{ inv_item.code }}
+		</td><td>
+			{{ item.product_id }}
+		</td><td>
+			<a href="{% url 'item_detail' item.id %}">{{ item.name }}</a>
+		</td><td>
+			{{ item.color }}
+		</td><td>
+			{{ inv_item.size }}
+		</td><td>
+			{{ object.vendor.currency }}{{ line_item.price }}			
+		</td><td>
+			{{ line_item.qty }}
+		</td><td>
+			{{ object.vendor.currency }}{{ line_item.value }}
+		</td></tr>
+		{% endwith %}
+		{% endwith %}
+	{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

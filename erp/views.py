@@ -542,6 +542,9 @@ class MyItemInventoryPhysicalAdd(TemplateView):
 		return context
 
 	def post(self, request):
+		'''
+		TODO: save physical counts
+		'''
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################
@@ -613,6 +616,9 @@ def add_item_to_sales_order(quick_notion,so):
 		elif len(tmp_items) > 1:
 			errors[line_no+1] = {'line':line,'reason':'multiple matches'}
 			continue
+		elif not tmp_items[0].is_so_ready:
+			errors[line_no+1] = {'line':line,'reason':'not SO ready'}
+
 		item = tmp_items[0]
 		items.append(item)
 
@@ -681,7 +687,7 @@ class MySalesOrderEdit(UpdateView):
 		 return reverse_lazy('so_detail', kwargs={'pk': self.object.id})
 
 class MySalesOrderListFilter (FilterSet):
-	customer = ModelChoiceFilter(queryset=MyCRM.objects.filter(crm_type='C').order_by('name'))
+	customer = ModelChoiceFilter(queryset=MyCRM.objects.customers())
 	class Meta:
 		model = MySalesOrder
 		fields = {
@@ -1137,3 +1143,114 @@ class MyVendorItemEdit(UpdateView):
 	template_name = 'erp/common/edit_form.html'
 	class Meta:
 		exclude = ('product','vendor','currency')
+
+###################################################
+#
+#	MyPurchaseOrder views
+#
+###################################################
+def add_item_to_purchase_order(quick_notion,po):
+	errors = {}	
+
+	# Parse items
+	items = []
+	pat = re.compile("(?P<size>\D+)-?(?P<qty>\d+)")
+	for line_no, line in enumerate(quick_notion.split('\n')):
+		tmp = line.split(',')
+		sku = tmp[0]
+
+		# Find MyItem object
+		tmp_items = MyItem.objects.filter(id=int(sku))
+		if len(tmp_items) == 0: 
+			errors[line_no+1]={'line':line,'reason':'not found'}
+			continue
+		elif len(tmp_items) > 1:
+			errors[line_no+1] = {'line':line,'reason':'multiple matches'}
+			continue
+		elif not tmp_items[0].is_po_ready:
+			errors[line_no+1] = {'line':line,'reason':'not PO ready'}
+			continue			
+		item = tmp_items[0]
+		items.append(item)
+
+		# Create order
+		for (size,qty) in pat.findall(','.join(tmp[1:])):
+			# Get MyItemInventory obj
+			item_inv, created = MyItemInventory.objects.get_or_create(
+				item = item,
+				size = size.upper(),
+				storage = po.location.primary_storage,
+				item_type = 'New' # we are purchasing New items ONLY!
+			)
+
+			existing = MyPurchaseOrderLineItem.objects.filter(po=po,inv_item=item_inv)
+			if len(existing) and not existing[0].fullfill_qty > 0: 
+				# only modifiable when there has not been any fullfillment yet to this item
+				existing[0].qty += int(qty)
+				existing[0].save()
+			else:
+				line_item = MyPurchaseOrderLineItem(
+					po = po,
+					inv_item = item_inv,
+					qty = int(qty)
+				).save()
+
+	return {'errors':errors, 'items':items}
+
+class MyPurchaseOrderAdd(FormView):
+	template_name = 'erp/po/add.html'
+	form_class = PurchaseOrderAddForm
+	order = None
+
+	def get_success_url(self):
+		if self.order: return reverse_lazy('po_detail',kwargs={'pk':self.order.id})
+		else: return reverse_lazy('po_list')
+
+	def form_valid(self, form):
+		messages.info(
+            self.request,
+            "Your sales order has been created."
+        )		
+
+		# Create sales order
+		po = form.save(commit=False)
+		po.created_by = self.request.user
+		po.save()
+		self.order = po
+
+		# Add item to SO
+		result = add_item_to_purchase_order(form.cleaned_data['items'],po)
+
+		return super(FormView, self).form_valid(form)
+
+class MyPurchaseOrderListFilter (FilterSet):
+	vendor = ModelChoiceFilter(queryset=MyCRM.objects.vendors())
+	class Meta:
+		model = MyPurchaseOrder
+		fields = {
+			'vendor':['exact'],
+			'so':['exact'],
+		}
+
+class MyPurchaseOrderList (FilterView):
+	template_name = 'erp/po/list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MyPurchaseOrderListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'vendor': context['filters']['vendor'] = MyCRM.objects.get(id=int(val))
+				if f == 'so': context['filters']['so'] = MySalesOrder.objects.get(id=int(val))
+		return context
+
+class MyPurchaseOrderDetail(DetailView):
+	model = MyPurchaseOrder
+	template_name = 'erp/po/detail.html'

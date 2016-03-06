@@ -1,0 +1,45 @@
+{% extends "erp/common/base.html" %}
+
+{% block page-header %}
+	Purchase Order
+	<a href="{% url 'po_add' %}" class="btn btn-xs addlink">
+		<i class="fa fa-plus"></i>
+		Add
+	</a>
+{% endblock %}
+
+
+{% block content %}
+	{% include "erp/common/filter.html" %}
+
+	<table class="table table-striped table-hover table-responsive">
+	<thead>
+		<tr>
+		<th></th>
+		<th>VENDOR</th>
+		<th>CODE</th>
+		<th>SO</th>
+		<th>TO LOCATION</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for obj in object_list %}
+		<tr><td>
+			<a href="{% url 'po_detail' obj.id %}">Detail</a>
+		</td><td>
+			{{ obj.vendor }}
+		</td><td>
+			{{ obj.code }}
+		</td><td>
+			{{ obj.so }}
+		</td><td>
+			{{ obj.location }}
+		</td></tr>
+    	{% endfor %}
+	</tbody>
+	</table>
+{% endblock %}
+
+{% block modal %}
+{% endblock %}
+

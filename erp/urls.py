@@ -92,4 +92,10 @@ urlpatterns = patterns(
 		url(r'^vendor/item/edit/(?P<pk>\d+)/$', views.MyVendorItemEdit.as_view(), name='vendor_item_edit'),
 		url(r'^vendor/item/delete/(?P<pk>\d+)/$', views.MyVendorItemDelete.as_view(), name='vendor_item_delete'),
 
+		# Purchase order
+		url(r'^po/$', views.MyPurchaseOrderList.as_view(), name='po_list'),	
+		url(r'^po/add/$', views.MyPurchaseOrderAdd.as_view(), name='po_add'),		
+		url(r'^po/(?P<pk>\d+)/$', views.MyPurchaseOrderDetail.as_view(), name='po_detail'),
+
+
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

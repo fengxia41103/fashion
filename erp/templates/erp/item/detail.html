@@ -92,7 +92,7 @@
 			
 			<ul class="list-inline" id="size-chart">
 				{% for item_inv in object.myiteminventory_set.all %}
-					{% if item_inv.is_active %}
+					{% if item_inv.is_so_ready %}
 						<li data-object="{{ item_inv.id }}">
 							<span class="item-size text-center" data-toggle="tooltip" title="{{ item_inv.theoretical }} in stock" disabled="disabled">
 								{{ item_inv.size }}

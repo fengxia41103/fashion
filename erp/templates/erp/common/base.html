@@ -251,6 +251,28 @@
 						</li>														
 					</ul>
 				</li>
+				<li class="dropdown">
+					<a href="" class="" data-toggle="dropdown">
+						<i class="fa fa-search"></i>
+						Purchase Order									
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li>
+							<a href="{% url "po_list" %}">
+								<i class="fa fa-plus"></i>
+								View orders			
+							</a>						
+						</li>														
+
+						<li class="divider"></li>							
+						<li>
+							<a href="{% url "po_add" %}">
+								New order
+							</a>						
+						</li>														
+					</ul>
+				</li>				
 
 				{% if user.is_authenticated %}
 				<li>

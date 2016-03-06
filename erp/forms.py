@@ -5,10 +5,22 @@ from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from erp.models import *
 
+###################################################
+#
+#	Attachment forms
+#
+###################################################
+
 class AttachmentForm(ModelForm):
 	class Meta:
 		model = Attachment
 		fields = ['description','file']
+
+###################################################
+#
+#	MyItemInventory forms
+#
+###################################################
 
 class ItemInventoryAdjustForm(forms.Form):
 	storage = forms.ModelChoiceField(queryset=MyStorage.objects.all())
@@ -28,6 +40,11 @@ class ItemInventoryAddForm(ItemInventoryAdjustForm):
 	)
 	reason = forms.ChoiceField(choices = REASON_CHOICES)
 
+###################################################
+#
+#	MySalesOrder forms
+#
+###################################################
 class SalesOrderBaseForm(ModelForm):
 	customer = forms.ModelChoiceField(queryset=MyCRM.objects.customers())
 	class Meta:
@@ -59,6 +76,12 @@ class SalesOrderPaymentAddForm(ModelForm):
 		fields = ['so','usage','payment_method','amount']		
 		widgets = {'so': HiddenInput()}
 
+###################################################
+#
+#	MyVendorItem forms
+#
+###################################################
+
 class VendorItemAddForm(ModelForm):
 	price = forms.FloatField(min_value = 1, initial=1.0)
 	class Meta:
@@ -69,4 +92,27 @@ class VendorItemAddForm(ModelForm):
 			'vendor': HiddenInput(), 
 			'currency': HiddenInput()
 		}
-		
+
+###################################################
+#
+#	MyPurchaseOrder forms
+#
+###################################################
+class PurchaseOrderBaseForm(ModelForm):
+	vendor = forms.ModelChoiceField(queryset=MyCRM.objects.vendors())
+	class Meta:
+		model = MyPurchaseOrder
+		fields = ('vendor','so','location')
+
+class PurchaseOrderAddForm(PurchaseOrderBaseForm):
+	items = forms.CharField(
+		widget=forms.Textarea,
+		help_text = u'''Put one item per line, using syntax <span class="item-label">SKU #, color, size-qty</span>. 
+		Color field would be
+		used for partial matching so that you don't have to type in the entire string as they are shown on clothes tag. 
+		To enter size and qty, use syntax "S-1, M-2". This field is case insensitive.
+		'''
+	)
+
+	class Meta(PurchaseOrderBaseForm.Meta):
+		fields = PurchaseOrderBaseForm.Meta.fields + ('items',)		

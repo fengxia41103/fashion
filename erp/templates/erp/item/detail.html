@@ -156,8 +156,8 @@
 	</div>
 </div>	
 
-
-{# Related Order Section #}
+{% if related_sales_orders %}
+{# Related SO Section #}
 <div class="row">
 <h2 class="page-header">
 <i class="fa fa-book"></i>
@@ -174,11 +174,7 @@ Related Sales Orders
 	<tbody>
 	{% for so in related_sales_orders %}
 	<tr><td>
-		<a href="{% url 'so_detail' so.id %}">
-			View detail
-		</a>
-	</td><td>
-		{{ so.code }}	
+		<a href="{% url 'so_detail' so.id %}">{{ so.code }}</a>
 	</td><td>
 		{{ so.customer }}
 	</td><td>
@@ -190,6 +186,41 @@ Related Sales Orders
 	</tbody>
 </table>
 </div>
+{% endif %}
+
+{% if related_purchase_orders %}
+{# Related PO Section #}
+<div class="row">
+<h2 class="page-header">
+<i class="fa fa-book"></i>
+Related Purchase Orders
+</h2>
+<table class="table table-striped table-hover table-responsive">
+	<thead>
+		<th>#</th>
+		<th>VENDOR</th>
+		<th>TOTAL QTY</th>
+		<th>TOTAL VALUE</th>
+		<th>AVAILABILITY</th>
+	</thead>
+	<tbody>
+		{% for po in related_purchase_orders %}
+		<tr><td>
+			<a href="{% url 'po_detail' po.id %}">{{ po.code }}</a>
+		</td><td>
+			{{ po.vendor }}
+		</td><td>
+			{{ po.order_qty }}
+		</td><td>
+			{{po.vendor.currency}}{{ po.order_value|floatformat:2 }}
+		</td><td>
+			{{ po.available_in}}
+		</td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block modal %}

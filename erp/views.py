@@ -325,8 +325,14 @@ class MyItemDetail(DetailView):
 
 		# related sales orders
 		item_invs = MyItemInventory.objects.filter(item=self.object)
-		related_sales_order_ids = set(MySalesOrderLineItem.objects.filter(item__in=item_invs).values_list('order',flat=True))
-		context['related_sales_orders'] = MySalesOrder.objects.filter(id__in=related_sales_order_ids)
+		related_ids = set(MySalesOrderLineItem.objects.filter(item__in=item_invs).values_list('order',flat=True))
+		context['related_sales_orders'] = MySalesOrder.objects.filter(id__in=related_ids)
+
+		# related purchase orders
+		item_invs = MyItemInventory.objects.filter(item=self.object)
+		related_ids = set(MyPurchaseOrderLineItem.objects.filter(inv_item__in=item_invs).values_list('po',flat=True))
+		context['related_purchase_orders'] = MyPurchaseOrder.objects.filter(id__in=related_ids)
+
 
 		# vendor item form
 		context['vendor_items'] = MyVendorItem.objects.filter(product=self.object)

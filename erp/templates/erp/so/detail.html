@@ -4,6 +4,9 @@
 {% load static %}
 {% block page-header %}
 	销售订单: {{ object.code }}
+	{% if not object.is_editable %}
+		<i class="fa fa-lock"></i>
+	{% endif %}
 {% endblock %}
 
 {% block content %}

@@ -1254,3 +1254,27 @@ class MyPurchaseOrderList (FilterView):
 class MyPurchaseOrderDetail(DetailView):
 	model = MyPurchaseOrder
 	template_name = 'erp/po/detail.html'
+
+class MyPurchaseOrderDelete(DeleteView):
+	model = MyPurchaseOrder
+	template_name = 'erp/common/delete_form.html'	
+	success_url = reverse_lazy('po_list')
+
+	def get_context_data(self, **kwargs):
+		context = super(DeleteView, self).get_context_data(**kwargs)
+		context['title'] = u'Delete Purchase Order'
+		context['list_url'] = reverse_lazy('po_list')
+		return context
+
+@class_view_decorator(login_required)
+class MyPurchaseOrderPlace(TemplateView):
+	def post(self,request,pk):
+		po = MyPurchaseOrder.objects.get(id=int(pk))
+
+		# TODO: send order to vendor via email
+
+		# Save time stamp
+		po.placed_on = dt.now()
+		po.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+

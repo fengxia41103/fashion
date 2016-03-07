@@ -4,14 +4,30 @@
 	采购订单: {{ object.code }}
 	{% if not object.is_editable %}
 		<i class="fa fa-lock"></i>
-	{% endif %}
-	<a href="{% url 'po_add' %}" class="btn btn-xs addlink">
-		<i class="fa fa-plus"></i>
-		Add
-	</a>
+	{% endif %}	
 {% endblock %}
 
 {% block content %}
+<div class="row text-center">
+	{% if object.is_editable %}
+		<button class="btn btn-small btn-default"
+		data-toggle="modal" data-target="#po-edit">
+			<i class='fa fa-pencil'></i>
+			Edit
+		</button>				
+		<button class="btn btn-small btn-danger"
+		data-toggle="modal" data-target="#po-delete">
+			<i class='fa fa-pencil'></i>
+			Cancel order
+		</button>
+		<button class="btn btn-small my-command-btn"
+		data-toggle="modal" data-target="#po-place">
+			<i class='fa fa-pencil'></i>
+			Place order
+		</button>		
+	{% endif %}
+</div>
+
 {# order header #}
 <h2>Summary</h2>
 <div class="panel panel-default">
@@ -89,4 +105,45 @@
 	{% endfor %}
 	</tbody>
 </table>
+{% endblock %}
+
+{% block modal %}
+{# Place order modal #}
+<div id="po-place" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'po_place' object.id %}" method="POST">
+	{% csrf_token %}
+	
+    <!-- Modal content-->
+    <div class="modal-content">
+		{# Modal header #}
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Place order</h4>
+		</div>
+
+	    {# Modal body #}
+	    <div class="modal-body">			
+	    	<p>
+			This will send order to {{ object.vendor }}. Depending on your term with {{object.vendor}}, you may not be able to recall this order and thus have a responsibility to
+			make proper payment to this vendor.
+			</p>
+
+			<p class="alert alert-warning">
+			Are you sure to proceed?
+			</p>
+		</div>
+
+	      {# Modal footer #}
+		<div class="modal-footer">
+			<button class="btn btn-primary"  type="submit">
+				<i class="fa fa-lock"></i>
+				<span>Yes</span>
+			</button>      
+	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+		</div>
+	</div>
+</form>
+</div>
+</div>
 {% endblock %}

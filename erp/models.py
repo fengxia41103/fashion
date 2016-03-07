@@ -1101,7 +1101,7 @@ class MyPurchaseOrder(models.Model):
 	code = property(_code)
 
 	def _is_editable(self):
-		return self.placed_on is None
+		return not self.placed_on and not self.so
 	is_editable = property(_is_editable)
 
 	def _order_qty(self):

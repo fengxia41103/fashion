@@ -18,7 +18,7 @@
 		<th></th>
 		<th>VENDOR</th>
 		<th>CODE</th>
-		<th>SO</th>
+		<th>ASSOCIATED SALES ORDER</th>
 		<th>TO LOCATION</th>
 		</tr>
 	</thead>
@@ -26,10 +26,17 @@
 		{% for obj in object_list %}
 		<tr><td>
 			<a href="{% url 'po_detail' obj.id %}">Detail</a>
+
+			{% if obj.is_editable %}
+				| <a href="{% url 'po_delete' obj.id %}">Cancel</a>
+			{% endif %}
 		</td><td>
 			{{ obj.vendor }}
 		</td><td>
 			{{ obj.code }}
+			{% if not obj.is_editable %}
+				<i class="fa fa-lock"></i>
+			{% endif %}
 		</td><td>
 			{{ obj.so }}
 		</td><td>

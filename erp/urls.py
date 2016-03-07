@@ -96,6 +96,7 @@ urlpatterns = patterns(
 		url(r'^po/$', views.MyPurchaseOrderList.as_view(), name='po_list'),	
 		url(r'^po/add/$', views.MyPurchaseOrderAdd.as_view(), name='po_add'),		
 		url(r'^po/(?P<pk>\d+)/$', views.MyPurchaseOrderDetail.as_view(), name='po_detail'),
-
+		url(r'^po/delete/(?P<pk>\d+)/$', views.MyPurchaseOrderDelete.as_view(), name='po_delete'),
+		url(r'^po/place/(?P<pk>\d+)/$', views.MyPurchaseOrderPlace.as_view(), name='po_place'),
 
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

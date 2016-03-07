@@ -755,6 +755,9 @@ class MySalesOrderDetail(DetailView):
 			'amount':self.object.account_receivable
 		})
 
+		# related POs
+		context['purchase_orders'] = MyPurchaseOrder.objects.filter(so=self.object)
+
 		return context
 
 class MySalesOrderAddItem(TemplateView):
@@ -794,6 +797,37 @@ class MySalesOrderLineItemDelete(DeleteView):
 		context = super(DeleteView,self).get_context_data(**kwargs)
 		context['cancel_redirect_url'] = self.get_success_url()
 		return context
+
+class MySalesOrderToPurchaseOrder(TemplateView):
+	'''
+	Convert sales orders to POs
+	'''
+	def post(self,request,pk):
+		so = MySalesOrder.objects.get(id=int(pk))
+
+		items_by_brand = {}
+		for i in MySalesOrderLineItem.objects.filter(order = so):
+			item = i.item.item
+			if item.brand not in items_by_brand: items_by_brand[item.brand] = []
+			items_by_brand[item.brand].append(i)
+
+		for brand,items in items_by_brand.iteritems():
+			po = MyPurchaseOrder(
+				so = so,
+				vendor = brand,
+				location = so.default_storage.location,
+				created_by = request.user
+			)
+			po.save()
+
+			for item in items:
+				po_line_item = MyPurchaseOrderLineItem(
+					po = po,
+					inv_item = item.item,
+					qty = item.qty,
+				).save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
 
 ###################################################
 #

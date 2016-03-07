@@ -43,7 +43,7 @@
 		<div class="col-md-2"><label>Associated SO</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{% if object.so %}
-				<a href="{% url 'so_detail' object.so.id %}"{{ object.so }}/>
+				<a href="{% url 'so_detail' object.so.id %}">{{ object.so }}</a>
 			{% else %}
 				N/A
 			{% endif %}

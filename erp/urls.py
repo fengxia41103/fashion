@@ -64,6 +64,7 @@ urlpatterns = patterns(
 		url(r'^so/remove/item/(?P<pk>\d+)/$', views.MySalesOrderLineItemDelete.as_view(), name='so_remove_item'),
 		url(r'^so/edit/(?P<pk>\d+)/$', views.MySalesOrderEdit.as_view(), name='so_edit'),
 		url(r'^so/delete/(?P<pk>\d+)/$', views.MySalesOrderDelete.as_view(), name='so_delete'),
+		url(r'^so/2po/(?P<pk>\d+)/$', views.MySalesOrderToPurchaseOrder.as_view(), name='so_to_po'),
 
 		# Sales order fullfillment
 		url(r'^so/fullfill/add/(?P<pk>\d+)/$', views.MySalesOrderFullfillmentAdd.as_view(), name='so_fullfill_add'),		

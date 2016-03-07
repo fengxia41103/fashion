@@ -772,6 +772,21 @@ class MySalesOrder(models.Model):
 		return self.fullfill_discount_value - (self.total_payment)
 	account_receivable = property(_account_receivable)
 
+	def _vendors(self):
+		ids = set(MySalesOrderLineItem.objects.filter(order=self).values_list('item__item__brand',flat=True))
+		return MyCRM.objects.vendors.filter(id__in = ids)
+	vendors = property(_vendors)		
+
+	def _is_po_needed(self):
+		'''
+		SO needs PO if the following conditions are met:
+		1. Business model is Proxy
+		2. PO do not exist yet
+		'''
+		existing = MyPurchaseOrder.objects.filter(so=self,vendor__in=self.vendors)
+		return self.business_model.process_model==2 and len(existing)==0
+	is_po_needed = property(_is_po_needed)
+
 class MySalesOrderLineItem(models.Model):
 	order = models.ForeignKey('MySalesOrder')
 	item = models.ForeignKey('MyItemInventory')

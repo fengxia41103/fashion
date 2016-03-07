@@ -63,6 +63,21 @@
 			{{ object.vendor.currency}}{{ object.order_value|floatformat:2 }}
 		</div>
 		<div class="col-md-1"></div>		
+	</div><div class="row ">
+		<div class="col-md-2"><label>In Currency</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{{ object.vendor.currency.name }}
+		</div>
+		<div class="col-md-1"></div>		
+		<div class="col-md-2"><label>Order placed on</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{% if object.placed_on %}
+				{{ object.placed_on }}
+			{% else %}
+				&nbsp;
+			{% endif %}
+		</div>
+		<div class="col-md-1"></div>		
 	</div>
 	</div>
 </div>
@@ -94,11 +109,11 @@
 		</td><td>
 			{{ inv_item.size }}
 		</td><td>
-			{{ object.vendor.currency }}{{ line_item.price }}			
+			{{ object.vendor.currency }}{{ line_item.price|floatformat:2 }}			
 		</td><td>
 			{{ line_item.qty }}
 		</td><td>
-			{{ object.vendor.currency }}{{ line_item.value }}
+			{{ object.vendor.currency }}{{ line_item.value|floatformat:2 }}
 		</td></tr>
 		{% endwith %}
 		{% endwith %}

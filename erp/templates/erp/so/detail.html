@@ -444,11 +444,16 @@ Related Purchase Orders
 		<th>TOTAL QTY</th>
 		<th>TOTAL VALUE</th>
 		<th>AVAILABILITY</th>
+		<th>STATUS</th>
 	</thead>
 	<tbody>
 		{% for po in purchase_orders %}
 		<tr><td>
-			<a href="{% url 'po_detail' po.id %}">{{ po.code }}</a>
+			<a href="{% url 'po_detail' po.id %}">{{ po.code }}
+				{% if not po.is_editable %}
+					<i class="fa fa-lock"></i>
+				{% endif %}
+			</a>
 		</td><td>
 			{{ po.vendor }}
 		</td><td>
@@ -457,6 +462,18 @@ Related Purchase Orders
 			{{po.vendor.currency}}{{ po.order_value|floatformat:2 }}
 		</td><td>
 			{{ po.available_in}}
+		</td><td>
+			{% if po.is_editable %}
+			<form action="{% url 'po_place' po.id %}" method="POST">
+				{% csrf_token %}
+				<button class="btn btn-tiny" type="submit">
+					<i class="fa fa-lock"></i>
+					<span>Place order</span>
+				</button>   
+			</form>
+			{% else %}
+				Order sent on {{ po.placed_on }}
+			{% endif %}		
 		</td></tr>
 		{% endfor %}
 	</tbody>

@@ -21,6 +21,7 @@
 		<th>PLACED ON</th>
 		<th>ASSOCIATED SALES ORDER</th>
 		<th>TO LOCATION</th>
+		<th>AVAILABILITY</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -47,6 +48,12 @@
 			{% endif %}
 		</td><td>
 			{{ obj.location }}
+		</td><td>
+			<ul class="list-inline">
+			{% for m in obj.available_in %}
+				<li>{{ m }}</li>
+			{% endfor %}
+			</ul>
 		</td></tr>
     	{% endfor %}
 	</tbody>

@@ -790,7 +790,7 @@ class MySalesOrder(models.Model):
 	account_receivable = property(_account_receivable)
 
 	def _vendors(self):
-		ids = set(MySalesOrderLineItem.objects.filter(order=self).value_list('item__item__brand',flat=True))
+		ids = set(MySalesOrderLineItem.objects.filter(order=self).values_list('item__item__brand',flat=True))
 		return MyCRM.objects.vendors.filter(id__in = ids)
 	vendors = property(_vendors)		
 
@@ -1143,7 +1143,7 @@ class MyPurchaseOrder(models.Model):
 	order_qty = property(_order_qty)
 
 	def _available_in(self):
-		return set(MyPurchaseOrderLineItem.objects.filter(po=self).values('available_in',flat=True))
+		return set(MyPurchaseOrderLineItem.objects.filter(po=self).values_list('available_in',flat=True))
 	available_in = property(_available_in)
 
 	def _line_items(self):

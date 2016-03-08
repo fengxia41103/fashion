@@ -42,7 +42,7 @@
 	</button>	
 	{% endif %}
 
-	{% if object.is_po_needed %}
+	{% if not object.is_po_needed %}
 	<button class="btn btn-small my-command-btn"
 	data-toggle="modal" data-target="#po-add">
 		<a><i class='fa fa-pencil'></i>

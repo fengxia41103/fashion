@@ -728,11 +728,10 @@ class MySalesOrderDetail(DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super(DetailView,self).get_context_data(**kwargs)
-		line_items = MySalesOrderLineItem.objects.filter(order = self.object)
 
 		# Group same item sizes
 		items = {}
-		for i in line_items:
+		for i in MySalesOrderLineItem.objects.filter(order = self.object):
 			item = i.item.item
 
 			# Get vendor
@@ -801,6 +800,15 @@ class MySalesOrderLineItemDelete(DeleteView):
 		context = super(DeleteView,self).get_context_data(**kwargs)
 		context['cancel_redirect_url'] = self.get_success_url()
 		return context
+
+@class_view_decorator(login_required)
+class MySalesOrderLineItemUpdateQty(TemplateView):
+	def post(self,request):
+		id = int(request.POST['id'].split('-')[-1])
+		item = MySalesOrderLineItem.objects.get(id=id)
+		item.qty = request.POST['val']
+		item.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 class MySalesOrderToPurchaseOrder(TemplateView):
 	'''
@@ -1293,6 +1301,11 @@ class MyPurchaseOrderDetail(DetailView):
 	model = MyPurchaseOrder
 	template_name = 'erp/po/detail.html'
 
+	def get_context_data(self, **kwargs):
+		context = super(DetailView, self).get_context_data(**kwargs)
+		context['months'] = ESTIMATED_MONTH_CHOICES
+		return context
+
 class MyPurchaseOrderDelete(DeleteView):
 	model = MyPurchaseOrder
 	template_name = 'erp/common/delete_form.html'	
@@ -1316,3 +1329,11 @@ class MyPurchaseOrderPlace(TemplateView):
 		po.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+@class_view_decorator(login_required)
+class MyPurchaseOrderLineItemUpdateAvailability(TemplateView):
+	def post(self,request):
+		id = int(request.POST['id'].split('-')[-1])
+		item = MyPurchaseOrderLineItem.objects.get(id=id)
+		item.available_in = request.POST['val']
+		item.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])

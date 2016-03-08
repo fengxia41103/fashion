@@ -379,7 +379,7 @@
 					<dd>
 						{% if so_line_item.is_editable %}
 							{# qty input box #}
-							<input type="number" value="{{so_line_item.qty}}" style="width:50px;" data-toggle="order-qty">
+							<input type="number" value="{{so_line_item.qty}}" style="width:50px;" data-toggle="order-qty" id="line-item-{{so_line_item.id}}">
 
 							{# remove line item #}
 							<a href="{% url 'so_remove_item' so_line_item.id %}"
@@ -464,13 +464,7 @@ Related Purchase Orders
 			{{ po.available_in}}
 		</td><td>
 			{% if po.is_editable %}
-			<form action="{% url 'po_place' po.id %}" method="POST">
-				{% csrf_token %}
-				<button class="btn btn-tiny" type="submit">
-					<i class="fa fa-lock"></i>
-					<span>Place order</span>
-				</button>   
-			</form>
+				<a data-toggle="modal" data-target="#po-place-{{po.id}}">Place</a>
 			{% else %}
 				Order sent on {{ po.placed_on }}
 			{% endif %}		
@@ -723,6 +717,49 @@ Related Purchase Orders
 </form>
 </div>
 </div>
+
+{% for po in purchase_orders %}
+{% if po.is_editable %}
+	{# Place order modal #}
+	<div id="po-place-{{po.id}}" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+	<form action="{% url 'po_place' po.id %}" method="POST">
+		{% csrf_token %}
+		
+	    <!-- Modal content-->
+	    <div class="modal-content">
+			{# Modal header #}
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+		        <h4 class="modal-title">Place order</h4>
+			</div>
+
+		    {# Modal body #}
+		    <div class="modal-body">			
+		    	<p>
+				This will send order to {{ po.vendor }}. Depending on your term with 
+				{{po.vendor}}, you may not be able to recall this order and thus have a responsibility to make proper payment to this vendor.
+				</p>
+
+				<p class="alert alert-warning">
+				Are you sure to proceed?
+				</p>
+			</div>
+
+		      {# Modal footer #}
+			<div class="modal-footer">
+				<button class="btn btn-primary"  type="submit">
+					<i class="fa fa-lock"></i>
+					<span>Yes</span>
+				</button>      
+		        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</form>
+	</div>
+	</div>
+{% endif %}
+{% endfor %}
 {% endblock %}
 
 {% block custom_js %}
@@ -743,8 +780,17 @@ j$(document).ready(function(){
 		j$(this).closest('section').find('[data-toggle="lightbox"]').find('img:first-child').attr('src',url);
 	});	
 
-	j$('input[data-toggle="order-qty"]').change(function(){
-		console.log(j$(this).val());
+	j$('[data-toggle="order-qty"]').change(function(){
+		j$.post(
+			"{% url 'so_update_qty' %}",
+			{
+				'id':j$(this).attr('id'),
+				'val':j$(this).val()
+			},
+			function(){
+				toastr.success('Item qty has been updated.');
+			}
+		);		
 	});
 });
 </script>

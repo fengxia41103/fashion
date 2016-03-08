@@ -65,6 +65,7 @@ urlpatterns = patterns(
 		url(r'^so/edit/(?P<pk>\d+)/$', views.MySalesOrderEdit.as_view(), name='so_edit'),
 		url(r'^so/delete/(?P<pk>\d+)/$', views.MySalesOrderDelete.as_view(), name='so_delete'),
 		url(r'^so/2po/(?P<pk>\d+)/$', views.MySalesOrderToPurchaseOrder.as_view(), name='so_to_po'),
+		url(r'^so/qty/$', views.MySalesOrderLineItemUpdateQty.as_view(), name='so_update_qty'),
 
 		# Sales order fullfillment
 		url(r'^so/fullfill/add/(?P<pk>\d+)/$', views.MySalesOrderFullfillmentAdd.as_view(), name='so_fullfill_add'),		
@@ -99,5 +100,6 @@ urlpatterns = patterns(
 		url(r'^po/(?P<pk>\d+)/$', views.MyPurchaseOrderDetail.as_view(), name='po_detail'),
 		url(r'^po/delete/(?P<pk>\d+)/$', views.MyPurchaseOrderDelete.as_view(), name='po_delete'),
 		url(r'^po/place/(?P<pk>\d+)/$', views.MyPurchaseOrderPlace.as_view(), name='po_place'),
+		url(r'^po/avaibility/$', views.MyPurchaseOrderLineItemUpdateAvailability.as_view(), name='po_availability'),
 
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

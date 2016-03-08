@@ -92,6 +92,7 @@
 		<th>UNIT PRICE</th>
 		<th>ORDER QTY</th>
 		<th>ORDER VALUE</th>
+		<th>AVAILABLE IN</th>
 	</thead>
 
 	<tbody>
@@ -114,6 +115,16 @@
 			{{ line_item.qty }}
 		</td><td>
 			{{ object.vendor.currency }}{{ line_item.value|floatformat:2 }}
+		</td><td>
+			<select class="my-select" data-toggle="availability" id="line-item-{{line_item.id}}">
+				{% for a,b in months %}
+					{% if line_item.available_in == a %}
+						<option value="{{a}}" selected="selected">{{b}}</option>
+					{% else %}
+						<option value="{{a}}">{{b}}</option>
+					{% endif %}
+				{% endfor %}
+			</select>
 		</td></tr>
 		{% endwith %}
 		{% endwith %}
@@ -161,4 +172,23 @@
 </form>
 </div>
 </div>
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+j$(document).ready(function(){
+	j$('[data-toggle="availability"]').change(function(){
+		j$.post(
+			"{% url 'po_availability' %}",
+			{
+				'id':j$(this).attr('id'),
+				'val':j$(this).val()
+			},
+			function(){
+				toastr.success('Item availability has been updated.');
+			}
+		);
+	});
+});
+</script>
 {% endblock %}

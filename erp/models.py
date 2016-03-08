@@ -29,6 +29,23 @@ ITEM_TYPE_CHOICES = (
 	('Defect','Defect'),
 	('Sample','Sample')
 )
+ESTIMATED_MONTH_CHOICES = (
+	(u'UNKNOWN',u'UNKNOWN'),
+	(u'LOCAL',u'LOCAL'),
+	(u'NEVER',u'NEVER'),
+	(u'JAN',u'JAN'),
+	(u'FEB',u'FEB'),
+	(u'MAR',u'MAR'),
+	(U'APR',u'APR'),
+	(U'MAY',u'MAY'),
+	(U'JUN',u'JUN'),
+	(U'JUL',u'JUL'),
+	(U'AUG',u'AUG'),
+	(U'SEP',u'SEP'),
+	(U'OCT',u'OCT'),
+	(U'NOV',u'NOV'),
+	(U'DEC',u'DEC'),
+)
 ######################################################
 #
 #	Abstract models
@@ -630,9 +647,9 @@ class MyBusinessModel(MyBaseModel):
 
 	def _process_model(self):
 		if self.sales_model in ['Retail','Wholesale']: return 1
-		elif self.sales_model in ['Proxy']: return 2
-		elif self.sales_model in ['Consignment']: return 3
-		elif self.sales_model in ['Leasing']: return 4		
+		elif self.sales_model in ['Proxy',]: return 2
+		elif self.sales_model in ['Consignment',]: return 3
+		elif self.sales_model in ['Leasing',]: return 4		
 	process_model = property(_process_model)
 
 class MySalesOrder(models.Model):
@@ -773,7 +790,7 @@ class MySalesOrder(models.Model):
 	account_receivable = property(_account_receivable)
 
 	def _vendors(self):
-		ids = set(MySalesOrderLineItem.objects.filter(order=self).values_list('item__item__brand',flat=True))
+		ids = set(MySalesOrderLineItem.objects.filter(order=self).value_list('item__item__brand',flat=True))
 		return MyCRM.objects.vendors.filter(id__in = ids)
 	vendors = property(_vendors)		
 
@@ -784,6 +801,8 @@ class MySalesOrder(models.Model):
 		2. PO do not exist yet
 		'''
 		existing = MyPurchaseOrder.objects.filter(so=self,vendor__in=self.vendors)
+		print self.business_model.process_model
+
 		return self.business_model.process_model==2 and len(existing)==0
 	is_po_needed = property(_is_po_needed)
 
@@ -1136,23 +1155,6 @@ class MyPurchaseOrder(models.Model):
 	order_value = property(_order_value)
 
 class MyPurchaseOrderLineItem(models.Model):
-	ESTIMATED_MONTH_CHOICES = (
-		(u'UNKNOWN',u'UNKNOWN'),
-		(u'LOCAL',u'LOCAL'),
-		(u'NEVER',u'NEVER'),
-		(u'JAN',u'JAN'),
-		(u'FEB',u'FEB'),
-		(u'MAR',u'MAR'),
-		(U'APR',u'APR'),
-		(U'MAY',u'MAY'),
-		(U'JUN',u'JUN'),
-		(U'JUL',u'JUL'),
-		(U'AUG',u'AUG'),
-		(U'SEP',u'SEP'),
-		(U'OCT',u'OCT'),
-		(U'NOV',u'NOV'),
-		(U'DEC',u'DEC'),
-	)
 	po = models.ForeignKey('MyPurchaseOrder')
 	inv_item = models.ForeignKey('MyItemInventory')
 	qty = models.PositiveIntegerField(default = 1)

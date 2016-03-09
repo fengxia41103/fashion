@@ -1,0 +1,79 @@
+{% extends "erp/so/add.html" %}
+
+{% load crispy_forms_tags %}
+{% load static %}
+{% block page-header %}
+	Record {{vendor}} invoice
+{% endblock %}
+
+{% block content %}
+<form action="" method="POST">
+{% csrf_token %}
+
+{# invoice header #}
+<h2 class="page-header">Invoice information</h2>
+{{ form|crispy }}
+
+{# invoice details #}
+<h2 class="page-header">Item details</h2>
+<div class="btn-group" role="group" aria-label="">
+	<a  id="btn-clear-all" data-toggle="tooltip" title="Click to clear all inputs">
+		<i class="fa fa-minus">&nbsp;Clear all</i>
+	</a> | 
+	<a id="btn-fill-all" data-toggle="tooltip" title="Click to fill all inputs to order qty">
+		<i class="fa fa-plus">&nbsp;Fullfill all</i>
+	</a>
+</div>
+
+<table class="table table-striped table-hover table-responsive" id="invoice">
+	<thead>
+		<th>STYLE</th>
+		<th>COLOR</th>	
+		<th>SIZE</th>
+		<th>MAX QTY</th>
+		<th>INVOICE QTY</th>
+	</thead>
+
+	<tbody>
+	{% for inv_item,qty in items.iteritems %}
+	{% with inv_item.item as item %}
+		<tr><td>
+			<a href="{% url 'item_detail' item.id %}">
+			{{ item.name }}
+			</a>
+		</td><td>
+			{{ item.color }}		
+		</td><td>
+			{{ inv_item.size }}
+		</td><td>
+			{{ qty }}
+		</td><td class="editt">
+			<input type="number" value="0" name="inv-item-{{inv_item.id}}" id="{{inv_item.id}}" min="0" max="{{ qty }}" data-toggle="qty" style="width:100px;"/>			
+			<div class="btn-group" role="group" aria-label="">
+				<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
+					<i class="fa fa-minus"></i>
+				</button>
+				<button type="button" class="btn btn-tiny btn-primary" data-toggle="plus">
+					<i class="fa fa-plus"></i>
+				</button>
+			</div>		
+		</td></tr>
+	{% endwith %}
+	{% endfor %}
+	</tbody>
+</table>
+
+<button class="btn my-command-btn"  id="preview" style="display:none;">
+	<i class="fa fa-save"></i>
+	<span>Preview</span>
+</button>
+<button class="btn my-command-btn"  id="reset" style="display:none;">
+	<i class="fa fa-save"></i>
+	<span>Reset</span>
+</button>
+<button class="btn btn-primary"  type="submit" id="create">
+	<i class="fa fa-save"></i>
+	<span>Save invoice</span>
+</button>
+</form>
+{% endblock %}

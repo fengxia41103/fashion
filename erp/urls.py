@@ -102,4 +102,13 @@ urlpatterns = patterns(
 		url(r'^po/place/(?P<pk>\d+)/$', views.MyPurchaseOrderPlace.as_view(), name='po_place'),
 		url(r'^po/avaibility/$', views.MyPurchaseOrderLineItemUpdateAvailability.as_view(), name='po_availability'),
 
+		# Invoice
+		url(r'^invoices/$', views.MyInvoiceList.as_view(), name='invoice_list'),	
+		url(r'^invoice/vendor/add/(?P<pk>\d+)/$', views.MyVendorInvoiceAdd.as_view(), name='vendor_invoice_add'),	
+		url(r'^invoice/(?P<pk>\d+)/$', views.MyInvoiceDetail.as_view(), name='invoice_detail'),
+		url(r'^invoice/delete/(?P<pk>\d+)/$', views.MyInvoiceDelete.as_view(), name='invoice_delete'),
+		url(r'^invoice/edit/(?P<pk>\d+)/$', views.MyInvoiceEdit.as_view(), name='invoice_edit'),
+		url(r'^invoice/review/(?P<pk>\d+)/$', views.MyInvoiceReview.as_view(), name='invoice_review'),		
+		url(r'^invoice/line/edit/(?P<pk>\d+)/$', views.MyInvoiceLineItemEdit.as_view(), name='invoice_line_edit'),
+
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

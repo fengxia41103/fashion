@@ -25,7 +25,16 @@
 			<i class='fa fa-pencil'></i>
 			Place order
 		</button>		
+
+	{% else %}
+		<button class="btn btn-small my-command-btn">
+			<a href="{% url 'vendor_invoice_add' object.vendor.id %}">
+				<i class='fa fa-pencil'></i>
+				Save vendor invoice
+			</a>
+		</button>		
 	{% endif %}
+
 </div>
 
 {# order header #}

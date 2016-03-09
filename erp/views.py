@@ -1266,7 +1266,6 @@ class MyPurchaseOrderAdd(FormView):
 
 		# Add item to SO
 		result = add_item_to_purchase_order(form.cleaned_data['items'],po)
-
 		return super(FormView, self).form_valid(form)
 
 class MyPurchaseOrderListFilter (FilterSet):
@@ -1337,3 +1336,125 @@ class MyPurchaseOrderLineItemUpdateAvailability(TemplateView):
 		item.available_in = request.POST['val']
 		item.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+###################################################
+#
+#	MyInvoice views
+#
+###################################################
+@class_view_decorator(login_required)
+class MyVendorInvoiceAdd(TemplateView):
+	template_name = 'erp/invoice/vendor_add.html'
+	def get_context_data(self, **kwargs):
+		context = super(TemplateView, self).get_context_data(**kwargs)
+
+		# get vendor items
+		context['vendor'] = vendor = MyCRM.objects.get(id=int(kwargs['pk']))
+
+		# form
+		context['form'] = VendorInvoiceAddForm(initial={
+			'crm':vendor,
+			'created_by':self.request.user
+		})
+
+		# get open items
+		items = {}
+		for item in MyPurchaseOrderLineItem.objects.filter(po__vendor=vendor).order_by('inv_item__item__name'):
+			if item not in items: items[item.inv_item] = 0
+			items[item.inv_item] += item.qty
+		context['items'] = items
+
+		return context
+
+	def post(self,request,pk):
+		# create invoice
+		form = VendorInvoiceAddForm(self.request.POST)
+		if form.is_valid():
+			# create invoice
+			invoice = form.save()
+
+			# create invoice item records
+			for line_id,val in self.request.POST.iteritems():
+				if 'inv-item' in line_id and int(val):
+					inv_item = MyItemInventory.objects.get(id=int(line_id.split('-')[-1]))
+					MyInvoiceReceiveItem(
+						invoice = invoice,
+						inv_item = inv_item,
+						qty = int(val)
+					).save()
+	        return HttpResponseRedirect(reverse_lazy('invoice_detail',kwargs={'pk':invoice.id}))
+		# else:
+		# 	return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MyInvoiceDetail(DetailView):
+	model = MyInvoice
+	template_name = 'erp/invoice/detail.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(DetailView,self).get_context_data(**kwargs)
+		context['items'] = MyInvoiceReceiveItem.objects.filter(invoice=self.object)
+		
+		# Invoice edit view
+		context['invoice_edit_form'] = VendorInvoiceAddForm(instance=self.object)		
+		return context
+
+@class_view_decorator(login_required)
+class MyInvoiceDelete(DeleteView):
+	model = MyInvoice
+	template_name = 'erp/common/delete_form.html'	
+	success_url = reverse_lazy('invoice_list')
+
+class MyInvoiceEdit(UpdateView):
+	model = MyInvoice
+
+	def get_success_url(self):
+		 return reverse_lazy('invoice_detail', kwargs={'pk': self.object.id})
+
+class MyInvoiceLineItemEdit(UpdateView):
+	model = MyInvoice
+
+	def post(self,request,pk):
+		items = {}
+		for line_id,val in self.request.POST.iteritems():
+			if 'invoice-item' in line_id and int(val):
+				line_item = MyInvoiceReceiveItem.objects.get(id=int(line_id.split('-')[-1]))
+				line_item.qty = int(val)
+				line_item.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MyInvoiceReview(TemplateView):
+	def post(self,request,pk):
+		invoice = MyInvoice.objects.get(id=int(pk))
+		invoice.reviewed_by = self.request.user
+		invoice.reviewed_on = dt.now()
+		invoice.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])	
+
+class MyInvoiceListFilter (FilterSet):
+	crm = ModelChoiceFilter(queryset=MyCRM.objects.vendors())
+	class Meta:
+		model = MyInvoice
+		fields = {
+			'crm':['exact'],
+			'invoice_no':['contains'],
+		}
+
+class MyInvoiceList (FilterView):
+	template_name = 'erp/invoice/list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MyInvoiceListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'crm': context['filters']['crm'] = MyCRM.objects.get(id=int(val))
+		return context		

@@ -3,6 +3,7 @@ from django import forms
 from django.forms import formset_factory
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
+from datetime import datetime as dt
 from erp.models import *
 
 ###################################################
@@ -116,3 +117,17 @@ class PurchaseOrderAddForm(PurchaseOrderBaseForm):
 
 	class Meta(PurchaseOrderBaseForm.Meta):
 		fields = PurchaseOrderBaseForm.Meta.fields + ('items',)		
+
+###################################################
+#
+#	MyInvoice forms
+#
+###################################################
+class VendorInvoiceAddForm(ModelForm):
+	maturity_date = forms.DateField(required=False)
+	qty = forms.IntegerField(required=False)
+	class Meta:
+		model = MyInvoice
+		fields = ('crm','invoice_no','issued_on','maturity_date','qty','gross_cost','discount','created_by')
+		widgets = {'crm':HiddenInput(),'created_by':HiddenInput()}
+	

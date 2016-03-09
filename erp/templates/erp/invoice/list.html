@@ -1,0 +1,57 @@
+{% extends "erp/common/base.html" %}
+
+{% block page-header %}
+	Invoices
+{% endblock %}
+
+
+{% block content %}
+	{% include "erp/common/filter.html" %}
+
+	<table class="table table-striped table-hover table-responsive">
+	<thead>
+		<tr>
+		<th></th>
+		<th>VENDOR/CUSTOMER</th>
+		<th>CODE</th>
+		<th>INVOICE NO.</th>
+		<th>ISSUED ON</th>
+		<th>GROSS COST</th>
+		<th>DISCOUNT</th>
+		<th>DISCOUNTED VALUE</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for obj in object_list %}
+		<tr><td>
+			<a href="{% url 'invoice_detail' obj.id %}">Detail</a>
+
+			{% if obj.is_editable %}
+				| <a href="{% url 'invoice_delete' obj.id %}" data-toggle="tooltip" 
+				title="Delete invoice">Delete</a>
+			{% endif %}
+		</td><td>
+			{{ obj.crm }}
+		</td><td>
+			{{ obj.code }}
+			{% if not obj.is_editable %}
+				<i class="fa fa-lock"></i>
+			{% endif %}
+		</td><td>
+			{{ obj.invoice_no }}
+		</td><td>
+			{{ obj.issued_on }}
+		</td><td>
+			{{obj.crm.currency}}{{ obj.gross_cost|floatformat:2 }}
+		</td><td>
+			{{ obj.discount_in_pcnt }}
+		</td><td>
+			{{obj.crm.currency}}{{ obj.discount_value|floatformat:2 }}
+		</td></tr>
+    	{% endfor %}
+	</tbody>
+	</table>
+{% endblock %} {# end block content #}
+
+
+

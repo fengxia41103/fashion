@@ -120,12 +120,10 @@ def MySalesOrderReturn_post_save_handler(sender, instance, **kwargs):
 			)
 			
 			MyItemInventoryTheoreticalAudit(
-				created_by = instance.created_by,
+				created_by = instance.reviewed_by,
 				inv = inv_item, # item_inventory object
 				out = False, # we are putting items back into inventory
 				qty = return_line_item.return_qty,
-				# object_id = instance.id, # save RETURN_LINE_ITEM reference
-				# content_type = ContentType.objects.get_for_model(instance),
 				content_object = return_line_item,
 				reason = 'Sales order RETURN: %s' % return_line_item.reason.description
 			).save()
@@ -135,10 +133,24 @@ def MySalesOrderFullfillment_post_save_handler(sender, instance, **kwargs):
 	if instance.reviewed_on:
 		for item in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=instance):
 			MyItemInventoryTheoreticalAudit(
-				created_by = instance.created_by,
+				created_by = instance.reviewed_by,
 				inv = item.so_line_item.item, # item_inventory object
 				out = True, # we are withdrawing item from inventory
 				qty = item.fullfill_qty,
 				content_object = item,
 				reason = 'Sales order FULLFILLMENT'
 			).save()
+
+@receiver(post_save, sender=MyInvoice)
+def MyInvoice_post_save_handler(sender, instance, **kwargs):
+	if instance.reviewed_on:
+		for rcv_item in MyInvoiceReceiveItem.objects.filter(invoice=instance):
+			audit = MyItemInventoryTheoreticalAudit(
+				created_by = instance.reviewed_by,
+				inv = rcv_item.inv_item,
+				out = False,
+				qty = rcv_item.qty,
+				content_object = instance,
+				reason = 'Invoice receive',
+			)
+			audit.save()

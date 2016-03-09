@@ -372,6 +372,8 @@ class MyCRM(MyBaseModel):
 	
 class MyVendorItem(models.Model):
 	vendor = models.ForeignKey('MyCRM')
+	currency = models.ForeignKey('MyCurrency')
+	product = models.ForeignKey('MyItem')
 
 	# This is vendor SKU
 	sku = models.CharField(
@@ -390,8 +392,6 @@ class MyVendorItem(models.Model):
 		validators=[MinValueValidator(0.0),],		
 		verbose_name = u'MSRP'
 	)
-	currency = models.ForeignKey('MyCurrency')
-	product = models.ForeignKey('MyItem')
 
 	# If we know when is the deadline to place SO
 	# against this item. This is observed when showing items
@@ -557,7 +557,7 @@ class MyItemInventory(models.Model):
 	
 	def _theoretical(self):
 		inv = 0
-		for audit in MyItemInventoryPhysicalAudit.objects.filter(inv = self):
+		for audit in MyItemInventoryTheoreticalAudit.objects.filter(inv = self):
 			if audit.out: inv -= audit.qty
 			else: inv += audit.qty
 		return inv
@@ -571,6 +571,14 @@ class MyItemInventory(models.Model):
 		if self.item_type in ['New','Refurbished']: return True
 		else: return False
 	is_so_ready = property(_is_so_ready)
+
+	def _on_po_qty(self):
+		return sum(MyPurchaseOrderLineItem.objects.filter(inv_item=self).values_list('qty',flat=True))
+	on_po_qty = property(_on_po_qty)		
+
+	def _on_so_qty(self):
+		return sum(MySalesOrderLineItem.objects.filter(item=self).values_list('qty',flat=True))
+	on_so_qty = property(_on_so_qty)		
 
 class MyItemInventoryPhysicalAudit(models.Model):
 	created_on = models.DateField(auto_now_add = True)
@@ -1174,3 +1182,75 @@ class MyPurchaseOrderLineItem(models.Model):
 		if self.price: return self.price*self.qty
 		else: return None
 	value = property(_value)
+
+class MyInvoice(models.Model):
+	crm = models.ForeignKey('MyCRM')
+	created_on = models.DateField(auto_now_add = True)
+	created_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Invoice createed by',
+		help_text = '',
+		related_name = u'invoice_loggers'
+	)
+	invoice_no = models.CharField(
+		max_length = 128,
+		null = True,
+		blank = True,
+		verbose_name = u'Invoice no.'
+	)
+	issued_on = models.DateField()
+	gross_cost = models.FloatField()
+	discount = models.FloatField(default=0)
+	maturity_date = models.DateField(
+		null = True,
+		blank = True
+	)
+	qty = models.PositiveIntegerField(
+		null = True,
+		blank = True
+	)
+	reviewed_on = models.DateField(
+		null = True,
+		blank = True
+	)
+	reviewed_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Invoice reviewed by',
+		help_text = '',
+		related_name = u'invoice_reviewers'
+	)
+
+	def __unicode__(self):
+		return self.code
+
+	def _code(self):
+		if self.invoice_no: return '%s-%s'%(self.crm,self.invoice_no)
+		else: return 'INVOICE%06d'%(self.id)
+	code = property(_code)
+
+	def _is_editable(self):
+		return not self.reviewed_on
+	is_editable = property(_is_editable)
+
+	def _discount_value(self):
+		return self.gross_cost * (1-self.discount)
+	discount_value = property(_discount_value)
+
+	def _total_qty(self):
+		return sum(MyInvoiceReceiveItem.objects.filter(invoice=self).values_list('qty',flat=True))
+	total_qty = property(_total_qty)
+
+	def _discount_in_pcnt(self):
+		return '%d%%'%(self.discount*100)
+	discount_in_pcnt = property(_discount_in_pcnt)
+
+class MyInvoiceReceiveItem(models.Model):
+	invoice = models.ForeignKey('MyInvoice')
+	inv_item = models.ForeignKey('MyItemInventory')
+	qty = models.PositiveIntegerField(default = 1)

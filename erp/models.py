@@ -790,8 +790,8 @@ class MySalesOrder(models.Model):
 	account_receivable = property(_account_receivable)
 
 	def _vendors(self):
-		ids = set(MySalesOrderLineItem.objects.filter(order=self).values_list('item__item__brand',flat=True))
-		return MyCRM.objects.vendors.filter(id__in = ids)
+		ids = list(set(MySalesOrderLineItem.objects.filter(order=self).values_list('item__item__brand',flat=True)))
+		return MyCRM.objects.vendors().filter(id__in = ids)
 	vendors = property(_vendors)		
 
 	def _is_po_needed(self):
@@ -801,8 +801,6 @@ class MySalesOrder(models.Model):
 		2. PO do not exist yet
 		'''
 		existing = MyPurchaseOrder.objects.filter(so=self,vendor__in=self.vendors)
-		print self.business_model.process_model
-
 		return self.business_model.process_model==2 and len(existing)==0
 	is_po_needed = property(_is_po_needed)
 

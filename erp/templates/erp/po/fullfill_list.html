@@ -24,7 +24,7 @@ Purchase order fullfillments
 <tbody>
 	{% for obj in object_list %}
 	<tr><td>
-		<a href="{% url 'so_fullfill_detail' obj.id %}">Detail</a>
+		<a href="{% url 'po_fullfill_detail' obj.id %}">Detail</a>
 	</td><td>
 		{{ obj.code}}
 		{% if not obj.is_editable %}
@@ -33,15 +33,22 @@ Purchase order fullfillments
 	</td><td>
 		<a href="{% url 'po_detail' obj.po.id %}">
 			{{ obj.po }}
+			{% if not obj.po.is_editable %}
+				<i class="fa fa-lock"></i>
+			{% endif %}
 		</a>
 	</td><td>
 		{{ obj.qty }}
 	</td><td>
 		{{obj.po.vendor.currency}}{{ obj.value|floatformat:2 }}
 	</td><td>
-		{% for invoice in obj.invoices_set.all %}
-			{{ invoice }}
-			here
+		{% for invoice in obj.invoices.all %}
+			<a href="{% url 'invoice_detail' invoice.id %}">
+				{{ invoice }}
+				{% if not invoice.is_editable %}
+					<i class="fa fa-lock"></i>
+				{% endif %}
+			</a>
 		{% endfor %}
 	</td><td>
 		{{ obj.created_on }}

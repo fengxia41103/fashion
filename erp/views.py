@@ -1386,6 +1386,7 @@ class MyPurchaseOrderDetail(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super(DetailView, self).get_context_data(**kwargs)
 		context['months'] = ESTIMATED_MONTH_CHOICES
+		context['fullfillments'] = MyPOFullfillment.objects.filter(po=self.object)
 		return context
 
 class MyPurchaseOrderDelete(DeleteView):
@@ -1571,3 +1572,46 @@ class MyPOFullfillmentList (FilterView):
 			if val and f != "csrfmiddlewaretoken" and f != "page":
 				if f == 'po': context['filters']['po'] = MyPurchaseOrder.objects.get(id=int(val))
 		return context
+
+class MyPOFullfillmentDetail(DetailView):
+	model = MyPOFullfillment
+	template_name = 'erp/po/fullfill_detail.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(DetailView,self).get_context_data(**kwargs)
+		context['items'] = MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self.object).order_by('po_line_item__id')
+		return context
+
+@class_view_decorator(login_required)
+class MyPOFullfillmentReview(TemplateView):
+	def post(self,request,pk):
+		po_fullfill = MyPOFullfillment.objects.get(id=int(pk))
+		po_fullfill.reviewed_by = self.request.user
+		po_fullfill.reviewed_on = dt.now()
+		po_fullfill.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])		
+
+@class_view_decorator(login_required)
+class MyPOFullfillmentEdit(UpdateView):
+	model = MyPOFullfillment
+
+	def post(self,request,pk):
+		items = []
+		for line_id,qty in self.request.POST.iteritems():
+			if 'line-item-fullfill' in line_id:
+				qty = int(qty)		
+				f = MyPOFullfillmentLineItem.objects.get(id=int(line_id.split('-')[-1]))			
+				if qty and qty != f.fullfill_qty: 
+					f.fullfill_qty = qty
+					f.save() # update FullfillLineItem qty
+				elif qty == 0: # equal to delete this line item
+					f.delete()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MyPOFullfillmentDelete(DeleteView):
+	model = MyPOFullfillment
+	template_name = 'erp/common/delete_form.html'
+
+	def get_success_url(self):
+		return reverse_lazy('po_detail',kwargs={'pk':self.object.po.id})

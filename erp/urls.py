@@ -106,6 +106,10 @@ urlpatterns = patterns(
 
 		# Purchase order fullfillment
 		url(r'^po/fullfills/$', views.MyPOFullfillmentList.as_view(), name='po_fullfill_list'),		
+		url(r'^po/fullfill/(?P<pk>\d+)/$', views.MyPOFullfillmentDetail.as_view(), name='po_fullfill_detail'),		
+		url(r'^po/fullfill/review/(?P<pk>\d+)/$', views.MyPOFullfillmentReview.as_view(), name='po_fullfill_review'),		
+		url(r'^po/fullfill/edit/(?P<pk>\d+)/$', views.MyPOFullfillmentEdit.as_view(), name='po_fullfill_edit'),		
+		url(r'^po/fullfill/delete/(?P<pk>\d+)/$', views.MyPOFullfillmentDelete.as_view(), name='po_fullfill_delete'),		
 
 		# Invoice
 		url(r'^invoices/$', views.MyInvoiceList.as_view(), name='invoice_list'),	

@@ -170,6 +170,44 @@
 	{% endfor %}
 	</tbody>
 </table>
+
+{% if fullfillments %}
+{# Related fullfillment Section #}
+<h2 class="page-header">
+<i class="fa fa-book"></i>
+Fullfillment details
+</h2>
+<table class="table table-striped table-hover table-responsive">
+	<thead>
+		<th>FULLFILLMENT</th>
+		<th>QTY</th>
+		<th>VALUE</th>
+		<th>RELATED INVOICES</th>
+		<th>CREATED ON</th>
+		<th>REVIEWED ON</th>
+	</thead>
+	<tbody>
+		{% for f in fullfillments %}
+		<tr><td>
+			{{ f.code }}
+		</td><td>
+			{{ f.qty }}
+		</td><td>
+			{{ f.value }}
+		</td><td>
+			{% for invoice in  f.invoices.all %}
+				<a href="{% url 'invoice_detail' invoice.id %}">{{ invoice }}</a>
+			{% endfor %}
+		</td><td>
+			{{ f.created_on }}
+		</td><td>
+			{{ f.reviewed_on }}
+		</td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
 {% endblock %}
 
 {% block modal %}

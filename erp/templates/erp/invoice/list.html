@@ -12,9 +12,9 @@
 	<thead>
 		<tr>
 		<th></th>
-		<th>VENDOR/CUSTOMER</th>
 		<th>CODE</th>
-		<th>INVOICE NO.</th>
+		<th>VENDOR/CUSTOMER</th>		
+		<th>EXTERNAL INVOICE NO.</th>
 		<th>ISSUED ON</th>
 		<th>GROSS COST</th>
 		<th>DISCOUNT</th>
@@ -31,12 +31,12 @@
 				title="Delete invoice">Delete</a>
 			{% endif %}
 		</td><td>
-			{{ obj.crm }}
-		</td><td>
 			{{ obj.code }}
 			{% if not obj.is_editable %}
 				<i class="fa fa-lock"></i>
-			{% endif %}
+			{% endif %}		
+		</td><td>
+			{{ obj.crm }}
 		</td><td>
 			{{ obj.invoice_no }}
 		</td><td>

@@ -20,7 +20,6 @@
 		<th>CODE</th>
 		<th>PLACED ON</th>
 		<th>ASSOCIATED SALES ORDER</th>
-		<th>TO LOCATION</th>
 		<th>AVAILABILITY</th>
 		</tr>
 	</thead>
@@ -44,16 +43,12 @@
 			{{ obj.placed_on }}
 		</td><td>
 			{% if obj.so %}
-				<a href="{% url 'so_detail' obj.so.id %}">{{ obj.so }}</a>
+				<a href="{% url 'so_detail' obj.so.id %}">{{ obj.so.code }}</a>
 			{% endif %}
 		</td><td>
-			{{ obj.location }}
-		</td><td>
-			<ul class="list-inline">
 			{% for m in obj.available_in %}
-				<li>{{ m }}</li>
+				{{ m }}<br />
 			{% endfor %}
-			</ul>
 		</td></tr>
     	{% endfor %}
 	</tbody>

@@ -241,8 +241,25 @@
 								<i class="fa fa-plus"></i>
 								View orders			
 							</a>						
-						</li>														
-
+						</li>
+						<li>
+							<a href="{% url "so_payment_list" %}">
+								<i class="fa fa-plus"></i>
+								View SO payments			
+							</a>						
+						</li>
+						<li>
+							<a href="{% url "so_fullfill_list" %}">
+								<i class="fa fa-plus"></i>
+								View SO fullfillments
+							</a>						
+						</li>
+						<li>
+							<a href="{% url "so_return_list" %}">
+								<i class="fa fa-plus"></i>
+								View SO returns
+							</a>						
+						</li>						
 						<li class="divider"></li>							
 						<li>
 							<a href="{% url "so_add" %}">
@@ -264,7 +281,12 @@
 								View orders			
 							</a>						
 						</li>														
-
+						<li>
+							<a href="{% url "po_fullfill_list" %}">
+								<i class="fa fa-plus"></i>
+								View PO fullfillments
+							</a>						
+						</li>
 						<li class="divider"></li>							
 						<li>
 							<a href="{% url "po_add" %}">

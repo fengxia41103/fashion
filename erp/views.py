@@ -757,10 +757,17 @@ class MySalesOrderDetail(DetailView):
 		context['so_edit_form'] = SalesOrderEditForm(instance=self.object)
 
 		# SO payment add view
-		context['so_payment_add_form'] = SalesOrderPaymentAddForm(initial={
-			'so':self.object,
-			'amount':self.object.account_receivable
-		})
+		if self.object.account_receivable:
+			context['so_payment_add_form'] = SalesOrderPaymentAddForm(initial={
+				'so':self.object,
+				'amount':self.object.account_receivable
+			})
+		else:
+			context['so_payment_add_form'] = SalesOrderPaymentAddForm(initial={
+				'so':self.object,
+				'usage':'deposit', # we default to deposit if there is no AR
+				'amount':1.0
+			})			
 
 		# related POs
 		context['purchase_orders'] = MyPurchaseOrder.objects.filter(so=self.object)
@@ -850,9 +857,31 @@ class MySalesOrderToPurchaseOrder(TemplateView):
 #	Sales Order Payment views
 #
 ###################################################
-class MySalesOrderPaymentList(ListView):
-	model = MySalesOrderPayment
-	template_name = 'erp/payment/payment/so_list.html'
+class MySalesOrderPaymentListFilter (FilterSet):
+	class Meta:
+		model = MySalesOrderPayment
+		fields = {
+			'so':['exact'],
+			'payment_method':['exact'],
+		}
+
+class MySalesOrderPaymentList (FilterView):
+	template_name = 'erp/payment/so_list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MySalesOrderPaymentListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'so': context['filters']['so'] = MySalesOrder.objects.get(id=int(val))
+		return context
 
 class MySalesOrderPaymentAdd(FormView):
 	form_class = SalesOrderPaymentAddForm
@@ -985,6 +1014,31 @@ class MySalesOrderFullfillmentReviewBatch(TemplateView):
 			fullfill.reviewed_on = dt.now()
 			fullfill.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+class MySalesOrderFullfillmentListFilter (FilterSet):
+	class Meta:
+		model = MySalesOrderFullfillment
+		fields = {
+			'so':['exact'],
+		}
+
+class MySalesOrderFullfillmentList (FilterView):
+	template_name = 'erp/so/fullfill_list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MySalesOrderFullfillmentListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'so': context['filters']['so'] = MySalesOrder.objects.get(id=int(val))
+		return context
 
 ###################################################
 #
@@ -1121,6 +1175,31 @@ class MySalesOrderReturnReviewUndo(TemplateView):
 		so_return.reviewed_on = None
 		so_return.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+class MySalesOrderReturnListFilter (FilterSet):
+	class Meta:
+		model = MySalesOrderReturn
+		fields = {
+			'so':['exact'],
+		}
+
+class MySalesOrderReturnList (FilterView):
+	template_name = 'erp/so/return_list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MySalesOrderReturnListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'so': context['filters']['so'] = MySalesOrder.objects.get(id=int(val))
+		return context
 
 ###################################################
 #
@@ -1461,4 +1540,34 @@ class MyInvoiceList (FilterView):
 		for f,val in searches.data.iteritems():
 			if val and f != "csrfmiddlewaretoken" and f != "page":
 				if f == 'crm': context['filters']['crm'] = MyCRM.objects.get(id=int(val))
-		return context		
+		return context
+
+###################################################
+#
+#	MyPOFullfillment views
+#
+###################################################
+class MyPOFullfillmentListFilter (FilterSet):
+	class Meta:
+		model = MyPOFullfillment
+		fields = {
+			'po':['exact'],
+		}
+
+class MyPOFullfillmentList (FilterView):
+	template_name = 'erp/po/fullfill_list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MyPOFullfillmentListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'po': context['filters']['po'] = MyPurchaseOrder.objects.get(id=int(val))
+		return context

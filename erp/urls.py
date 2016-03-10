@@ -68,6 +68,7 @@ urlpatterns = patterns(
 		url(r'^so/qty/$', views.MySalesOrderLineItemUpdateQty.as_view(), name='so_update_qty'),
 
 		# Sales order fullfillment
+		url(r'^so/fullfills/$', views.MySalesOrderFullfillmentList.as_view(), name='so_fullfill_list'),		
 		url(r'^so/fullfill/add/(?P<pk>\d+)/$', views.MySalesOrderFullfillmentAdd.as_view(), name='so_fullfill_add'),		
 		url(r'^so/fullfill/(?P<pk>\d+)/$', views.MySalesOrderFullfillmentDetail.as_view(), name='so_fullfill_detail'),
 		url(r'^so/fullfill/edit/(?P<pk>\d+)/$', views.MySalesOrderFullfillmentEdit.as_view(), name='so_fullfill_edit'),		
@@ -76,6 +77,7 @@ urlpatterns = patterns(
 		url(r'^so/fullfill/review/batch/(?P<pk>\d+)/$', views.MySalesOrderFullfillmentReviewBatch.as_view(), name='so_fullfill_review_batch'),		
 
 		# Sales order return
+		url(r'^so/returns/$', views.MySalesOrderReturnList.as_view(), name='so_return_list'),		
 		url(r'^so/return/add/(?P<pk>\d+)/$', views.MySalesOrderReturnAdd.as_view(), name='so_return_add'),		
 		url(r'^so/return/(?P<pk>\d+)/$', views.MySalesOrderReturnDetail.as_view(), name='so_return_detail'),
 		url(r'^so/return/edit/(?P<pk>\d+)/$', views.MySalesOrderReturnEdit.as_view(), name='so_return_edit'),		
@@ -101,6 +103,9 @@ urlpatterns = patterns(
 		url(r'^po/delete/(?P<pk>\d+)/$', views.MyPurchaseOrderDelete.as_view(), name='po_delete'),
 		url(r'^po/place/(?P<pk>\d+)/$', views.MyPurchaseOrderPlace.as_view(), name='po_place'),
 		url(r'^po/avaibility/$', views.MyPurchaseOrderLineItemUpdateAvailability.as_view(), name='po_availability'),
+
+		# Purchase order fullfillment
+		url(r'^po/fullfills/$', views.MyPOFullfillmentList.as_view(), name='po_fullfill_list'),		
 
 		# Invoice
 		url(r'^invoices/$', views.MyInvoiceList.as_view(), name='invoice_list'),	

@@ -1,0 +1,54 @@
+{% extends "erp/common/base.html" %}
+
+{% block page-header %}
+Purchase order fullfillments
+{% endblock %}
+
+
+{% block content %}
+{% include "erp/common/filter.html" %}
+
+<table class="table table-striped table-hover table-responsive my-datatable">
+<thead>
+	<tr>
+	<th></th>
+	<th>FULLFILLMENT</th>
+	<th>PURCHASE ORDER</th>
+	<th>QTY</th>
+	<th>VALUE</th>
+	<th>RELATED INVOICES</th>
+	<th>CREATED ON</th>
+	<th>REVIEWED ON</th>
+	</tr>
+</thead>
+<tbody>
+	{% for obj in object_list %}
+	<tr><td>
+		<a href="{% url 'so_fullfill_detail' obj.id %}">Detail</a>
+	</td><td>
+		{{ obj.code}}
+		{% if not obj.is_editable %}
+			<i class="fa fa-lock"></i>
+		{% endif %}
+	</td><td>
+		<a href="{% url 'po_detail' obj.po.id %}">
+			{{ obj.po }}
+		</a>
+	</td><td>
+		{{ obj.qty }}
+	</td><td>
+		{{obj.po.vendor.currency}}{{ obj.value|floatformat:2 }}
+	</td><td>
+		{% for invoice in obj.invoices_set.all %}
+			{{ invoice }}
+			here
+		{% endfor %}
+	</td><td>
+		{{ obj.created_on }}
+	</td><td>
+		{{ obj.reviewed_on }}
+	</td></tr>
+	{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -1160,6 +1160,22 @@ class MyPurchaseOrder(models.Model):
 		return sum(filter(lambda x: x is not None,[item.value for item in self.line_items]))
 	order_value = property(_order_value)
 
+	def _fullfill_qty(self):
+		return sum([x.qty for x in MyPOFullfillment.objects.filter(po=self)])
+	fullfill_qty = property(_fullfill_qty)
+
+	def _fullfill_value(self):
+		return sum([x.value for x in MyPOFullfillment.objects.filter(po=self)])
+	fullfill_value = property(_fullfill_value)
+
+	def _fullfill_rate_by_qty(self):
+		return '%d%%'%int(self.fullfill_qty/self.order_qty*100)
+	fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
+
+	def _fullfill_rate_by_value(self):
+		return '%d%%'%int(self.fullfill_value/self.order_value*100)
+	fullfill_rate_by_value = property(_fullfill_rate_by_value)
+
 class MyPurchaseOrderLineItem(models.Model):
 	po = models.ForeignKey('MyPurchaseOrder')
 	inv_item = models.ForeignKey('MyItemInventory')

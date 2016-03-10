@@ -43,16 +43,18 @@
 		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Gross cost</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ obj.crm.currency}}{{ object.gross_cost|floatformat:2 }}
+			{{ object.crm.currency}}{{ object.gross_cost|floatformat:2 }}
 		</div>
 		<div class="col-md-1"></div>
 	</div><div class="row ">
 		<div class="col-md-2"><label>Discount</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.discount_in_pcnt }}</div>
 		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Discounted invoice total</label></div>
+		<div class="col-md-2"><label>Discounted total</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ obj.crm.currency}}{{ object.discount_value|floatformat:2 }}
+			<label class="danger">
+			{{ object.crm.currency}}{{ object.discount_value|floatformat:2 }}
+			</label>
 		</div>
 		<div class="col-md-1"></div>		
 	</div><div class="row ">
@@ -162,6 +164,7 @@
 {% endif %}
 </form>
 
+{% if object.mypofullfillment_set.all %}
 {# Related PO FULLFILLMENT Section #}
 <h2 class="page-header">
 <i class="fa fa-book"></i>
@@ -187,7 +190,7 @@ Related PO fullfillments
 		</td><td>
 			{{ f.qty }}
 		</td><td>
-			{{ f.value }}
+			{{f.po.vendor.currency}}{{ f.value|floatformat:2 }}
 		</td><td>
 			<a href="{% url 'po_detail' f.po.id %}">
 				{{ f.po }}
@@ -199,6 +202,7 @@ Related PO fullfillments
 	{% endfor %}
 	</tbody>
 </table>
+{% endif %}
 {% endblock %}
 
 {% block modal %}

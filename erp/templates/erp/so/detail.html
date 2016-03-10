@@ -458,7 +458,9 @@ Related Purchase Orders
 		</td><td>
 			{{po.vendor.currency}}{{ po.order_value|floatformat:2 }}
 		</td><td>
-			{{ po.available_in}}
+			{% for available in po.available_in %}
+				{{ available }}
+			{% endfor %}
 		</td><td>
 			{% if po.is_editable %}
 				<a data-toggle="modal" data-target="#po-place-{{po.id}}">Place</a>

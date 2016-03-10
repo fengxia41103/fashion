@@ -284,7 +284,11 @@ class MyItemListFilter (FilterSet):
 
 	class Meta:
 		model = MyItem
-		fields = ['brand','season','name']
+		fields = {
+			'brand':['exact'],
+			'season':['exact'],
+			'name':['contains']
+		}
 		together = ['season']
 
 class MyItemList (FilterView):

@@ -883,7 +883,7 @@ class MySalesOrderFullfillment(models.Model):
 		default = None,
 		verbose_name = u'创建用户',
 		help_text = '',
-		related_name = "fullfillment_loggers"
+		related_name = "so_fullfillment_loggers"
 	)
 	reviewed_on = models.DateField(
 		null = True,
@@ -897,7 +897,7 @@ class MySalesOrderFullfillment(models.Model):
 		default = None,
 		verbose_name = u'Reviewer',
 		help_text = '',
-		related_name = 'fullfillment_reviewers'
+		related_name = 'so_fullfillment_reviewers'
 	)
 	def __unicode__(self):
 		return '%s/%s'%(self.so.code,self.code)
@@ -1254,3 +1254,68 @@ class MyInvoiceReceiveItem(models.Model):
 	invoice = models.ForeignKey('MyInvoice')
 	inv_item = models.ForeignKey('MyItemInventory')
 	qty = models.PositiveIntegerField(default = 1)
+
+class MyPOFullfillment(models.Model):
+	'''
+	Fullfillment would require an associated PO.
+	'''
+	po = models.ForeignKey('MyPurchaseOrder')
+
+	created_on = models.DateField(auto_now_add = True)
+	created_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'创建用户',
+		help_text = '',
+		related_name = "po_fullfillment_loggers"
+	)
+	reviewed_on = models.DateField(
+		null = True,
+		blank = True,
+		default = None
+	)
+	reviewed_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Reviewer',
+		help_text = '',
+		related_name = 'po_fullfillment_reviewers'
+	)
+
+	invoices = models.ManyToManyField('MyInvoice')
+
+	def __unicode__(self):
+		return '%s/%s'%(self.po.code,self.code)
+
+	def _code(self):
+		return 'POFF%3d' % self.id
+	code = property(_code)
+
+	def _qty(self):
+		return sum([f.fullfill_qty for f in MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self)])
+	qty = property(_qty)
+
+	def _value(self):
+		return sum([f.fullfill_value for f in MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self)])
+	value = property(_value)
+
+	def _is_editable(self):
+		return self.reviewed_on is None
+	is_editable = property(_is_editable)
+
+class MyPOFullfillmentLineItem(models.Model):
+	po_fullfillment = models.ForeignKey('MyPOFullfillment')
+	po_line_item = models.ForeignKey('MyPurchaseOrderLineItem')
+	fullfill_qty = models.IntegerField(
+		default = 0,
+		validators=[MinValueValidator(0),]
+	)
+	invoice = models.ForeignKey('MyInvoice')
+	
+	def _fullfill_value(self):
+		return self.fullfill_qty * self.po_line_item.price
+	fullfill_value = property(_fullfill_value)

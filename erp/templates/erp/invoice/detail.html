@@ -13,25 +13,21 @@
 
 {% if object.is_editable %}
 {# review #}
-<div class="text-center">
-	<p><form action="{% url 'invoice_review' object.id %}" method="POST">
-		{% csrf_token %}
-
-		<button class="btn btn-small btn-default"
-		data-toggle="modal" data-target="#invoice-edit">
-			<i class='fa fa-pencil'></i>
-			Edit
-		</button>			
-		<button class="btn my-command-btn"  type="submit" id="create">
-			<i class="fa fa-save"></i>
-			<span>Finalize this invoice</span>
-		</button>		
-		</form>
-	</p>
+<div class="row text-center">
+	<button class="btn btn-small btn-default"
+	data-toggle="modal" data-target="#invoice-edit">
+		<i class='fa fa-pencil'></i>
+		Edit
+	</button>			
+	<button class="btn my-command-btn"  data-toggle="modal" 
+	data-target="#invoice-review">
+		Finalize this invoice
+	</button>		
 </div>
 {% endif %}
 
 {# order header #}
+<h2>Summary</h2>
 <div class="panel panel-default">
   	<div class="panel-body">
 	<div class="row ">
@@ -235,6 +231,50 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">
         	<i class="fa fa-close">No</i>
         </button>
+      </div>
+    </div>
+</form>          
+</div>
+</div>
+
+{# Invoice review modal #}
+<div id="invoice-review" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'invoice_review' object.id %}" method="POST">
+{% csrf_token %}
+    <!-- Modal content-->
+    <div class="modal-content">
+
+    	{# Modal header #}
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Finalize {{ object.code }}</h4>
+      </div>
+
+      {# Modal body #}
+      <div class="modal-body">	
+		<p>
+		Finalizing invoice will add received items to inventory.
+		</p>
+
+		<p>
+		Further, system
+		will automatically search and fullfill available sales orders using the items
+		received on this invoice. This process may take a while and can not be interrupted.
+		</p>
+
+		<p class="alert alert-warning">
+		Are you sure to proceed?
+		</p>
+      </div>
+
+      {# Modal footer #}
+      <div class="modal-footer">
+		<button class="btn btn-primary" type="submit">
+			<i class="fa fa-save"></i>
+			<span>Save</span>
+		</button>      
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
 </form>          

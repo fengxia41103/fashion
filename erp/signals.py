@@ -1,6 +1,7 @@
 from django.db.models.signals import pre_save,post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from datetime import datetime as dt
 from erp.models import *
 
 @receiver(pre_save, sender=MySizeChart)
@@ -144,13 +145,53 @@ def MySalesOrderFullfillment_post_save_handler(sender, instance, **kwargs):
 @receiver(post_save, sender=MyInvoice)
 def MyInvoice_post_save_handler(sender, instance, **kwargs):
 	if instance.reviewed_on:
-		for rcv_item in MyInvoiceReceiveItem.objects.filter(invoice=instance):
-			audit = MyItemInventoryTheoreticalAudit(
+		rcv_items = MyInvoiceReceiveItem.objects.filter(invoice=instance)
+
+		new_inventory = {}		
+		for rcv_item in rcv_items:
+			new_inventory[rcv_item.inv_item] = rcv_item.qty
+
+		# Auto fullfill open PO items, sorted by order's created_on date stamp
+		inv_items = set([rcv_item.inv_item for rcv_item in rcv_items])
+		po_line_items = MyPurchaseOrderLineItem.objects.filter(inv_item__in=inv_items).order_by('po__created_on')
+		group_by_po = {}
+		for tmp in po_line_items:
+			if tmp.po not in group_by_po: group_by_po[tmp.po] = []
+			group_by_po[tmp.po].append(tmp)
+		for po,line_items in group_by_po.iteritems():
+			# create PO FULLFILLMENT
+			fullfill = MyPOFullfillment(
+				po = po,
 				created_by = instance.reviewed_by,
-				inv = rcv_item.inv_item,
-				out = False,
-				qty = rcv_item.qty,
-				content_object = instance,
-				reason = 'Invoice receive',
 			)
-			audit.save()
+			fullfill.save()
+
+			# add a reference to invoice
+			fullfill.invoices.add(instance)
+
+			# create line items
+			for item in line_items:
+				MyPOFullfillmentLineItem(
+					po_fullfillment = fullfill,
+					po_line_item = item,
+					fullfill_qty = new_inventory[item.inv_item],
+					invoice = instance
+				).save()
+
+			# auto finalize fullfill
+			fullfill.reviewed_by = instance.reviewed_by
+			fullfill.reviewed_on = dt.now()
+			fullfill.save()
+
+@receiver(post_save, sender=MyPOFullfillment)
+def MyPOFullfillment_post_save_handler(sender, instance, **kwargs):
+	if instance.reviewed_on:
+		for fullfill_line_item in MyPOFullfillmentLineItem.objects.filter(po_fullfillment = instance):
+			MyItemInventoryTheoreticalAudit(
+				created_by = instance.reviewed_by,
+				inv = fullfill_line_item.po_line_item.inv_item,
+				out = False,
+				qty = fullfill_line_item.fullfill_qty,
+				content_object = instance,
+				reason = 'Purchase order FULLFILLMENT from INVOICE %s'%fullfill_line_item.invoice
+			).save()		

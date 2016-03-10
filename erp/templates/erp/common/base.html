@@ -274,6 +274,22 @@
 					</ul>
 				</li>				
 
+				<li class="dropdown">
+					<a href="" class="" data-toggle="dropdown">
+						<i class="fa fa-search"></i>
+						Invoice								
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li>
+							<a href="{% url "invoice_list" %}">
+								<i class="fa fa-plus"></i>
+								View invoices			
+							</a>						
+						</li>														
+					</ul>
+				</li>	
+
 				{% if user.is_authenticated %}
 				<li>
 					<a href="{% url 'logout' %}">

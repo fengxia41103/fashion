@@ -1159,19 +1159,21 @@ class MyPurchaseOrder(models.Model):
 	order_value = property(_order_value)
 
 	def _fullfill_qty(self):
-		return sum([x.qty for x in MyPOFullfillment.objects.filter(po=self)])
+		return sum([x.fullfill_qty for x in MyPOFullfillment.objects.filter(po=self)])
 	fullfill_qty = property(_fullfill_qty)
 
 	def _fullfill_value(self):
-		return sum([x.value for x in MyPOFullfillment.objects.filter(po=self)])
+		return sum([x.fullfill_value for x in MyPOFullfillment.objects.filter(po=self)])
 	fullfill_value = property(_fullfill_value)
 
 	def _fullfill_rate_by_qty(self):
-		return '%d%%'%int(self.fullfill_qty/self.order_qty*100)
+		if self.order_qty: return self.fullfill_qty*100.0/self.order_qty
+		else: return 0
 	fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
 
 	def _fullfill_rate_by_value(self):
-		return '%d%%'%int(self.fullfill_value/self.order_value*100)
+		if self.order_value: return self.fullfill_value*100.0/self.order_value
+		else: return 0
 	fullfill_rate_by_value = property(_fullfill_rate_by_value)
 
 class MyPurchaseOrderLineItem(models.Model):
@@ -1196,6 +1198,23 @@ class MyPurchaseOrderLineItem(models.Model):
 		if self.price: return self.price*self.qty
 		else: return None
 	value = property(_value)
+
+	def _fullfill_qty(self):
+		return sum(MyPOFullfillmentLineItem.objects.filter(po_line_item=self).values_list('fullfill_qty',flat=True))
+	fullfill_qty = property(_fullfill_qty)
+
+	def _fullfill_value(self):
+		return sum([x.fullfill_value for x in MyPOFullfillmentLineItem.objects.filter(po_line_item=self)])
+	fullfill_value = property(_fullfill_value)
+
+	def _fullfill_rate_by_qty(self):
+		return self.fullfill_qty/self.qty*100
+	fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
+
+	def _fullfill_rate_by_value(self):
+		if self.value: return self.fullfill_value/self.value
+		else: return ''
+	fullfill_rate_by_value = property(_fullfill_rate_by_value)
 
 class MyInvoice(models.Model):
 	crm = models.ForeignKey('MyCRM')
@@ -1310,7 +1329,7 @@ class MyPOFullfillment(models.Model):
 	code = property(_code)
 
 	def _qty(self):
-		return sum([f.fullfill_qty for f in MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self)])
+		return sum(MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self).values_list('fullfill_qty',flat=True))
 	qty = property(_qty)
 
 	def _value(self):
@@ -1320,6 +1339,14 @@ class MyPOFullfillment(models.Model):
 	def _is_editable(self):
 		return self.reviewed_on is None
 	is_editable = property(_is_editable)
+
+	def _fullfill_qty(self):
+		return sum(MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self).values_list('fullfill_qty',flat=True))
+	fullfill_qty = property(_fullfill_qty)
+
+	def _fullfill_value(self):
+		return sum([x.fullfill_value for x in MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self)])
+	fullfill_value = property(_fullfill_value)		
 
 class MyPOFullfillmentLineItem(models.Model):
 	po_fullfillment = models.ForeignKey('MyPOFullfillment')

@@ -177,6 +177,7 @@ Related PO fullfillments
 		<th>QTY</th>
 		<th>VALUE</th>
 		<th>RELATED PO</th>
+		<th>RELATED SO</th>
 	</thead>
 	<tbody>
 	{% for f in object.mypofullfillment_set.all %}
@@ -198,6 +199,15 @@ Related PO fullfillments
 					<i class="fa fa-lock"></i>
 				{% endif %}
 			</a>
+		</td><td>
+			{% if f.po.so %}
+				<a href="{% url 'so_detail' f.po.so.id %}">
+				{{ f.po.so }}
+				{% if not f.po.so.is_editable %}
+					<i class="fa fa-lock"></i>
+				{% endif %}
+				</a>
+			{% endif %}
 		</td></tr>
 	{% endfor %}
 	</tbody>

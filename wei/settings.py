@@ -27,7 +27,7 @@ SECRET_KEY = 's+3msph#0v4o=fvu^*i!42hrp^w5(j6sr#kis@)=8^q3p3=+*m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = DJANGO_DEBUG
 TEMPLATE_DEBUG = DEBUG
-USE_THOUSAND_SEPARATOR = True
+USE_THOUSAND_SEPARATOR = False
 ALLOWED_HOSTS = ['*']
 
 

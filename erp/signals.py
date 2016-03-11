@@ -194,4 +194,35 @@ def MyPOFullfillment_post_save_handler(sender, instance, **kwargs):
 				qty = fullfill_line_item.fullfill_qty,
 				content_object = instance,
 				reason = 'Purchase order FULLFILLMENT from INVOICE %s'%fullfill_line_item.invoice
-			).save()		
+			).save()
+
+@receiver(post_save, sender=MySalesOrderPayment)
+def MySalesOrderPayment_post_save_handler(sender,instance,**kwargs):
+	if instance.reviewed_on:
+		# Type 2: SO -> downpayment -> PO -> PO invoice -> PO fullfillment -> SO fullfillment -> payment -> done
+		# Scenario: proxy
+		# Order is active when there is a reviewed "deposit" payment. System will
+		# auto create PO back-to-back to SO.
+		so = instance.so
+		if so.business_model.process_model == 2 and so.is_po_needed and instance.usage=='deposit':
+			# create POs
+			po_list = {}	
+			for vendor in instance.so.vendors:
+				po = MyPurchaseOrder(
+					so = so,
+					vendor = vendor,
+					location = so.default_storage.location,
+					created_by = instance.reviewed_by,
+				)
+				po.save()
+				po_list[vendor] = po
+
+			for so_line_item in MySalesOrderLineItem.objects.filter(order=so):
+				inv_item = so_line_item.item
+				item = inv_item.item
+				po = po_list[item.brand]
+				MyPurchaseOrderLineItem(
+					po = po,
+					inv_item = inv_item,
+					qty = so_line_item.qty
+				).save()

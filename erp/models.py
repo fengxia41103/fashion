@@ -666,8 +666,6 @@ class MySalesOrder(models.Model):
 	sales = models.ForeignKey(User, related_name='sales')
 	default_storage = models.ForeignKey('MyStorage',null=True,blank=True)
 	created_on = models.DateField(auto_now_add = True)
-
-	# instance fields
 	created_by = models.ForeignKey (
 		User,
 		blank = True,
@@ -1091,7 +1089,7 @@ class MySalesOrderPayment(models.Model):
 	code = property(_code)
 
 	def _is_editable(self):
-		return not self.review_by
+		return not self.reviewed_by
 	is_editable = property(_is_editable)
 
 	def _is_deposit(self):

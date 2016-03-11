@@ -701,6 +701,7 @@ class MySalesOrderListFilter (FilterSet):
 		fields = {
 			'customer':['exact'],
 			'sales':['exact'],
+			'business_model':['exact']
 		}
 
 class MySalesOrderList (FilterView):
@@ -897,6 +898,26 @@ class MySalesOrderPaymentAdd(FormView):
 		payment.save()
 		self.payment = payment
 		return super(FormView, self).form_valid(form)		
+
+@class_view_decorator(login_required)
+class MySalesOrderPaymentReview(TemplateView):
+	'''
+	Finalize a SO payment. Once finalized, the payment will not be editable.
+	'''
+	def post(self,request,pk):
+		payment = MySalesOrderPayment.objects.get(id=int(pk))
+		payment.reviewed_by = self.request.user
+		payment.reviewed_on = dt.now()
+		payment.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MySalesOrderPaymentDelete(DeleteView):
+	model = MySalesOrderPayment
+	template_name = 'erp/common/delete_form.html'
+
+	def get_success_url(self):
+		return reverse_lazy('so_detail',kwargs={'pk':self.object.so.id})
 
 ###################################################
 #

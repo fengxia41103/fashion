@@ -89,6 +89,8 @@ urlpatterns = patterns(
 		# Sales order payment
 		url(r'^so/payments/$', views.MySalesOrderPaymentList.as_view(), name='so_payment_list'),						
 		url(r'^so/payment/add/$', views.MySalesOrderPaymentAdd.as_view(), name='so_payment_add'),
+		url(r'^so/payment/review/(?P<pk>\d+)/$', views.MySalesOrderPaymentReview.as_view(), name='so_payment_review'),		
+		url(r'^so/payment/delete/(?P<pk>\d+)/$', views.MySalesOrderPaymentDelete.as_view(), name='so_payment_delete'),		
 
 		# VendorItem
 		url(r'^vendor/items/$', views.MyVendorItemList.as_view(), name='vendor_item_list'),	

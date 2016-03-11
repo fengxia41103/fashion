@@ -436,7 +436,7 @@ Related Purchase Orders
 </h2>
 <table class="table table-striped table-hover table-responsive">
 	<thead>
-		<th>#</th>
+		<th>PO</th>
 		<th>VENDOR</th>
 		<th>TOTAL QTY</th>
 		<th>TOTAL VALUE</th>
@@ -467,6 +467,49 @@ Related Purchase Orders
 			{% else %}
 				Order sent on {{ po.placed_on }}
 			{% endif %}		
+		</td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
+{% if object.payments %}
+{# Related payment Section #}
+<h2 class="page-header">
+<i class="fa fa-book"></i>
+Related payments
+</h2>
+<table class="table table-striped table-hover table-responsive">
+	<thead>
+		<th></th>
+		<th>PAYMENT</th>
+		<th>AMOUNT</th>
+		<th>METHOD</th>
+		<th>CREATED ON</th>
+		<th>CREATED BY</th>
+		<th>REVIEWED ON</th>
+		<th>REVIEWED BY</th>
+	</thead>
+	<tbody>
+		{% for payment in object.payments %}
+		<tr><td>
+			{% if payment.is_editable %}
+				<a data-toggle="modal" data-target="#finalize-payment-{{payment.id}}">Review</a>
+			{% endif %}
+		</td><td>
+			{{ payment.code }}
+		</td><td>
+			{{ payment.amount }}
+		</td><td>
+			{{ payment.payment_method }}
+		</td><td>
+			{{ payment.created_on }}
+		</td><td>
+			{{ payment.created_by }}	
+		</td><td>
+			{{ payment.reviewed_on }}
+		</td><td>
+			{{ payment.reviewed_by }}
 		</td></tr>
 		{% endfor %}
 	</tbody>
@@ -756,6 +799,48 @@ Related Purchase Orders
 	</form>
 	</div>
 	</div>
+{% endif %}
+{% endfor %}
+
+{# Review payments modal #}
+{% for payment in object.payments %}
+{% if payment.is_editable %}
+<div id="finalize-payment-{{payment.id}}" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'so_payment_review' payment.id %}" method="POST">
+	{% csrf_token %}
+	
+    <!-- Modal content-->
+    <div class="modal-content">
+		{# Modal header #}
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Finalize payment</h4>
+		</div>
+
+	    {# Modal body #}
+	    <div class="modal-body">			
+	    	<p>
+			Payment can not be edited or deleted after it has been finalized.
+			</p>
+
+			<p class="alert alert-warning">
+			Are you sure to proceed?
+			</p>
+		</div>
+
+	      {# Modal footer #}
+		<div class="modal-footer">
+			<button class="btn btn-primary"  type="submit">
+				<i class="fa fa-lock"></i>
+				<span>Yes</span>
+			</button>      
+	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+		</div>
+	</div>
+</form>
+</div>
+</div>
 {% endif %}
 {% endfor %}
 {% endblock %}

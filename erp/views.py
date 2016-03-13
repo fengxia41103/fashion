@@ -227,7 +227,6 @@ class MyFiscalYearDelete (DeleteView):
 #	MyItem views
 #
 ###################################################
-
 class MyItemAdd(CreateView):
 	model = MyItem
 	template_name = 'erp/common/add_form.html'
@@ -369,7 +368,6 @@ class MyItemListByVendor(TemplateView):
 #	MyCRM views
 #
 ###################################################
-
 class MyVendorList(ListView):
 	model = MyCRM
 	template_name = 'erp/crm/vendor_list.html'
@@ -560,7 +558,6 @@ class MyItemInventoryPhysicalAdd(TemplateView):
 #	MySeason views
 #
 ###################################################		
-
 class MySeasonList(ListView):
 	model = MySeason
 	template_name = 'erp/season/list.html'
@@ -605,7 +602,6 @@ class MyBusinessModelAdd(CreateView):
 #	Sales Order views
 #
 ###################################################
-
 def add_item_to_sales_order(quick_notion,so):
 	errors = {}	
 
@@ -1227,7 +1223,6 @@ class MySalesOrderReturnList (FilterView):
 #	MyVendorItem views
 #
 ###################################################
-
 class MyVendorItemAdd(FormView):
 	form_class = VendorItemAddForm
 	vendor_item = None
@@ -1482,7 +1477,7 @@ class MyVendorInvoiceAdd(TemplateView):
 			for line_id,val in self.request.POST.iteritems():
 				if 'inv-item' in line_id and int(val):
 					inv_item = MyItemInventory.objects.get(id=int(line_id.split('-')[-1]))
-					MyInvoiceReceiveItem(
+					MyInvoiceItem(
 						invoice = invoice,
 						inv_item = inv_item,
 						qty = int(val)
@@ -1498,7 +1493,7 @@ class MyInvoiceDetail(DetailView):
 
 	def get_context_data(self,**kwargs):
 		context = super(DetailView,self).get_context_data(**kwargs)
-		context['items'] = MyInvoiceReceiveItem.objects.filter(invoice=self.object)
+		context['items'] = MyInvoiceItem.objects.filter(invoice=self.object)
 		
 		# Invoice edit view
 		context['invoice_edit_form'] = VendorInvoiceAddForm(instance=self.object)		
@@ -1523,7 +1518,7 @@ class MyInvoiceLineItemEdit(UpdateView):
 		items = {}
 		for line_id,val in self.request.POST.iteritems():
 			if 'invoice-item' in line_id and int(val):
-				line_item = MyInvoiceReceiveItem.objects.get(id=int(line_id.split('-')[-1]))
+				line_item = MyInvoiceItem.objects.get(id=int(line_id.split('-')[-1]))
 				line_item.qty = int(val)
 				line_item.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])

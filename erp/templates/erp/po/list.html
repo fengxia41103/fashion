@@ -21,6 +21,7 @@
 		<th>PLACED ON</th>
 		<th>ASSOCIATED SALES ORDER</th>
 		<th>AVAILABILITY</th>
+		<th>FULLFILL RATE BY QTY</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -53,6 +54,8 @@
 			{% for m in obj.available_in %}
 				{{ m }}
 			{% endfor %}
+		</td><td>
+			{{ obj.fullfill_rate_by_qty|floatformat:2 }}%
 		</td></tr>
     	{% endfor %}
 	</tbody>

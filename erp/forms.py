@@ -11,7 +11,6 @@ from erp.models import *
 #	Attachment forms
 #
 ###################################################
-
 class AttachmentForm(ModelForm):
 	class Meta:
 		model = Attachment
@@ -22,7 +21,6 @@ class AttachmentForm(ModelForm):
 #	MyItemInventory forms
 #
 ###################################################
-
 class ItemInventoryAdjustForm(forms.Form):
 	storage = forms.ModelChoiceField(queryset=MyStorage.objects.all())
 	items = forms.CharField(
@@ -82,7 +80,6 @@ class SalesOrderPaymentAddForm(ModelForm):
 #	MyVendorItem forms
 #
 ###################################################
-
 class VendorItemAddForm(ModelForm):
 	price = forms.FloatField(min_value = 1, initial=1.0)
 	class Meta:

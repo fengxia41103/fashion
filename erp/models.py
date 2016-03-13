@@ -317,6 +317,11 @@ class MyStorage (models.Model):
 		return MyItemInventory.objects.filter(storage=self)
 	inv_items = property(_inv_items)
 
+###################################################
+#
+#	CRM models
+#
+###################################################
 class MyCRMCustomManager(models.Manager):
 	def vendors(self):
 		return self.get_queryset().filter(Q(crm_type='V')|Q(crm_type='B'))
@@ -370,6 +375,31 @@ class MyCRM(MyBaseModel):
 		return '%04d' % self.id
 	code = property(_code)
 	
+###################################################
+#
+#	Product models
+#
+###################################################	
+class MySeason(models.Model):
+	name = models.CharField(
+		max_length = 8
+	)
+	def __unicode__(self):
+		return self.name
+
+	def _brands(self):
+		brand_ids = set(MyItem.objects.filter(season=self).values_list('brand',flat=True))
+		return MyCRM.objects.filter(id__in = brand_ids)
+	brands = property(_brands)
+
+class MySizeChart(models.Model):
+	# CSV format, eg "S,M,L", "0,2,4,6","XS,S,M,L,XL"
+	size = models.CharField(
+		max_length = 128
+	)
+	def __unicode__(self):
+		return self.size
+
 class MyVendorItem(models.Model):
 	vendor = models.ForeignKey('MyCRM')
 	currency = models.ForeignKey('MyCurrency')
@@ -408,26 +438,6 @@ class MyVendorItem(models.Model):
 		if self.msrp: return (self.msrp-self.price)/self.msrp
 		else: return ''
 	discount = property(_discount)
-
-class MySeason(models.Model):
-	name = models.CharField(
-		max_length = 8
-	)
-	def __unicode__(self):
-		return self.name
-
-	def _brands(self):
-		brand_ids = set(MyItem.objects.filter(season=self).values_list('brand',flat=True))
-		return MyCRM.objects.filter(id__in = brand_ids)
-	brands = property(_brands)
-
-class MySizeChart(models.Model):
-	# CSV format, eg "S,M,L", "0,2,4,6","XS,S,M,L,XL"
-	size = models.CharField(
-		max_length = 128
-	)
-	def __unicode__(self):
-		return self.size
 
 class MyItem(MyBaseModel):
 	'''
@@ -532,6 +542,11 @@ class MyItem(MyBaseModel):
 		return self.converted_cost>0
 	is_po_ready = property(_is_po_ready)
 
+###################################################
+#
+#	Inventory models
+#
+###################################################	
 class MyItemInventory(models.Model):
 	item = models.ForeignKey('MyItem')
 	size = models.CharField(
@@ -633,6 +648,11 @@ class MyItemInventoryTheoreticalAudit(models.Model):
 
 	reason = models.TextField(default='')
 
+###################################################
+#
+#	Sales order models
+#
+###################################################	
 class MyBusinessModel(MyBaseModel):
 	'''
 	Define sales model that business supports.
@@ -935,6 +955,11 @@ class MySalesOrderFullfillmentLineItem(models.Model):
 		return self.so_line_item.qty_balance+self.fullfill_qty
 	max_qty = property(_max_qty)
 
+###################################################
+#
+#	Sales order turn models
+#
+###################################################	
 class MyReturnReason(MyBaseModel):
 	CATEGORY_CHOICES = (
 		('Small','Sizing too small'),
@@ -1027,6 +1052,11 @@ class MySalesOrderReturnLineItem(models.Model):
 		return self.so_line_item.fullfill_qty+self.return_qty
 	max_qty = property(_max_qty)
 
+###################################################
+#
+#	Sales order payment models
+#
+###################################################	
 class MySalesOrderPayment(models.Model):
 	PAYMENT_METHOD_CHOICES = (
 		('Cash','Cash'),
@@ -1096,6 +1126,11 @@ class MySalesOrderPayment(models.Model):
 		return self.usage == 'deposit'
 	is_deposit = property(_is_deposit)
 
+###################################################
+#
+#	Purchase order models
+#
+###################################################	
 class MyPurchaseOrder(models.Model):
 	'''
 	Attachment will be invoice, packing list, shipment info.
@@ -1216,78 +1251,6 @@ class MyPurchaseOrderLineItem(models.Model):
 		else: return ''
 	fullfill_rate_by_value = property(_fullfill_rate_by_value)
 
-class MyInvoice(models.Model):
-	crm = models.ForeignKey('MyCRM')
-	created_on = models.DateField(auto_now_add = True)
-	created_by = models.ForeignKey (
-		User,
-		blank = True,
-		null = True,
-		default = None,
-		verbose_name = u'Invoice createed by',
-		help_text = '',
-		related_name = u'invoice_loggers'
-	)
-	invoice_no = models.CharField(
-		max_length = 128,
-		null = True,
-		blank = True,
-		verbose_name = u'Invoice no.'
-	)
-	issued_on = models.DateField()
-	gross_cost = models.FloatField()
-	discount = models.FloatField(default=0)
-	maturity_date = models.DateField(
-		null = True,
-		blank = True
-	)
-	qty = models.PositiveIntegerField(
-		null = True,
-		blank = True
-	)
-	reviewed_on = models.DateField(
-		null = True,
-		blank = True
-	)
-	reviewed_by = models.ForeignKey (
-		User,
-		blank = True,
-		null = True,
-		default = None,
-		verbose_name = u'Invoice reviewed by',
-		help_text = '',
-		related_name = u'invoice_reviewers'
-	)
-
-	def __unicode__(self):
-		return self.code
-
-	def _code(self):
-		if self.invoice_no: return '%s-%s'%(self.crm,self.invoice_no)
-		else: return 'INVOICE%06d'%(self.id)
-	code = property(_code)
-
-	def _is_editable(self):
-		return not self.reviewed_on
-	is_editable = property(_is_editable)
-
-	def _discount_value(self):
-		return self.gross_cost * (1-self.discount)
-	discount_value = property(_discount_value)
-
-	def _total_qty(self):
-		return sum(MyInvoiceReceiveItem.objects.filter(invoice=self).values_list('qty',flat=True))
-	total_qty = property(_total_qty)
-
-	def _discount_in_pcnt(self):
-		return '%d%%'%(self.discount*100)
-	discount_in_pcnt = property(_discount_in_pcnt)
-
-class MyInvoiceReceiveItem(models.Model):
-	invoice = models.ForeignKey('MyInvoice')
-	inv_item = models.ForeignKey('MyItemInventory')
-	qty = models.PositiveIntegerField(default = 1)
-
 class MyPOFullfillment(models.Model):
 	'''
 	Fullfillment would require an associated PO.
@@ -1360,3 +1323,109 @@ class MyPOFullfillmentLineItem(models.Model):
 	def _fullfill_value(self):
 		return self.fullfill_qty * self.po_line_item.price
 	fullfill_value = property(_fullfill_value)
+
+###################################################
+#
+#	Invoice models
+#
+###################################################	
+class MyInvoice(models.Model):
+	crm = models.ForeignKey('MyCRM')
+	created_on = models.DateField(auto_now_add = True)
+	created_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Invoice createed by',
+		help_text = '',
+		related_name = u'invoice_loggers'
+	)
+	invoice_no = models.CharField(
+		max_length = 128,
+		null = True,
+		blank = True,
+		verbose_name = u'Invoice no.'
+	)
+	issued_on = models.DateField()
+	gross_cost = models.FloatField()
+	discount = models.FloatField(default=0)
+	maturity_date = models.DateField(
+		null = True,
+		blank = True
+	)
+	qty = models.PositiveIntegerField(
+		null = True,
+		blank = True
+	)
+	reviewed_on = models.DateField(
+		null = True,
+		blank = True
+	)
+	reviewed_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Invoice reviewed by',
+		help_text = '',
+		related_name = u'invoice_reviewers'
+	)
+
+	def __unicode__(self):
+		return self.code
+
+	def _code(self):
+		if self.invoice_no: return '%s-%s'%(self.crm,self.invoice_no)
+		else: return 'INVOICE%06d'%(self.id)
+	code = property(_code)
+
+	def _is_editable(self):
+		return not self.reviewed_on
+	is_editable = property(_is_editable)
+
+	def _discount_value(self):
+		return self.gross_cost * (1-self.discount)
+	discount_value = property(_discount_value)
+
+	def _discount_in_pcnt(self):
+		return '%d%%'%(self.discount*100)
+	discount_in_pcnt = property(_discount_in_pcnt)
+
+	def _total_qty(self):
+		return sum(MyInvoiceItem.objects.filter(invoice=self).values_list('qty',flat=True))
+	total_qty = property(_total_qty)
+
+	def _total_value(self):
+		values = filter(lambda x: x, [item.value for item in MyInvoiceItem.objects.filter(invoice=self)])
+		return sum(values)
+	total_value = property(_total_value)
+
+	def _qty_delta(self):
+		return self.total_qty - self.qty
+	qty_delta = property(_qty_delta)
+
+	def _value_delta(self):
+		return self.total_value - self.discount_value
+	value_delta = property(_value_delta)
+
+class MyInvoiceItem(models.Model):
+	invoice = models.ForeignKey('MyInvoice')
+	inv_item = models.ForeignKey('MyItemInventory')
+	qty = models.PositiveIntegerField(default = 1)
+
+	def _vendor_item(self):
+		vendor_items = MyVendorItem.objects.filter(vendor=self.invoice.crm,product=self.inv_item.item)
+		if len(vendor_items): return vendor_items[0]
+		else: return None
+	vendor_item = property(_vendor_item)
+
+	def _price(self):
+		if self.vendor_item: return self.vendor_item.price
+		else: return None
+	price = property(_price)
+
+	def _value(self):
+		if self.price: return self.qty * self.price
+		else: return None
+	value = property(_value)

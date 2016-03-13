@@ -193,13 +193,20 @@ Fullfillment details
 			<a href="{% url 'po_fullfill_detail' f.id %}">Detail</a>
 		</td><td>
 			{{ f.code }}
+			{% if not f.is_editable %}
+				<i class="fa fa-lock"></i>
+			{% endif %}
 		</td><td>
 			{{ f.qty }}
 		</td><td>
 			{{ f.value|floatformat:2 }}
 		</td><td>
 			{% for invoice in  f.invoices.all %}
-				<a href="{% url 'invoice_detail' invoice.id %}">{{ invoice }}</a>
+				<a href="{% url 'invoice_detail' invoice.id %}">{{ invoice }}
+				{% if not invoice.is_editable %}
+					<i class="fa fa-lock"></i>
+				{% endif %}
+				</a>
 			{% endfor %}
 		</td><td>
 			{{ f.created_on }}

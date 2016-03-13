@@ -78,6 +78,25 @@
 			<div class="col-md-1"></div>		
 		</div>
 	{% endif %}
+	<div class="row ">
+		<div class="col-md-2"><label>QTY by line items</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.total_qty }}</div>
+		<div class="col-md-1"></div>
+		<div class="col-md-2"><label>Value by line item cost</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{{object.crm.currency}}{{ object.total_value|floatformat:2 }}
+		</div>
+		<div class="col-md-1"></div>		
+	</div><div class="row ">
+		<div class="col-md-2"><label>QTY delta</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.qty_delta }}</div>
+		<div class="col-md-1"></div>
+		<div class="col-md-2"><label>Value delta</label></div>
+		<div class="col-md-3 my-sf-display-border">
+			{{object.crm.currency}}{{ object.value_delta|floatformat:2 }}
+		</div>
+		<div class="col-md-1"></div>		
+	</div>	
 	</div>
 </div>
 

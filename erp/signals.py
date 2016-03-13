@@ -4,10 +4,20 @@ from django.contrib.contenttypes.models import ContentType
 from datetime import datetime as dt
 from erp.models import *
 
+###################################################
+#
+#	MySizeChart signals
+#
+###################################################	
 @receiver(pre_save, sender=MySizeChart)
 def MySizeChart_pre_save_hanelder(sender, instance, **kwargs):
 	instance.size = instance.size.upper()
 
+###################################################
+#
+#	Item signals
+#
+###################################################	
 @receiver(post_save, sender=MyItem)
 def MyItem_post_save_handler(sender, instance, created, **kwargs):
 	'''
@@ -73,6 +83,11 @@ def MyItem_pre_save_handler(sender, instance, **kwargs):
 						storage = storage
 					).save()
 
+###################################################
+#
+#	Sales order signals
+#
+###################################################	
 @receiver(pre_save, sender=MyBusinessModel)
 def MyBusinessModel_pre_save_handler(sender, instance, **kwargs):
 	instance.name = instance.name.upper()	
@@ -93,6 +108,9 @@ def MySalesOrder_post_save_handler(sender,instance,**kwargs):
 @receiver(post_save, sender=MySalesOrderLineItem)
 def MySalesOrderLineItem_post_save_handler(sender,instance,**kwargs):
 	if instance.order.business_model.process_model == 1:
+		'''
+		For retail order, auto create SO fullfillment from SO creation.
+		'''
 		so_fullfillment, created = MySalesOrderFullfillment.objects.get_or_create(
 			so = instance.order,
 			created_by = instance.order.created_by
@@ -142,10 +160,46 @@ def MySalesOrderFullfillment_post_save_handler(sender, instance, **kwargs):
 				reason = 'Sales order FULLFILLMENT'
 			).save()
 
+@receiver(post_save, sender=MySalesOrderPayment)
+def MySalesOrderPayment_post_save_handler(sender,instance,**kwargs):
+	if instance.reviewed_on:
+		# Type 2: SO -> downpayment -> PO -> PO invoice -> PO fullfillment -> SO fullfillment -> payment -> done
+		# Scenario: proxy
+		# Order is active when there is a reviewed "deposit" payment. System will
+		# auto create PO back-to-back to SO.
+		so = instance.so
+		if so.business_model.process_model == 2 and so.is_po_needed and instance.usage=='deposit':
+			# create POs
+			po_list = {}	
+			for vendor in instance.so.vendors:
+				po = MyPurchaseOrder(
+					so = so,
+					vendor = vendor,
+					location = so.default_storage.location,
+					created_by = instance.reviewed_by,
+				)
+				po.save()
+				po_list[vendor] = po
+
+			for so_line_item in MySalesOrderLineItem.objects.filter(order=so):
+				inv_item = so_line_item.item
+				item = inv_item.item
+				po = po_list[item.brand]
+				MyPurchaseOrderLineItem(
+					po = po,
+					inv_item = inv_item,
+					qty = so_line_item.qty
+				).save()
+
+###################################################
+#
+#	Invoice signals
+#
+###################################################	
 @receiver(post_save, sender=MyInvoice)
 def MyInvoice_post_save_handler(sender, instance, **kwargs):
 	if instance.reviewed_on:
-		rcv_items = MyInvoiceReceiveItem.objects.filter(invoice=instance)
+		rcv_items = MyInvoiceItem.objects.filter(invoice=instance)
 
 		new_inventory = {}		
 		for rcv_item in rcv_items:
@@ -183,6 +237,25 @@ def MyInvoice_post_save_handler(sender, instance, **kwargs):
 			fullfill.reviewed_on = dt.now()
 			fullfill.save()
 
+@receiver(post_save, sender=MyInvoiceItem)
+def MyInvoiceItem_post_save_handler(sender, instance, **kwargs):
+	if instance.qty < 1:
+		'''
+		Set line item qty to 0 = removing this line item from Invoice
+		'''
+		invoice = MyInvoice.objects.get(id=instance.invoice.id)
+
+		# delete line item
+		instance.delete()
+
+		# delete invoice instance if there is not valid line items anymore!
+		if invoice.total_qty < 1: invoice.delete()
+
+###################################################
+#
+#	Purchase order signals
+#
+###################################################	
 @receiver(post_save, sender=MyPOFullfillment)
 def MyPOFullfillment_post_save_handler(sender, instance, **kwargs):
 	if instance.reviewed_on:
@@ -196,33 +269,26 @@ def MyPOFullfillment_post_save_handler(sender, instance, **kwargs):
 				reason = 'Purchase order FULLFILLMENT from INVOICE %s'%fullfill_line_item.invoice
 			).save()
 
-@receiver(post_save, sender=MySalesOrderPayment)
-def MySalesOrderPayment_post_save_handler(sender,instance,**kwargs):
-	if instance.reviewed_on:
-		# Type 2: SO -> downpayment -> PO -> PO invoice -> PO fullfillment -> SO fullfillment -> payment -> done
-		# Scenario: proxy
-		# Order is active when there is a reviewed "deposit" payment. System will
-		# auto create PO back-to-back to SO.
-		so = instance.so
-		if so.business_model.process_model == 2 and so.is_po_needed and instance.usage=='deposit':
-			# create POs
-			po_list = {}	
-			for vendor in instance.so.vendors:
-				po = MyPurchaseOrder(
-					so = so,
-					vendor = vendor,
-					location = so.default_storage.location,
-					created_by = instance.reviewed_by,
-				)
-				po.save()
-				po_list[vendor] = po
+		# from POFullfillment -> PO -> related SO -> created SO fullfillment
+		so = instance.po.so
+		if so:
+			# create SOFullfillment
+			so_fullfill = MySalesOrderFullfillment(
+				so = so,
+				created_by = instance.reviewed_by,
+			)
+			so_fullfill.save()
 
-			for so_line_item in MySalesOrderLineItem.objects.filter(order=so):
-				inv_item = so_line_item.item
-				item = inv_item.item
-				po = po_list[item.brand]
-				MyPurchaseOrderLineItem(
-					po = po,
-					inv_item = inv_item,
-					qty = so_line_item.qty
+			# create SO fullfill line items
+			for fullfill_line_item in MyPOFullfillmentLineItem.objects.filter(po_fullfillment = instance):
+				po_line_item = fullfill_line_item.po_line_item
+				inv_item = po_line_item.inv_item		
+				so_line_item = MySalesOrderLineItem.objects.get(order=so,item=inv_item)
+
+				# create so fullfillment line item
+				qty = min(so_line_item.qty,fullfill_line_item.fullfill_qty)
+				MySalesOrderFullfillmentLineItem(
+					so_fullfillment = so_fullfill,
+					so_line_item = so_line_item,
+					fullfill_qty = qty
 				).save()

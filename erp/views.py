@@ -1559,6 +1559,36 @@ class MyInvoiceList (FilterView):
 				if f == 'crm': context['filters']['crm'] = MyCRM.objects.get(id=int(val))
 		return context
 
+@class_view_decorator(login_required)
+class MyInvoiceReceiveAdd(DetailView):
+	model = MyInvoice
+	template_name = 'erp/invoice/receive_add.html'
+	def get_context_data(self, **kwargs):
+		context = super(DetailView, self).get_context_data(**kwargs)
+
+		# get open items
+		context['items'] = filter(lambda x: x.qty_balance>0, MyInvoiceItem.objects.filter(invoice=self.object))
+
+		return context
+
+	def post(self,request,pk):
+		invoice_receive = MyInvoiceReceive(
+			invoice = MyInvoice.objects.get(id=int(pk)),
+			created_by = self.request.user
+		)
+		invoice_receive.save()
+
+		# create line records
+		for line_id,val in self.request.POST.iteritems():
+			if 'line-item' in line_id and int(val):
+				invoice_item = MyInvoiceItem.objects.get(id=int(line_id.split('-')[-1]))
+				MyInvoiceReceiveItem(
+					invoice_receive = invoice_receive,
+					item = invoice_item,
+					qty = int(val)
+				).save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
 ###################################################
 #
 #	MyPOFullfillment views

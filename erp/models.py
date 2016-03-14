@@ -1392,22 +1392,70 @@ class MyInvoice(models.Model):
 		return '%d%%'%(self.discount*100)
 	discount_in_pcnt = property(_discount_in_pcnt)
 
-	def _total_qty(self):
+	def _items_qty(self):
+		# aggregated qty by line items
 		return sum(MyInvoiceItem.objects.filter(invoice=self).values_list('qty',flat=True))
-	total_qty = property(_total_qty)
+	items_qty = property(_items_qty)
 
-	def _total_value(self):
+	def _items_value(self):
+		# aggregated value by line items
 		values = filter(lambda x: x, [item.value for item in MyInvoiceItem.objects.filter(invoice=self)])
 		return sum(values)
-	total_value = property(_total_value)
+	items_value = property(_items_value)
 
 	def _qty_delta(self):
-		return self.total_qty - self.qty
+		# diff between entered qty vs. line item sum
+		return self.items_qty - self.qty
 	qty_delta = property(_qty_delta)
 
 	def _value_delta(self):
-		return self.total_value - self.discount_value
+		# diff between entered value vs. line item sum
+		return self.items_value - self.discount_value
 	value_delta = property(_value_delta)
+
+	def _fullfill_qty(self):
+		return sum([x.fullfill_qty for x in MyInvoiceItem.objects.filter(invoice=self)])
+	fullfill_qty = property(_fullfill_qty)
+
+	def _fullfill_value(self):
+		return sum([x.fullfill_value for x in MyInvoiceItem.objects.filter(invoice=self)])
+	fullfill_value = property(_fullfill_value)
+
+	def _qty_balance_invoice_fullfill(self):
+		# diff between entered invoice qty vs. line item fullfill
+		return self.qty - self.fullfill_qty
+
+	def _value_balance_invoice_fullfill(self):
+		# diff between entered invoice value vs. line item fullfill
+		return self.discount_value - self.fullfill_value
+
+	def _qty_balance_items_fullfill(self):
+		# diff between line item qty vs. fullfill
+		return self.items_qty - self.fullfill_qty
+
+	def _value_balance_items_fullfill(self):
+		# diff between line item value vs. fullfill
+		return self.items - self.fullfill_value
+
+	def _fullfill_rate_by_invoice_qty(self):
+		return self.fullfill_qty*100.0/self.qty
+	fullfill_rate_by_invoice_qty = property(_fullfill_rate_by_invoice_qty)
+
+	def _fullfill_rate_by_invoice_value(self):
+		return self.fullfill_value*100.0/self.discount_value
+	fullfill_rate_by_invoice_value = property(_fullfill_rate_by_invoice_value)
+
+	def _fullfill_rate_by_items_qty(self):
+		return self.fullfill_qty*100.0/self.items_qty
+	fullfill_rate_by_items_qty = property(_fullfill_rate_by_items_qty)
+
+	def _fullfill_rate_by_items_value(self):
+		return self.fullfill_value*100.0/self.items_value
+	fullfill_rate_by_items_value = property(_fullfill_rate_by_items_value)
+
+	def _fullfillments(self):
+		return MyInvoiceReceive.objects.filter(invoice=self)
+	fullfillments = property(_fullfillments)
 
 class MyInvoiceItem(models.Model):
 	invoice = models.ForeignKey('MyInvoice')
@@ -1427,5 +1475,77 @@ class MyInvoiceItem(models.Model):
 
 	def _value(self):
 		if self.price: return self.qty * self.price
+		else: return None
+	value = property(_value)
+
+	def _fullfill_qty(self):
+		return sum(MyInvoiceReceiveItem.objects.filter(item=self).values_list('qty',flat=True))
+	fullfill_qty = property(_fullfill_qty)
+
+	def _fullfill_value(self):
+		return sum([x.value for x in MyInvoiceReceiveItem.objects.filter(item=self)])
+	fullfill_value = property(_fullfill_value)		
+
+	def _fullfill_rate_by_qty(self):
+		return self.fullfill_qty*100.0/self.qty
+	fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
+
+	def _fullfill_rate_by_value(self):
+		if self.value: return self.fullfill_value*100.0/self.value
+		else: return None
+	fullfill_rate_by_value = property(_fullfill_rate_by_value)
+
+	def _qty_balance(self):
+		return self.qty - self.fullfill_qty
+	qty_balance = property(_qty_balance)
+
+class MyInvoiceReceive(models.Model):
+	invoice = models.ForeignKey('MyInvoice')
+	created_on = models.DateField(auto_now_add = True)
+	created_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Invoice receive createed by',
+		help_text = '',
+		related_name = u'invoice_receive_loggers'
+	)	
+	reviewed_on = models.DateField(
+		null = True,
+		blank = True
+	)
+	reviewed_by = models.ForeignKey (
+		User,
+		blank = True,
+		null = True,
+		default = None,
+		verbose_name = u'Invoice receive reviewed by',
+		help_text = '',
+		related_name = u'invoice_receive_reviewers'
+	)
+
+	def __unicode__(self):
+		return self.code 
+		
+	def _code(self):
+		return 'INVOICE-RCV%04d'%self.id
+	code = property(_code)
+
+	def _qty(self):
+		return sum(MyInvoiceReceiveItem.objects.filter(invoice_receive=self).values_list('qty',flat=True))
+	qty = property(_qty)
+
+	def _value(self):
+		return sum(filter(lambda x: x.value,MyInvoiceReceiveItem.objects.filter(invoice_receive=self)))
+	value = property(_value)		
+
+class MyInvoiceReceiveItem(models.Model):
+	invoice_receive = models.ForeignKey('MyInvoiceReceive')
+	item = models.ForeignKey('MyInvoiceItem')
+	qty = models.PositiveIntegerField(default=1)
+
+	def _value(self):
+		if self.item.price: return self.qty*self.item.price
 		else: return None
 	value = property(_value)

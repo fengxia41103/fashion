@@ -127,4 +127,3 @@ class VendorInvoiceAddForm(ModelForm):
 		model = MyInvoice
 		fields = ('crm','invoice_no','issued_on','maturity_date','qty','gross_cost','discount','created_by')
 		widgets = {'crm':HiddenInput(),'created_by':HiddenInput()}
-	

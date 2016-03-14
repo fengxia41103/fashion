@@ -122,4 +122,7 @@ urlpatterns = patterns(
 		url(r'^invoice/review/(?P<pk>\d+)/$', views.MyInvoiceReview.as_view(), name='invoice_review'),		
 		url(r'^invoice/line/edit/(?P<pk>\d+)/$', views.MyInvoiceLineItemEdit.as_view(), name='invoice_line_edit'),
 
+		# Invoice receive
+		url(r'^invoice/receive/add/(?P<pk>\d+)/$', views.MyInvoiceReceiveAdd.as_view(), name='invoice_receive_add'),		
+
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

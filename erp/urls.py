@@ -123,6 +123,12 @@ urlpatterns = patterns(
 		url(r'^invoice/line/edit/(?P<pk>\d+)/$', views.MyInvoiceLineItemEdit.as_view(), name='invoice_line_edit'),
 
 		# Invoice receive
+		url(r'^invoice/receives/$', views.MyInvoiceReceiveList.as_view(), name='invoice_receive_list'),		
 		url(r'^invoice/receive/add/(?P<pk>\d+)/$', views.MyInvoiceReceiveAdd.as_view(), name='invoice_receive_add'),		
+		url(r'^invoice/receive/(?P<pk>\d+)/$', views.MyInvoiceReceiveDetail.as_view(), name='invoice_receive_detail'),
+		url(r'^invoice/receive/review/(?P<pk>\d+)/$', views.MyInvoiceReceiveReview.as_view(), name='invoice_receive_review'),		
+		url(r'^invoice/receive/edit/(?P<pk>\d+)/$', views.MyInvoiceReceiveEdit.as_view(), name='invoice_receive_edit'),		
+		url(r'^invoice/receive/delete/(?P<pk>\d+)/$', views.MyInvoiceReceiveDelete.as_view(), name='invoice_receive_delete'),		
+		url(r'^invoice/receive/review/batch/(?P<pk>\d+)/$', views.MyInvoiceReceiveReviewBatch.as_view(), name='invoice_receive_review_batch'),		
 
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

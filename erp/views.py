@@ -1572,8 +1572,9 @@ class MyInvoiceReceiveAdd(DetailView):
 		return context
 
 	def post(self,request,pk):
+		invoice = MyInvoice.objects.get(id=int(pk))
 		invoice_receive = MyInvoiceReceive(
-			invoice = MyInvoice.objects.get(id=int(pk)),
+			invoice = invoice,
 			created_by = self.request.user
 		)
 		invoice_receive.save()
@@ -1587,7 +1588,90 @@ class MyInvoiceReceiveAdd(DetailView):
 					item = invoice_item,
 					qty = int(val)
 				).save()
+		return HttpResponseRedirect(reverse_lazy('invoice_detail',kwargs={'pk':invoice.id}))
+
+class MyInvoiceReceiveDetail(DetailView):
+	model = MyInvoiceReceive
+	template_name = 'erp/invoice/receive_detail.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(DetailView,self).get_context_data(**kwargs)
+		context['items'] = MyInvoiceReceiveItem.objects.filter(invoice_receive=self.object).order_by('item__inv_item__id')
+		return context
+
+@class_view_decorator(login_required)
+class MyInvoiceReceiveReview(TemplateView):
+	def post(self,request,pk):
+		invoice_receive = MyInvoiceReceive.objects.get(id=int(pk))
+		invoice_receive.reviewed_by = self.request.user
+		invoice_receive.reviewed_on = dt.now()
+		invoice_receive.save()
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MyInvoiceReceiveEdit(UpdateView):
+	model = MyInvoiceReceive
+
+	def post(self,request,pk):
+		items = []
+		for line_id,qty in self.request.POST.iteritems():
+			if 'line-item-fullfill' in line_id:
+				qty = int(qty)		
+				f = MyInvoiceReceiveItem.objects.get(id=int(line_id.split('-')[-1]))
+				if qty: 
+					f.qty = qty
+					f.save()
+				else: f.delete()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+@class_view_decorator(login_required)
+class MyInvoiceReceiveDelete(DeleteView):
+	model = MyInvoiceReceive
+	template_name = 'erp/common/delete_form.html'
+
+	def get_success_url(self):
+		return reverse_lazy('invoice_detail',kwargs={'pk':self.object.invoice.id})
+
+@class_view_decorator(login_required)
+class MyInvoiceReceiveReviewBatch(TemplateView):
+	'''
+	Batch finalize all receivings linked to an invoice.
+	'''
+	def post(self,request,pk):
+		invoice = MyInvoice.objects.get(id=int(pk))
+		for rcv in MyInvoiceReceive.objects.filter(invoice=invoice):
+			if not rcv.is_editable: continue
+			
+			rcv.reviewed_by = self.request.user
+			rcv.reviewed_on = dt.now()
+			rcv.save()
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+class MyInvoiceReceiveListFilter (FilterSet):
+	class Meta:
+		model = MyInvoiceReceive
+		fields = {
+			'invoice':['exact'],
+			'invoice__crm':['exact']
+		}
+
+class MyInvoiceReceiveList (FilterView):
+	template_name = 'erp/invoice/receive_list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return MyInvoiceReceiveListFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'invoice': context['filters']['invoice'] = MyInvoice.objects.get(id=int(val))
+		return context
 
 ###################################################
 #

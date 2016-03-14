@@ -1381,8 +1381,12 @@ class MyInvoice(models.Model):
 	code = property(_code)
 
 	def _is_editable(self):
-		return not self.reviewed_on
+		return not self.reviewed_by
 	is_editable = property(_is_editable)
+
+	def _is_receivable(self):
+		return self.is_editable and self.qty_balance_items_fullfill>0
+	is_receivable = property(_is_receivable)
 
 	def _discount_value(self):
 		return self.gross_cost * (1-self.discount)
@@ -1432,10 +1436,12 @@ class MyInvoice(models.Model):
 	def _qty_balance_items_fullfill(self):
 		# diff between line item qty vs. fullfill
 		return self.items_qty - self.fullfill_qty
+	qty_balance_items_fullfill = property(_qty_balance_items_fullfill)
 
 	def _value_balance_items_fullfill(self):
 		# diff between line item value vs. fullfill
 		return self.items - self.fullfill_value
+	value_balance_items_fullfill = property(_value_balance_items_fullfill)
 
 	def _fullfill_rate_by_invoice_qty(self):
 		return self.fullfill_qty*100.0/self.qty
@@ -1499,6 +1505,10 @@ class MyInvoiceItem(models.Model):
 		return self.qty - self.fullfill_qty
 	qty_balance = property(_qty_balance)
 
+	def _is_editable(self):
+		return self.fullfill_qty == 0
+	is_editable = property(_is_editable)
+	
 class MyInvoiceReceive(models.Model):
 	invoice = models.ForeignKey('MyInvoice')
 	created_on = models.DateField(auto_now_add = True)
@@ -1527,7 +1537,7 @@ class MyInvoiceReceive(models.Model):
 
 	def __unicode__(self):
 		return self.code 
-		
+
 	def _code(self):
 		return 'INVOICE-RCV%04d'%self.id
 	code = property(_code)
@@ -1539,6 +1549,10 @@ class MyInvoiceReceive(models.Model):
 	def _value(self):
 		return sum(filter(lambda x: x.value,MyInvoiceReceiveItem.objects.filter(invoice_receive=self)))
 	value = property(_value)		
+
+	def _is_editable(self):
+		return not self.reviewed_by
+	is_editable = property(_is_editable)
 
 class MyInvoiceReceiveItem(models.Model):
 	invoice_receive = models.ForeignKey('MyInvoiceReceive')

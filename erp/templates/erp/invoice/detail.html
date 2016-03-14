@@ -23,9 +23,12 @@
 	data-target="#invoice-review">
 		Finalize this invoice
 	</button>
+
+	{% if object.is_receivable %}
 	<button class="btn my-command-btn">
 		<a href="{% url 'invoice_receive_add' object.id %}">Receive</a>
 	</button>
+	{% endif %}
 </div>
 {% endif %}
 
@@ -140,7 +143,7 @@
 					<tbody>
 						{% for f in object.fullfillments %}
 							<tr><td>
-								<a href="{% url 'so_fullfill_detail' f.id %}">
+								<a href="{% url 'invoice_receive_detail' f.id %}">
 									{{ f.code }}
 									{% if not f.is_editable %}
 										<i class="fa fa-lock"></i>
@@ -157,7 +160,8 @@
 			</ul>
 
 			{# Batch fullfill #}
-			<a class="pull-right" data-toggle="modal" data-target="#batch-finalize-fullfill">
+			<a class="pull-right" data-toggle="modal" 
+			data-target="#batch-finalize-invoice-receive">
 				<i class='fa fa-lock'></i>
 				finalize all
 			</a>			
@@ -228,7 +232,7 @@
 			</td><td>
 				{{ inv_item.size }}
 			</td><td class="editt">
-				{% if object.is_editable %}
+				{% if invoice_item.is_editable %}
 					<input type="number" value="{{ invoice_item.qty }}" name="invoice-item-{{invoice_item.id}}" id="{{invoice_item.id}}" min="0"  
 					max="100" data-toggle="qty" style="width:100px;"/>			
 					<div class="btn-group" role="group" aria-label="">
@@ -240,7 +244,7 @@
 						</button>
 					</div>	
 				{% else %}
-					{{ invoice_item.qty }}
+					<input type="number" value="{{ invoice_item.fullfill_qty }}" style="width:50px;" disabled> / {{invoice_item.qty}}					
 				{% endif %}	
 			</td></tr>
 			{% endwith %}
@@ -269,6 +273,49 @@
 </button>
 {% endif %}
 </form>
+
+{% if object.fullfillments %}
+{# Related receiving Section #}
+<h2 class="page-header">
+<i class="fa fa-book"></i>
+Related receivings
+</h2>
+<table class="table table-striped table-hover table-responsive">
+	<thead>
+		<th>CODE</th>
+		<th>QTY</th>
+		<th>VALUE</th>
+		<th>CREATED ON</th>
+		<th>CREATED BY</th>
+		<th>REVIEWED ON</th>
+		<th>REVIEWED BY</th>
+	</thead>
+	<tbody>
+		{% for rcv in object.fullfillments %}
+		<tr><td>
+			<a href="{% url 'invoice_receive_detail' rcv.id %}">
+				{{ rcv.code }}
+				{% if not rcv.is_editable %}
+					<i class="fa fa-lock"></i>
+				{% endif %}
+			</a>
+		</td><td>
+			{{ rcv.qty }}
+		</td><td>
+			{{ rcv.value }}
+		</td><td>
+			{{ rcv.created_on }}
+		</td><td>
+			{{ rcv.created_by }}	
+		</td><td>
+			{{ rcv.reviewed_on }}
+		</td><td>
+			{{ rcv.reviewed_by }}
+		</td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
 
 {% if object.mypofullfillment_set.all %}
 {# Related PO FULLFILLMENT Section #}
@@ -436,6 +483,46 @@ Related PO fullfillments
       </div>
     </div>
 </form>          
+</div>
+</div>
+
+{# Batch finalizing INVOICE RECEIVE modal #}
+<div id="batch-finalize-invoice-receive" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<form action="{% url 'invoice_receive_review_batch' object.id %}" method="POST">
+	{% csrf_token %}
+	
+    <!-- Modal content-->
+    <div class="modal-content">
+		{# Modal header #}
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Finalize invoice receivings</h4>
+		</div>
+
+	    {# Modal body #}
+	    <div class="modal-body">			
+	    	<p>
+			This will finalize all open receivings that are associated
+			with this invoice. You will not
+			be able make further change to it once a receiving has been finalized.
+			</p>
+
+			<p class="alert alert-warning">
+			Are you sure to proceed?
+			</p>
+		</div>
+
+	      {# Modal footer #}
+		<div class="modal-footer">
+			<button class="btn btn-primary"  type="submit">
+				<i class="fa fa-lock"></i>
+				<span>Yes</span>
+			</button>      
+	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+		</div>
+	</div>
+</form>
 </div>
 </div>
 {% endblock %}

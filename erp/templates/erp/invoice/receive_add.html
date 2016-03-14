@@ -22,7 +22,14 @@
   	<div class="panel-body">
 	<div class="row ">
 		<div class="col-md-2"><label>Invoice code</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.code }}</div>
+		<div class="col-md-3 my-sf-display-border">
+			{{ object.code }}
+			<span class="pull-right" data-toggle="tooltip" title="View invoice details">
+				<a href="{% url 'invoice_detail' object.id %}">
+					<i class='fa fa-external-link'></i>
+				</a>
+			</span>					
+		</div>
 		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Vendor/Customer</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.crm }}</div>
@@ -65,7 +72,7 @@
 			{{ inv_item.size }}
 		</td><td>
 			{{ invoice_item.qty_balance }}
-		</td><td class="editt">
+		</td><td class="edit">
 			<input type="number" value="0" name="line-item-{{invoice_item.id}}" id="{{invoice_item.id}}" min="0" max="{{ invoice_item.qty_balance }}" data-toggle="qty" style="width:100px;"/>			
 			<div class="btn-group" role="group" aria-label="">
 				<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
@@ -74,7 +81,7 @@
 				<button type="button" class="btn btn-tiny btn-primary" data-toggle="plus">
 					<i class="fa fa-plus"></i>
 				</button>
-			</div>		
+			</div>
 		</td></tr>
 	{% endwith %}
 	{% endwith %}

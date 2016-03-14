@@ -1,0 +1,48 @@
+{% extends "erp/common/base.html" %}
+
+{% block page-header %}
+Invoice receivings
+{% endblock %}
+
+
+{% block content %}
+{% include "erp/common/filter.html" %}
+
+<table class="table table-striped table-hover table-responsive my-datatable">
+<thead>
+	<tr>
+	<th></th>
+	<th>CODE</th>
+	<th>INVOICE</th>
+	<th>QTY</th>
+	<th>VALUE</th>
+	<th>CREATED ON</th>
+	<th>REVIEWED ON</th>
+	</tr>
+</thead>
+<tbody>
+	{% for obj in object_list %}
+	<tr><td>
+		<a href="{% url 'invoice_receive_detail' obj.id %}">Detail</a>
+	</td><td>
+		{{ obj.code }}
+	</td><td>
+		<a href="{% url 'invoice_detail' obj.invoice.id %}">
+		{{ obj.invoice.code}}
+		{% if not obj.is_editable %}
+			<i class="fa fa-lock"></i>
+		{% endif %}
+		</a>
+	</td><td>
+		{{ obj.qty }}
+	</td><td>
+		{{obj.invoice.crm.currency}}{{ obj.value|floatformat:2 }}
+	</td><td>
+		{{ obj.created_on }}
+	</td><td>
+		{{ obj.reviewed_on }}
+	</td></tr>
+	{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -1745,3 +1745,30 @@ class MyPOFullfillmentDelete(DeleteView):
 
 	def get_success_url(self):
 		return reverse_lazy('po_detail',kwargs={'pk':self.object.po.id})
+
+###################################################
+#
+#	Menu views
+#
+###################################################	
+class VendorNeedInvoiceList(TemplateView):
+	template_name = 'erp/menu/vendor_need_invoice_list.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(TemplateView, self).get_context_data(**kwargs)
+		context['vendors'] = MyCRM.objects.vendor_need_invoice()
+		return context
+
+###################################################
+#
+#	Report views
+#
+###################################################			
+class ReportCustomerAR(TemplateView):
+	template_name = 'erp/report/customer_ar.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(Templateview,self).get_context_data(**kwargs)
+		data = [(x,x.account_receivable) for x in MyCRM.objects.customers()]
+		context['data'] = data
+		return context

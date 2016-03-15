@@ -1,0 +1,7 @@
+{% for vendor in vendors %}
+	<li>
+		<a href="{% url "vendor_invoice_add" vendor.id %}">
+			{{ vendor }}
+		</a>						
+	</li>
+{% endfor %}

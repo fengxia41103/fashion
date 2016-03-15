@@ -329,6 +329,10 @@ class MyCRMCustomManager(models.Manager):
 	def customers(self):
 		return self.get_queryset().filter(Q(crm_type='C')|Q(crm_type='B'))
 
+	def vendor_need_invoice(self):
+		vendor_ids = set([x.vendor.id for x in filter(lambda x: x.fullfill_qty<x.order_qty,MyPurchaseOrder.objects.filter(vendor__in=self.vendors()))])
+		return self.get_queryset().filter(id__in=vendor_ids)
+
 class MyCRM(MyBaseModel):
 	# custom managers
 	# Note: the 1st one defined will be taken as the default!
@@ -361,7 +365,6 @@ class MyCRM(MyBaseModel):
 		blank = True,
 		default='',
 	)
-	balance = models.FloatField(default = 0)
 	currency = models.ForeignKey('MyCurrency')
 	std_discount = models.FloatField(
 		default=0.25,
@@ -374,7 +377,21 @@ class MyCRM(MyBaseModel):
 	def _code(self):
 		return '%04d' % self.id
 	code = property(_code)
-	
+
+	def _account_receivable(self):
+		# how much they owe us
+		return sum([x.account_receivable for x in MySalesOrder.objects.filter(customer=self)])
+	account_receivable = property(_account_receivable)		
+
+	def _account_payable(self):
+		# how much we owe them
+		return sum([x.account_payable for x in MyPurchaseOrder.objects.filter(vendor=self)])
+	account_payable = property(_account_payable)
+
+	def _balance(self):
+		return self.account_payable - self.account_receivable
+	balance = property(_balance)
+
 ###################################################
 #
 #	Product models
@@ -1135,7 +1152,6 @@ class MyPurchaseOrder(models.Model):
 	'''
 	Attachment will be invoice, packing list, shipment info.
 	'''
-
 	# There is always a SO linked to a PO!
 	# For WH PO, we will still create a SO, using SH or SZ as client.
 	# This enforces payment settlement between even internal parties.
@@ -1210,6 +1226,10 @@ class MyPurchaseOrder(models.Model):
 		if self.order_value: return self.fullfill_value*100.0/self.order_value
 		else: return 0
 	fullfill_rate_by_value = property(_fullfill_rate_by_value)
+
+	def _account_payable(self):
+		return self.order_value - self.fullfill_value
+	account_payable = property(_account_payable)
 
 class MyPurchaseOrderLineItem(models.Model):
 	po = models.ForeignKey('MyPurchaseOrder')

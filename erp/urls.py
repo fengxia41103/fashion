@@ -131,4 +131,7 @@ urlpatterns = patterns(
 		url(r'^invoice/receive/delete/(?P<pk>\d+)/$', views.MyInvoiceReceiveDelete.as_view(), name='invoice_receive_delete'),		
 		url(r'^invoice/receive/review/batch/(?P<pk>\d+)/$', views.MyInvoiceReceiveReviewBatch.as_view(), name='invoice_receive_review_batch'),		
 
+		# Menu
+		url(r'^menu/vendor/need/invoice/$', views.VendorNeedInvoiceList.as_view(), name='vendor_need_invoice_list'),		
+
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

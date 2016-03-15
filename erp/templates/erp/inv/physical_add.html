@@ -46,21 +46,22 @@
 		<th>PHYSICAL COUNT</th>
 	</thead>
 	<tbody>
-	{% for item in inv_items %}
+	{% for inv_item in inv_items %}
+	{% with inv_item.item as item %}
 		<tr><td>
 			{{ item.code }}
 		</td><td>
-			{{ item.item.name }}
+			{{ item.name }}
 		</td><td>
-			{{ item.item.color }}
+			{{ item.color }}
 		</td><td style="border-right:1px solid #ddd;">
-			{{ item.item_type }}
+			{{ inv_item.item_type }}
 		</td><td>
-			{{ item.item.product_id }}
+			{{ item.product_id }}
 		</td><td>
-			{{ item.size }}			
+			{{ inv_item.size }}			
 		</td><td>
-			<input type="number" value="0" name="inv-item-{{item.id}}" id="{{item.id}}" min="0"  data-toggle="qty" style="width:100px;"/>			
+			<input type="number" value="0" name="inv-item-{{inv_item.id}}" id="{{inv_item.id}}" min="0"  max="1000" data-toggle="qty" style="width:100px;"/>			
 			<div class="btn-group" role="group" aria-label="">
 				<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
 					<i class="fa fa-minus"></i>
@@ -70,6 +71,7 @@
 				</button>
 			</div>		
 		</td></tr>
+	{% endwith %}
 	{% endfor %}
 	</tbody>
 </table>

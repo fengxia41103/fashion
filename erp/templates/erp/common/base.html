@@ -314,7 +314,14 @@
 								<i class="fa fa-plus"></i>
 								View invoice receivings			
 							</a>						
-						</li>																				
+						</li>
+
+						<div class="">
+						<h5 class="my-section-header">Create new invoice</h5>
+							<ul class="list" id="vendor-need-invoice-list">
+								{# vendor list who, by its fullfill status, can use another new invoice #}
+							</ul>
+						</div>
 					</ul>
 				</li>	
 
@@ -532,6 +539,15 @@
         	}); 			
 		}
 
+		function update_vendor_need_invoice_list(){
+	        j$.get("{% url 'vendor_need_invoice_list' %}", // passed in from view
+	            function(resp) { // success callback
+	            	j$('#vendor-need-invoice-list').html(resp);
+	            	// toastr.info('更新完成准备战斗');
+	            }
+	        ).always(function(){     
+	        });	
+		}
 
 		j$(document).ready(function(){
 			// common global widget initializations
@@ -571,6 +587,7 @@
 		   	});
 
 			{% if user.is_authenticated %}
+			update_vendor_need_invoice_list();
 			{% endif %}
 		});
 	</script>

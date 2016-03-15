@@ -325,6 +325,46 @@
 					</ul>
 				</li>	
 
+				<li class="dropdown">
+					<a href="" class="" data-toggle="dropdown">
+						<i class="fa fa-search"></i>
+						Report								
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li>
+							<a href="{% url "customer_ar_report" %}">
+								<i class="fa fa-plus"></i>
+								Customer AR			
+							</a>						
+						</li>
+						<li>
+							<a href="{% url "vendor_ap_report" %}">
+								<i class="fa fa-plus"></i>
+								Vendor AP		
+							</a>						
+						</li>
+						<li>
+							<a href="{% url "top_selling_product_report" 10 %}">
+								<i class="fa fa-plus"></i>
+								Top selling products		
+							</a>						
+						</li>
+						<li>
+							<a href="{% url "top_purchasing_product_report" 10 %}">
+								<i class="fa fa-plus"></i>
+								Top purchased products		
+							</a>						
+						</li>
+						<li>
+							<a href="{% url "top_fullfill_profit_product_report" 10 %}">
+								<i class="fa fa-plus"></i>
+								Top profitable products		
+							</a>						
+						</li>										
+					</ul>
+				</li>
+
 				{% if user.is_authenticated %}
 				<li>
 					<a href="{% url 'logout' %}">
@@ -475,18 +515,26 @@
     </script>
 
     {# sticky header https://github.com/jmosbech/StickyTableHeaders #}
-     <script type="text/javascript"   
+    <script type="text/javascript"   
     	src="{% static 'stickyheader/jquery.stickytableheaders.min.js' %}">
     </script>
     
     {# jquery validate #}
-     <script type="text/javascript"   
+    <script type="text/javascript"   
     	src="{% static 'validator/jquery.validate.min.js' %}">
     </script>
     
     {# JsBarcode, https://github.com/lindell/JsBarcode #}
-     <script type="text/javascript"   
+    <script type="text/javascript"   
     	src="{% static 'barcode/JsBarcode.all.min.js' %}">
+    </script>
+
+    {# highcharts #}
+    <script type="text/javascript"   
+    	src="{% static 'highcharts/highcharts-custom.js' %}">
+    </script>
+    <script type="text/javascript"   
+    	src="{% static 'highcharts/js/modules/exporting.js' %}">
     </script>
 
 	<script type="text/javascript">

@@ -1765,10 +1765,79 @@ class VendorNeedInvoiceList(TemplateView):
 #
 ###################################################			
 class ReportCustomerAR(TemplateView):
-	template_name = 'erp/report/customer_ar.html'
+	template_name = 'erp/report/customer_by_ar_list.html'
 
 	def get_context_data(self,**kwargs):
-		context = super(Templateview,self).get_context_data(**kwargs)
-		data = [(x,x.account_receivable) for x in MyCRM.objects.customers()]
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		data = sorted(MyCRM.objects.customers().order_by('name'), lambda x,y: x.account_receivable>y.account_receivable)
 		context['data'] = data
+
+		# set chart height
+		context['height'] = len(data)*25
 		return context
+
+class ReportVendorAP(TemplateView):
+	template_name = 'erp/report/vendor_by_ap_list.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		data = sorted(MyCRM.objects.vendors().order_by('name'), lambda x,y: x.account_payable>y.account_payable)
+		context['data'] = data
+
+		# set chart height
+		context['height'] = len(data)*25
+		return context
+
+class ReportTopProductBySO(TemplateView):
+	template_name = 'erp/report/top_selling_items_list.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		context['data'] = data = MyItemInventory.objects.rank_by_so_qty(top=int(kwargs['top']))
+		context['limited_to'] = kwargs['top']
+
+		# compute alternative charts that can be available based on what's current
+		alternatives = ['10','25','50']
+		try: alternatives.remove(kwargs['top'])
+		except: pass
+		context['alternatives'] = alternatives
+
+		# set chart height
+		context['height'] = len(data)*25
+		return context
+
+class ReportTopProductByPO(TemplateView):
+	template_name = 'erp/report/top_purchasing_items_list.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		context['data'] = data = MyItemInventory.objects.rank_by_po_qty(top=int(kwargs['top']))
+		context['limited_to'] = kwargs['top']
+
+		# compute alternative charts that can be available based on what's current
+		alternatives = ['10','25','50']
+		try: alternatives.remove(kwargs['top'])
+		except: pass
+		context['alternatives'] = alternatives
+
+		# set chart height
+		context['height'] = len(data)*25
+		return context
+
+class ReportTopProductByFullfillProfit(TemplateView):
+	template_name = 'erp/report/top_fullfill_profit_items_list.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		context['data'] = data = MyItemInventory.objects.rank_by_fullfill_profit(top=int(kwargs['top']))
+		context['limited_to'] = kwargs['top']
+
+		# compute alternative charts that can be available based on what's current
+		alternatives = ['10','25','50']
+		try: alternatives.remove(kwargs['top'])
+		except: pass
+		context['alternatives'] = alternatives
+
+		# set chart height
+		context['height'] = len(data)*25
+		return context		

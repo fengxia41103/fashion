@@ -564,7 +564,22 @@ class MyItem(MyBaseModel):
 #	Inventory models
 #
 ###################################################	
+class MyItemInventoryCustomManager(models.Manager):
+	def rank_by_so_qty(self,top=10):
+		tmp = filter(lambda x: x.on_so_qty, self.get_queryset().filter(item_type='New'))
+		return list(reversed(sorted(tmp,lambda x,y: cmp(x.on_so_qty,y.on_so_qty))))[:top]
+
+	def rank_by_po_qty(self,top=10):
+		tmp = filter(lambda x: x.on_po_qty, self.get_queryset().filter(item_type='New'))
+		return list(reversed(sorted(tmp,lambda x,y: cmp(x.on_po_qty,y.on_po_qty))))[:top]
+
+	def rank_by_fullfill_profit(self,top=10):
+		tmp = filter(lambda x: x.fullfill_profit, self.get_queryset())
+		return list(reversed(sorted(tmp,lambda x,y: cmp(x.fullfill_profit,y.fullfill_profit))))[:top]
+
 class MyItemInventory(models.Model):
+	objects = MyItemInventoryCustomManager()
+
 	item = models.ForeignKey('MyItem')
 	size = models.CharField(
 		max_length = 4,
@@ -587,6 +602,13 @@ class MyItemInventory(models.Model):
 		choices = ITEM_TYPE_CHOICES
 	)
 	
+	def __unicode__(self):
+		return self.code
+		
+	def _code(self):
+		return 'INV-%06d'%self.id
+	code = property(_code)
+
 	def _theoretical(self):
 		inv = 0
 		for audit in MyItemInventoryTheoreticalAudit.objects.filter(inv = self):
@@ -594,10 +616,6 @@ class MyItemInventory(models.Model):
 			else: inv += audit.qty
 		return inv
 	theoretical = property(_theoretical)
-
-	def _code(self):
-		return 'INV-%06d'%self.id
-	code = property(_code)
 
 	def _is_so_ready(self):
 		if self.item_type in ['New','Refurbished']: return True
@@ -610,7 +628,11 @@ class MyItemInventory(models.Model):
 
 	def _on_so_qty(self):
 		return sum(MySalesOrderLineItem.objects.filter(item=self).values_list('qty',flat=True))
-	on_so_qty = property(_on_so_qty)		
+	on_so_qty = property(_on_so_qty)
+
+	def _fullfill_profit(self):
+		return sum([x.fullfill_profit for x in MySalesOrderLineItem.objects.filter(item=self) if x.fullfill_profit])
+	fullfill_profit = property(_fullfill_profit)		
 
 class MyItemInventoryPhysicalAudit(models.Model):
 	created_on = models.DateField(auto_now_add = True)
@@ -847,6 +869,14 @@ class MySalesOrder(models.Model):
 		return self.business_model.process_model==2 and len(existing)==0
 	is_po_needed = property(_is_po_needed)
 
+	def _fullfill_cost(self):
+		return sum([x.fullfill_cost for x in MySalesOrderLineItem.objects.filter(order=self) if x.fullfill_cost])
+	fullfill_cost = property(_fullfill_cost)
+
+	def _fullfill_profit(self):
+		return sum([x.fullfill_profit for x in MySalesOrderLineItem.objects.filter(order=self) if x.fullfill_profit])
+	fullfill_profit = property(_fullfill_profit)
+
 class MySalesOrderLineItem(models.Model):
 	order = models.ForeignKey('MySalesOrder')
 	item = models.ForeignKey('MyItemInventory')
@@ -903,7 +933,21 @@ class MySalesOrderLineItem(models.Model):
 	def _refundable_qty(self):
 		return sum(MySalesOrderReturnLineItem.objects.filter(so_line_item=self,reason__is_refundable=True).values_list('return_qty',flat=True))		
 	refundable_qty = property(_refundable_qty)
-	
+
+	def _fullfill_cost(self):
+		cost = self.item.item.converted_cost
+		if cost: return self.fullfill_qty * cost
+		else: return None
+	fullfill_cost = property(_fullfill_cost)
+
+	def _fullfill_profit(self):
+		cost = self.item.item.converted_cost
+		if cost: 
+			unit_profit = self.discount_price-cost
+			return self.fullfill_qty * unit_profit
+		else: return None
+	fullfill_profit = property(_fullfill_profit)
+
 class MySalesOrderFullfillment(models.Model):
 	'''
 	Fullfillment would require an associated SO.

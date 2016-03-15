@@ -134,4 +134,11 @@ urlpatterns = patterns(
 		# Menu
 		url(r'^menu/vendor/need/invoice/$', views.VendorNeedInvoiceList.as_view(), name='vendor_need_invoice_list'),		
 
+		# Report
+		url(r'^report/customer/ar/$', views.ReportCustomerAR.as_view(), name='customer_ar_report'),		
+		url(r'^report/vendor/ap/$', views.ReportVendorAP.as_view(), name='vendor_ap_report'),		
+		url(r'^report/top/selling/product/(?P<top>\d+)/$', views.ReportTopProductBySO.as_view(), name='top_selling_product_report'),		
+		url(r'^report/top/purchasing/product/(?P<top>\d+)/$', views.ReportTopProductByPO.as_view(), name='top_purchasing_product_report'),		
+		url(r'^report/top/fullfill/profit/product/(?P<top>\d+)/$', views.ReportTopProductByFullfillProfit.as_view(), name='top_fullfill_profit_product_report'),		
+
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

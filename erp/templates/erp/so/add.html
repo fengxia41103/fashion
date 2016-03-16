@@ -69,7 +69,9 @@ j$(document).ready(function(){
 		j$("input[data-toggle='qty']").val(0);
 		j$("tr").removeClass('danger');
 		j$('#preview').hide();
-		j$('[data-toggle="set-zero"]').children('i').addClass('fa-star');
+
+		j$('[data-toggle="set-zero"]').show();
+		j$('[data-toggle="set-zero"]').children('i').removeClass('fa-star');
 	});
 
 	j$("#btn-fill-all").click(function(){
@@ -78,6 +80,7 @@ j$(document).ready(function(){
 			j$(value).val(max_val);
 			j$(value).parents('tr').addClass("danger");
 		});
+		j$('[data-toggle="set-zero"]').hide();
 		j$('[data-toggle="set-zero"]').children('i').removeClass('fa-star');
 		j$('#preview').show();
 	});

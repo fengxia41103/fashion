@@ -292,3 +292,14 @@ def MyPOFullfillment_post_save_handler(sender, instance, **kwargs):
 					so_line_item = so_line_item,
 					fullfill_qty = qty
 				).save()
+
+###################################################
+#
+#	Inventory signals
+#
+###################################################	
+@receiver(pre_save, sender=MyItemInventoryPhysicalAudit)
+def MyItemInventoryPhysicalAudit_post_save_handler(sender, instance, **kwargs):
+	# Saving a physical audit would also update ItemInventory's physical record
+	instance.inv.physical = instance.physical
+	instance.inv.save()

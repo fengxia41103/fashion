@@ -540,17 +540,38 @@ class MyItemInventoryPhysicalAdd(TemplateView):
 		context = super(TemplateView, self).get_context_data(**kwargs)
 
 		storage = MyStorage.objects.get(id = int(kwargs['storage']))
-		vendor = MyCRM.objects.get(id = int(kwargs['vendor']))
+		context['vendor'] = vendor = MyCRM.objects.get(id = int(kwargs['vendor']))
 
 		context['storage'] = storage
 		context['storages'] = MyStorage.objects.exclude(id=storage.id)
-		context['inv_items'] = MyItemInventory.objects.filter(storage=storage,item__brand=vendor)
+		context['inv_items'] = MyItemInventory.objects.filter(storage=storage,item__brand=vendor).order_by('item__name')
 		return context
 
-	def post(self, request):
-		'''
-		TODO: save physical counts
-		'''
+	def post(self,request,storage,vendor):
+		# print request.POST
+		items = {}
+		for line_id,val in self.request.POST.iteritems():
+			if 'inv-item' in line_id :
+				inv_item = MyItemInventory.objects.get(id=int(line_id.split('-')[-1]))
+
+				# we are listing "0"s, but they are not saved unless the "on" is set to TRUE
+				# they are set to FALSE by default.
+				items[inv_item.id] = {'item':inv_item,'qty':int(val),'on':False}
+		for line_id,val in self.request.POST.iteritems():				
+			if 'set-zero' in line_id:
+				line_item_id = int(line_id.split('-')[-1])
+				if line_item_id in items:
+					items[line_item_id]['on'] = True
+
+		for inv_item_id,data in items.iteritems():
+			if data['qty'] or data['on']:
+				MyItemInventoryPhysicalAudit(
+					created_by = request.user,
+					inv = data['item'],
+					physical = data['qty'],
+					theoretical = data['item'].theoretical
+				).save()
+
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 ###################################################

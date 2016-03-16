@@ -76,7 +76,10 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'visjs/vis.min.css' %}">
 
     {# google fonts #}
-	<!-- <link href='http://fonts.googleapis.com/css?family=Abril+Fatface' rel='stylesheet' type='text/css'>	  -->
+	<link href='http://fonts.googleapis.com/css?family=Abril+Fatface' rel='stylesheet' type='text/css'>	 
+
+	{# bootstrap toggle switch, http://www.bootstrap-switch.org/ #}
+	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-toggle-switch/css/bootstrap3/bootstrap-switch.min.css' %}">
 
 	{# JQuery lib #}
 	<script type="text/javascript" src="{% static 'jquery/jquery-2.1.3.min.js' %}"></script>
@@ -543,6 +546,12 @@
     	src="{% static 'highcharts/js/modules/exporting.js' %}">
     </script>
 
+    {# bootstrap toggle switch #}
+    <script type="text/javascript"   
+    	src="{% static 'bootstrap-toggle-switch/js/bootstrap-switch.min.js' %}">
+    </script>
+
+    {# application js #}
 	<script type="text/javascript">
 		var j$ = jQuery.noConflict();
 

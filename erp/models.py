@@ -276,12 +276,12 @@ class MyLocation (models.Model):
 	)
 	is_primary = models.BooleanField(default=False)
 
-	def _code(self):
-		return u'%s-%s' %(self.crm,self.name)
-	code = property(_code)
-
 	def __unicode__(self):
-		return self.code
+		return u'%s-%s' %(self.crm,self.name)
+
+	def _code(self):
+		return u'LOC%04d' %self.id
+	code = property(_code)
 
 	def _primary_storage(self):
 		primary,created = MyStorage.objects.get_or_create(location=self,is_primary=True)
@@ -297,10 +297,10 @@ class MyStorage (models.Model):
 	is_primary = models.BooleanField(default=False)
 
 	def __unicode__(self):
-		return self.code
+		return u'%s-%s'%(self.location,self.code)
 
 	def _code(self):
-		return u'%s-%d (%s)' %(self.location,self.id, self.location.abbrev)
+		return u'STORG%04d (%s)' %(self.id, self.location.abbrev)
 	code = property(_code)
 
 	def _physical(self):
@@ -316,6 +316,11 @@ class MyStorage (models.Model):
 	def _inv_items(self):
 		return MyItemInventory.objects.filter(storage=self)
 	inv_items = property(_inv_items)
+
+	def _brands(self):
+		brand_ids = set(self.inv_items.values_list('item__brand',flat=True))
+		return MyCRM.objects.filter(id__in=brand_ids)
+	brands = property(_brands)
 
 ###################################################
 #
@@ -524,16 +529,16 @@ class MyItem(MyBaseModel):
 		return sum([qty for size,qty in self.physical])
 	total_physical = property(_total_physical)
 
-	def _total_theoretical(self):
-		return sum([qty for size,qty in self.theoretical])
-	total_theoretical = property(_total_theoretical)
-
 	def _physical(self):
 		qty = []
 		for inv_item in MyItemInventory.objects.filter(item = self):
 			if inv_item.withdrawable: qty.append((inv_item.size,inv_item.physical))
 		return qty
 	physical = property(_physical)
+
+	def _total_theoretical(self):
+		return sum([qty for size,qty in self.theoretical])
+	total_theoretical = property(_total_theoretical)
 
 	def _theoretical(self):
 		qty = []

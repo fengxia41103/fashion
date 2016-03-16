@@ -30,11 +30,19 @@ j$(document).ready(function(){
 			// Highlight as long as this line has changed
 			j$(this).parents('tr').addClass('danger');
 
+			// Toggle set-zero button if any
+			j$(this).siblings('[data-toggle="set-zero"]').hide();
+			j$(this).siblings('[data-toggle="set-zero"]').children('i').removeClass("fa-star");
+
+			// enable minus
+			j$(this).siblings('[data-toggle="minus"]').prop('disabled', false);
+
+			// show preview button
 			j$('#preview').show();
 		}
 		if ((current_val+1)==max_val){
 			j$(this).prop('disabled', true);;
-			j$(this).siblings('[data-toggle="minus"]').prop('disabled', false);
+			// j$(this).siblings('[data-toggle="minus"]').prop('disabled', false);
 		}
 	});
 	j$('[data-toggle="minus"]').click(function(){
@@ -45,11 +53,15 @@ j$(document).ready(function(){
 
 			// Highlight as long as this line has changed
 			j$(this).parents('tr').addClass('danger');
+
 		}
 		if ((current_val-1)==min_val){
 			j$(this).prop('disabled', true);
 			j$(this).siblings('[data-toggle="plus"]').prop('disabled', false);
 			j$(this).parents('tr').removeClass('danger');
+
+			// show set zero option
+			j$(this).siblings('[data-toggle="set-zero"]').show();
 		}
 	});
 
@@ -57,6 +69,7 @@ j$(document).ready(function(){
 		j$("input[data-toggle='qty']").val(0);
 		j$("tr").removeClass('danger');
 		j$('#preview').hide();
+		j$('[data-toggle="set-zero"]').children('i').addClass('fa-star');
 	});
 
 	j$("#btn-fill-all").click(function(){
@@ -65,6 +78,7 @@ j$(document).ready(function(){
 			j$(value).val(max_val);
 			j$(value).parents('tr').addClass("danger");
 		});
+		j$('[data-toggle="set-zero"]').children('i').removeClass('fa-star');
 		j$('#preview').show();
 	});
 
@@ -73,7 +87,11 @@ j$(document).ready(function(){
 		j$.each(j$("input[data-toggle='qty']"),function(index,val){
 			var current_val = parseInt(j$(val).val());
 			if (current_val<1){
-				j$(val).parents('tr').hide();
+				if (j$(this).siblings('input[type="checkbox"]').prop("checked")){
+
+				}else{
+					j$(val).parents('tr').hide();
+				}
 			}
 		});
 		j$(this).hide();
@@ -91,5 +109,7 @@ j$(document).ready(function(){
 	});		
 });
 </script>
+{% block custom_js_2 %}
+{% endblock %}
 {% endblock %}
 

@@ -334,34 +334,40 @@
 					<ul class="dropdown-menu">
 						<li>
 							<a href="{% url "customer_ar_report" %}">
-								<i class="fa fa-plus"></i>
 								Customer AR			
 							</a>						
 						</li>
 						<li>
 							<a href="{% url "vendor_ap_report" %}">
-								<i class="fa fa-plus"></i>
 								Vendor AP		
 							</a>						
 						</li>
 						<li>
 							<a href="{% url "top_selling_product_report" 10 %}">
-								<i class="fa fa-plus"></i>
 								Top selling products		
 							</a>						
 						</li>
 						<li>
 							<a href="{% url "top_purchasing_product_report" 10 %}">
-								<i class="fa fa-plus"></i>
 								Top purchased products		
 							</a>						
 						</li>
 						<li>
 							<a href="{% url "top_fullfill_profit_product_report" 10 %}">
-								<i class="fa fa-plus"></i>
 								Top profitable products		
 							</a>						
-						</li>										
+						</li>
+						<li>
+							<a href="{% url "top_so_qty_balance_report" 10 %}">
+								Top SO by QTY balance		
+							</a>						
+						</li>															
+						<li>
+							<a href="{% url "top_so_fullfill_in_progress_report" 10 %}">
+								Top SO in-progress fullfills
+							</a>						
+						</li>															
+
 					</ul>
 				</li>
 

@@ -1761,7 +1761,7 @@ class VendorNeedInvoiceList(TemplateView):
 
 ###################################################
 #
-#	Report views
+#	CRM report views
 #
 ###################################################			
 class ReportCustomerAR(TemplateView):
@@ -1788,6 +1788,11 @@ class ReportVendorAP(TemplateView):
 		context['height'] = len(data)*25
 		return context
 
+###################################################
+#
+#	Product report views
+#
+###################################################	
 class ReportTopProductBySO(TemplateView):
 	template_name = 'erp/report/top_selling_items_list.html'
 
@@ -1840,4 +1845,45 @@ class ReportTopProductByFullfillProfit(TemplateView):
 
 		# set chart height
 		context['height'] = len(data)*25
-		return context		
+		return context
+
+###################################################
+#
+#	SO report views
+#
+###################################################	
+class ReportTopSOByQtyBalance(TemplateView):
+	template_name = 'erp/report/top_so_by_qty_balance_list.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		context['data'] = data = MySalesOrder.objects.rank_by_qty_balance(top=int(kwargs['top']),reverse=True)
+		context['limited_to'] = kwargs['top']
+
+		# compute alternative charts that can be available based on what's current
+		alternatives = ['10','25','50']
+		try: alternatives.remove(kwargs['top'])
+		except: pass
+		context['alternatives'] = alternatives
+
+		# set chart height
+		context['height'] = len(data)*25
+		return context
+
+class ReportSOFullfillInProgress(TemplateView):
+	template_name = 'erp/report/top_so_fullfill_in_progress.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		context['data'] = data = MySalesOrder.objects.rank_by_fullfill_rate_by_qty(top=int(kwargs['top']))
+		context['limited_to'] = kwargs['top']
+
+		# compute alternative charts that can be available based on what's current
+		alternatives = ['10','25','50']
+		try: alternatives.remove(kwargs['top'])
+		except: pass
+		context['alternatives'] = alternatives
+
+		# set chart height
+		context['height'] = len(data)*25
+		return context

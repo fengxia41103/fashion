@@ -719,7 +719,29 @@ class MyBusinessModel(MyBaseModel):
 		elif self.sales_model in ['Leasing',]: return 4		
 	process_model = property(_process_model)
 
+class MySalesOrderCustomManager(models.Manager):
+	def rank_by_qty_balance(self,top=10,reverse=False):
+		tmp = filter(lambda x: x.qty_balance, self.get_queryset())
+		if reverse:
+			return list(reversed(sorted(tmp,lambda x,y: cmp(x.qty_balance,y.qty_balance))))[:top]
+		else:
+			return list(sorted(tmp,lambda x,y: cmp(x.qty_balance,y.qty_balance)))[:top]
+
+	def rank_by_fullfill_rate_by_qty(self,top=10,reverse=False):
+		tmp = filter(lambda x: x.fullfill_rate_by_qty and x.fullfill_rate_by_qty<100, self.get_queryset())
+
+		if reverse:
+			return list(reversed(sorted(tmp,lambda x,y: cmp(x.fullfill_rate_by_qty,y.fullfill_rate_by_qty))))[:top]
+		else:
+			return list(sorted(tmp,lambda x,y: cmp(x.fullfill_rate_by_qty,y.fullfill_rate_by_qty)))[:top]
+
+	def zero_fullfill(self):
+		return filter(lambda x: x.fullfill_rate_by_qty==0, self.get_queryset())
+
+
 class MySalesOrder(models.Model):
+	objects = MySalesOrderCustomManager()
+
 	business_model = models.ForeignKey('MyBusinessModel')
 	customer = models.ForeignKey('MyCRM')
 	sales = models.ForeignKey(User, related_name='sales')

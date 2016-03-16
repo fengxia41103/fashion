@@ -751,13 +751,13 @@ Related payments
 		{# Modal header #}
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Finalize payment</h4>
+	        <h4 class="modal-title">Finalize payment {{ payment.code }}</h4>
 		</div>
 
 	    {# Modal body #}
 	    <div class="modal-body">			
 	    	<p>
-			Payment can not be edited or deleted after it has been finalized.
+			Payment {{ payment.code }} can not be edited or deleted after it has been finalized.
 			</p>
 
 			<p class="alert alert-warning">

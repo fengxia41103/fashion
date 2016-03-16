@@ -140,5 +140,7 @@ urlpatterns = patterns(
 		url(r'^report/top/selling/product/(?P<top>\d+)/$', views.ReportTopProductBySO.as_view(), name='top_selling_product_report'),		
 		url(r'^report/top/purchasing/product/(?P<top>\d+)/$', views.ReportTopProductByPO.as_view(), name='top_purchasing_product_report'),		
 		url(r'^report/top/fullfill/profit/product/(?P<top>\d+)/$', views.ReportTopProductByFullfillProfit.as_view(), name='top_fullfill_profit_product_report'),		
+		url(r'^report/top/so/qty/balance/(?P<top>\d+)/$', views.ReportTopSOByQtyBalance.as_view(), name='top_so_qty_balance_report'),		
+		url(r'^report/top/so/fullfill/rate/qty/(?P<top>\d+)/$', views.ReportSOFullfillInProgress.as_view(), name='top_so_fullfill_in_progress_report'),		
 
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -136,7 +136,6 @@ urlpatterns = patterns(
 
 		# Location and storage
 		url(r'^locations/$', views.MyLocationList.as_view(), name='location_list'),		
-		url(r'^location/(?P<pk>\d+)/$', views.MyLocationDetail.as_view(), name='location_detail'),		
 
 		# Report
 		url(r'^report/customer/ar/$', views.ReportCustomerAR.as_view(), name='customer_ar_report'),		
@@ -146,5 +145,6 @@ urlpatterns = patterns(
 		url(r'^report/top/fullfill/profit/product/(?P<top>\d+)/$', views.ReportTopProductByFullfillProfit.as_view(), name='top_fullfill_profit_product_report'),		
 		url(r'^report/top/so/qty/balance/(?P<top>\d+)/$', views.ReportTopSOByQtyBalance.as_view(), name='top_so_qty_balance_report'),		
 		url(r'^report/top/so/fullfill/rate/qty/(?P<top>\d+)/$', views.ReportSOFullfillInProgress.as_view(), name='top_so_fullfill_in_progress_report'),		
+		url(r'^report/physical/inventory/$', views.ReportPhysicalInventoryList.as_view(), name='latest_physical_inventory_report'),		
 
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

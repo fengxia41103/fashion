@@ -1,0 +1,48 @@
+{% extends "erp/common/base.html" %}
+
+{% block page-header %}
+Latest physical inventory report
+{% endblock %}
+
+{% block content %}
+{% include "erp/common/filter.html" %}
+
+<table class="table table-striped table-hover table-responsive">
+    <thead>
+        <th>INVENTORY ID</th>    
+        <th>PRODUCT ID</th>
+        <th>BRAND</th>
+        <th>ITEM</th>
+        <th>COLOR</th>
+        <th>SIZE</th>
+        <th>PHYSICAL INVENTORY COUNT</th>
+    </thead>
+
+    <tbody>
+    	{% for inv_item,audit in latest_list.iteritems %}
+    	{% with inv_item.item as item %}
+        <tr><td>
+            {{ inv_item }}        
+        </td><td>
+            <a href="{% url 'item_detail' item.id %}">
+            {{ item.product_id }}
+            </a>
+        </td><td>
+            {{ item.brand }}
+        </td><td>
+            {{ item.name }}
+        </td><td>
+            {{ item.color }}
+        </td><td>
+            {{ inv_item.size }}
+        </td><td>
+        	{{ audit.physical }}
+        	{% if audit.is_clean %}
+        	<i class="fa fa-thumbs-o-up" data-toggle="tooltip" title="The item's physical inventory count equals to its theoretical."></i>
+        	{% endif %}
+        </td></tr>
+    	{% endwith %}    	
+    	{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

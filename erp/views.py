@@ -1909,6 +1909,36 @@ class ReportSOFullfillInProgress(TemplateView):
 		context['height'] = len(data)*25
 		return context
 
+class ReportPhysicalInventoryFilter (FilterSet):
+	class Meta:
+		model = MyItemInventoryPhysicalAudit
+		fields = {
+			'inv__item__brand':['exact'],
+		}
+
+class ReportPhysicalInventoryList (FilterView):
+	template_name = 'erp/report/physical_inventory_list.html'
+	paginate_by = 25
+
+	def get_filterset_class(self):
+		return ReportPhysicalInventoryFilter
+
+	def get_context_data(self, **kwargs):
+		context = super(FilterView, self).get_context_data(**kwargs)
+
+		latest = {}
+		for audit in self.object_list.order_by('-id'):
+			if audit.inv not in latest: latest[audit.inv] = audit
+		context['latest_list'] = latest
+
+		# filters
+		searches = context['filter']
+		context['filters'] = {} # my customized filter display values
+		for f,val in searches.data.iteritems():
+			if val and f != "csrfmiddlewaretoken" and f != "page":
+				if f == 'inv__item__brand': context['filters']['inv__item__brand'] = MyCRM.objects.get(id=int(val))
+		return context
+
 ###################################################
 #
 #	MyLocation, MyStorage views
@@ -1917,7 +1947,3 @@ class ReportSOFullfillInProgress(TemplateView):
 class MyLocationList(ListView):
 	model = MyLocation
 	template_name = 'erp/location/list.html'
-
-class MyLocationDetail(DetailView):
-	model = MyLocation
-	template_name = 'erp/location/detail.html'

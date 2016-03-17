@@ -134,6 +134,10 @@ urlpatterns = patterns(
 		# Menu
 		url(r'^menu/vendor/need/invoice/$', views.VendorNeedInvoiceList.as_view(), name='vendor_need_invoice_list'),		
 
+		# Location and storage
+		url(r'^locations/$', views.MyLocationList.as_view(), name='location_list'),		
+		url(r'^location/(?P<pk>\d+)/$', views.MyLocationDetail.as_view(), name='location_detail'),		
+
 		# Report
 		url(r'^report/customer/ar/$', views.ReportCustomerAR.as_view(), name='customer_ar_report'),		
 		url(r'^report/vendor/ap/$', views.ReportVendorAP.as_view(), name='vendor_ap_report'),		

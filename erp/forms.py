@@ -38,7 +38,7 @@ class ItemInventoryAddForm(ItemInventoryAdjustForm):
 		('INITIAL','Qty is being adjusted as part of initial setup.'),
 	)
 	reason = forms.ChoiceField(choices = REASON_CHOICES)
-
+	
 ###################################################
 #
 #	MySalesOrder forms

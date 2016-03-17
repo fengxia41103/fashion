@@ -217,15 +217,14 @@
 						Inventory									
 						<b class="caret"></b>
 					</a>
-					<ul class="dropdown-menu">
-						<li class="divider"></li>							
+					<ul class="dropdown-menu">						
 						<li>
 							<a href="{% url "item_inv_add" %}">
 								New inventory adjustment
 							</a>						
 						</li>
 						<li>
-							<a href="{% url "item_inv_physical_add" 1 4 %}">
+							<a href="{% url "location_list" %}">
 								Run physical inventory
 							</a>						
 						</li>																			
@@ -318,13 +317,16 @@
 								View invoice receivings			
 							</a>						
 						</li>
+						<li class="divider"></li>
 
-						<div class="">
-						<h5 class="my-section-header">Create new invoice</h5>
-							<ul class="list" id="vendor-need-invoice-list">
-								{# vendor list who, by its fullfill status, can use another new invoice #}
-							</ul>
-						</div>
+						<li class="dropdown-submenu">
+							<a href="#">
+							Create new invoice
+							</a>
+						</li>
+						<ul class="dropdown-menu" id="vendor-need-invoice-list">
+							{# vendor list who, by its fullfill status, can use another new invoice #}
+						</ul>
 					</ul>
 				</li>	
 

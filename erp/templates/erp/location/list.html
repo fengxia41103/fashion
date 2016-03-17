@@ -1,0 +1,34 @@
+{% extends "erp/common/base.html" %}
+
+{% block page-header %}
+Count physical inventory
+{% endblock %}
+
+{% block content %}
+
+{% for location in object_list %}
+<div class="panel panel-default">
+	<div class="panel-heading">Location: {{ location }}</div>
+	<div class="panel-body">
+		{% for s in location.storages %}
+			<h4>
+				{{s.code }}
+				{% if s.is_primary %}
+					<label class="label label-info">primary</label>
+				{% endif %}
+			</h4>
+			<ul class="list-inline">
+			{% for v in s.vendors %}
+			<li data-toggle="tooltip" title="Click to count physical inventory">
+				<a href="{% url 'item_inv_physical_add' s.id v.id %}">
+					<span class="item-style flabel">{{ v }}</span>
+				</a>
+			</li>
+			{% endfor %}
+			</ul>
+		{% endfor %}
+	</div>
+</div>
+{% endfor %}
+
+{% endblock %}

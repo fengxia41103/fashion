@@ -292,6 +292,14 @@ class MyLocation (models.Model):
 		return MyItemInventory.objects.filter(storage__location = self)
 	inv_items = property(_inv_items)
 
+	def _storages(self):
+		return MyStorage.objects.filter(location=self)
+	storages = property(_storages)
+
+	def _vendors(self):
+		return reduce(lambda x,y:x+y,[s.vendors for s in self.storages])
+	vendors = property(_vendors)
+
 class MyStorage (models.Model):
 	location = models.ForeignKey('MyLocation')
 	is_primary = models.BooleanField(default=False)
@@ -317,10 +325,10 @@ class MyStorage (models.Model):
 		return MyItemInventory.objects.filter(storage=self)
 	inv_items = property(_inv_items)
 
-	def _brands(self):
-		brand_ids = set(self.inv_items.values_list('item__brand',flat=True))
-		return MyCRM.objects.filter(id__in=brand_ids)
-	brands = property(_brands)
+	def _vendors(self):
+		vendor_ids = set(self.inv_items.values_list('item__brand',flat=True))
+		return MyCRM.objects.filter(id__in=vendor_ids).order_by('name')
+	vendors = property(_vendors)
 
 ###################################################
 #

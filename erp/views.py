@@ -98,7 +98,7 @@ class HomeView (TemplateView):
 ###################################################
 class LoginView(FormView):
 	template_name = 'registration/login.html'
-	success_url = reverse_lazy('season_list')
+	success_url = reverse_lazy('location_list')
 	form_class = AuthenticationForm
 
 	def form_valid(self,form):
@@ -286,7 +286,7 @@ class MyItemListFilter (FilterSet):
 		fields = {
 			'brand':['exact'],
 			'season':['exact'],
-			'name':['contains']
+			'name':['icontains']
 		}
 		together = ['season']
 
@@ -304,7 +304,7 @@ class MyItemList (FilterView):
 			if val and f != "csrfmiddlewaretoken" and f != "page":
 				if f == 'brand': context['filters']['brand'] = MyCRM.objects.get(id=int(val))
 				if f == 'season': context['filters']['season'] = MySeason.objects.get(id=int(val))
-				if 'name' in f: context['filters']['name__contains'] = val
+				if 'name' in f: context['filters']['name__icontains'] = val
 
 		# vendors included in queryset
 		context['vendors'] = [MyCRM.objects.get(id=v) for v in set(self.object_list.values_list('brand',flat=True))]
@@ -1908,3 +1908,16 @@ class ReportSOFullfillInProgress(TemplateView):
 		# set chart height
 		context['height'] = len(data)*25
 		return context
+
+###################################################
+#
+#	MyLocation, MyStorage views
+#
+###################################################	
+class MyLocationList(ListView):
+	model = MyLocation
+	template_name = 'erp/location/list.html'
+
+class MyLocationDetail(DetailView):
+	model = MyLocation
+	template_name = 'erp/location/detail.html'

@@ -271,7 +271,7 @@ def MyPOFullfillment_post_save_handler(sender, instance, **kwargs):
 
 		# from POFullfillment -> PO -> related SO -> created SO fullfillment
 		so = instance.po.so
-		if so and so.proces_model == 2: # Proxy SO
+		if so and so.business_model.process_model == 2: # Proxy SO
 			# create SOFullfillment
 			so_fullfill = MySalesOrderFullfillment(
 				so = so,

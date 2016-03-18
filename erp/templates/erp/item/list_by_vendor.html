@@ -1,4 +1,5 @@
 {% extends "erp/common/base.html" %}
+{% load staticfiles %}
 
 {% block page-header %}
 <ol class="breadcrumb">
@@ -15,7 +16,7 @@
 {% block content %}
 <div class="my-multicol-4">
 {% for obj in items %}
-<section class="pin-card" style="" id="{{obj.id}}">
+<section class="pin-card" style="" id="front-{{obj.id}}">
 	<div class="page-header">
 		<h4>
 			{{obj.name}}
@@ -91,35 +92,102 @@
 		Color <span style="color:#89e;">{{ obj.color }}</span>
 
 		{# show price #}
-		<span class="text-right item-label pull-right">	
-			{% if obj.price > 0 %}		
-				<i class="fa fa-tag"></i>
-				{{obj.currency}} {{ obj.price|floatformat:0 }}
+		<span class="text-right item-label pull-right" data-toggle="flippant-front" data-target="front-{{obj.id}}">	
+			{% if obj.price > 0 %}	
+				{{obj.currency}} {{ obj.price|floatformat:0 }}			
+				<i class="fa fa-shopping-cart"></i>				
 			{% else %}
 				<span class="badge">price missing</span>
 			{% endif %}
 		</span>
 	</div>
 </section>
+
+<section class="pin-card" id="back-{{obj.id}}" data-toggle="card-back" style="display:none;">
+	<form class="form-inline well" action="{% url 'cart_update' %}" 
+	method="POST" data-target="cart-update">
+	{% csrf_token %}
+
+	<div class="page-header">
+		<h4>
+			{{obj.name}}
+			<a class="pull-right" data-toggle="flippant-back">
+				<i class="fa fa-close"></i>
+			</a>
+		</h4>
+		<em>{{ obj.product_id }}</em>
+	</div>
+
+	{% for inv_item in obj.myiteminventory_set.all %}
+		<div class="form-group" style="margin-bottom:10px;">
+			<label class="sr-only flabel" for="inv-item-{{inv_item.id}}">{{ inv_item.size }}</label>
+			<div class="input-group">
+				<div class="input-group-addon" style="min-width:50px;">
+					<b>{{ inv_item.size }}</b>
+				</div>
+				<input type="number" 
+					id = "inv-item-{{inv_item.id}}"
+					name = "inv-item-{{inv_item.id}}"
+					min="0" class="form-control" 
+					placeholder="Enter qty"/>
+			</div>
+		</div>
+	{% endfor %}
+
+	{# subtotal section #}
+	<div class="text-right" style="margin:10px 0px;border-top:1px solid #ccc;">
+		<label class="">Subtotal:</label>
+		<span class="item-total">
+		1234
+		</span>
+	</div>
+	<div class="text-right">
+		<span data-target="form-submit" class="btn btn-primary">
+		<i class="fa fa-shopping-cart"></i>
+		<span>Add to cart</span>
+		</span>
+	</div>	
+	</form>
+
+</section>
 {% endfor %}
 </div>
-
 {% endblock %}
 
 {% block custom_js %}
 <script type="text/javascript">
 var j$ = jQuery.noConflict();
 j$(document).ready(function(){
-	j$(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
-	    e.preventDefault();
-	    j$(this).ekkoLightbox();
-	}); 
+	var back;
+	j$(document).delegate('*[data-toggle="flippant-front"]', 'click', function(e) {
+	    // close previous flippant
+	    if (back !='undefined' && back != null){
+	    	back.close();
+	    }
 
-	j$('[data-type="attachment-thumbnail"]').click(function(){
-		var url = j$(this).attr('src');
-		j$(this).closest('section').find('[data-toggle="lightbox"]').attr('href',url);
-		j$(this).closest('section').find('[data-toggle="lightbox"]').find('img:first-child').attr('src',url);
-	});		
+	    // get new one
+		var front = document.getElementById(j$(this).attr("data-target"));
+		var back_content = j$(this).closest('section').next('[data-toggle="card-back"]').html();
+		back = flippant.flip(front, back_content, 'card');
+	});
+
+	j$(document).delegate('[data-toggle="flippant-back"]','click',function(e){
+		if(back !="undefined" && back != null){ back.close();}
+	    e.preventDefault();	
+	});
+
+	j$(document).delegate('[data-target="form-submit"]',"click",function(event){
+		var form = j$(this).closest('form[data-target="cart-update"]');
+		j$(form).ajaxSubmit({
+			dataType: 'json',
+			clearForm: true,
+
+			success: function(resp,status){
+				toastr.success('Items have been added to shopping cart.');
+			},
+		});
+	});
+
 });
 </script>
 {% endblock %}

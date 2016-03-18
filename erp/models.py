@@ -1662,3 +1662,23 @@ class MyInvoiceReceiveItem(models.Model):
 		if self.item.price: return self.qty*self.item.price
 		else: return None
 	value = property(_value)
+
+###################################################
+#
+#	ShoppingCart models
+#
+###################################################		
+class MyShoppingCart(models.Model):
+	user = models.ForeignKey(User)
+	created_on = models.DateField(auto_now_add = True)
+	placed_on = models.DateField(
+		null = True,
+		blank = True
+	)
+	is_open = models.BooleanField(default=True)
+
+class MyShoppingCartItem(models.Model):
+	cart = models.ForeignKey('MyShoppingCart')
+	inv_item = models.ForeignKey('MyItemInventory')
+	qty = models.PositiveIntegerField(default =1)
+	price = models.FloatField(default = 0.0)

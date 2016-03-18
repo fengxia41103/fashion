@@ -1947,3 +1947,28 @@ class ReportPhysicalInventoryList (FilterView):
 class MyLocationList(ListView):
 	model = MyLocation
 	template_name = 'erp/location/list.html'
+
+###################################################
+#
+#	Myshopping cart views
+#
+###################################################	
+@class_view_decorator(login_required)
+class MyShoppingCartUpdate(TemplateView):
+	def post(self,request):
+		cart,created = MyShoppingCart.objects.get_or_create(user=request.user,is_open=True)
+
+		items = []
+		for line_id,qty in self.request.POST.iteritems():
+			if 'inv-item' in line_id and qty:
+				qty = int(qty)		
+				inv_item = MyItemInventory.objects.get(id=int(line_id.split('-')[-1]))			
+				shopping_cart_item,created = MyShoppingCartItem.objects.get_or_create(cart=cart,inv_item=inv_item)
+				if qty: 
+					shopping_cart_item.qty = qty
+					shopping_cart_item.save()					
+				elif qty == 0: # equal to delete this line item
+					shopping_cart_item.delete()
+
+		return HttpResponse(json.dumps({'status':'ok'}), 
+			content_type='application/javascript')	

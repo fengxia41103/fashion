@@ -147,4 +147,7 @@ urlpatterns = patterns(
 		url(r'^report/top/so/fullfill/rate/qty/(?P<top>\d+)/$', views.ReportSOFullfillInProgress.as_view(), name='top_so_fullfill_in_progress_report'),		
 		url(r'^report/physical/inventory/$', views.ReportPhysicalInventoryList.as_view(), name='latest_physical_inventory_report'),		
 
+		# Shopping cart
+		url(r'^cart/update/$', views.MyShoppingCartUpdate.as_view(), name='cart_update'),		
+
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

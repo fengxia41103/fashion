@@ -7,9 +7,13 @@
 <head>
 <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />    
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	{# http://hammerjs.github.io/getting-started/ #}
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
@@ -76,8 +80,8 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'visjs/vis.min.css' %}">
 
     {# google fonts #}
-	<link href='http://fonts.googleapis.com/css?family=Abril+Fatface' rel='stylesheet' type='text/css'>	 
-
+<!-- 	<link href='http://fonts.googleapis.com/css?family=Abril+Fatface' rel='stylesheet' type='text/css'>	 
+ -->
 	{# bootstrap toggle switch, http://www.bootstrap-switch.org/ #}
 	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-toggle-switch/css/bootstrap3/bootstrap-switch.min.css' %}">
 
@@ -322,11 +326,15 @@
 						</li>
 						<li class="divider"></li>
 
-						<li class="dropdown-submenu">
-							<a href="#">
-							Create new invoice
-							</a>
+						{# vendor sample invoice #}
+						<li>
+							<a href="{% url "vendor_sample_invoice_add" 4 %}">
+								<i class="fa fa-plus"></i>
+								Gertrude
+							</a>						
 						</li>
+
+						{# vendor consolidate invoice #}
 						<ul class="dropdown-menu" id="vendor-need-invoice-list">
 							{# vendor list who, by its fullfill status, can use another new invoice #}
 						</ul>
@@ -568,6 +576,11 @@
     {# jQuery ajax form plugin #}
     <script type="text/javascript"   
     	src="{% static 'form/jquery.form.js' %}">
+    </script>
+
+    {# hammer.js, gestures! http://hammerjs.github.io/ #}
+    <script type="text/javascript"   
+    	src="{% static 'hammer/hammer.min.js' %}">
     </script>
 
     {# application js #}

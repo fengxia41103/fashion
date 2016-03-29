@@ -13,9 +13,8 @@
   		<a href="{%url 'item_list_by_vendor' object.season.id object.brand.id %}">
   		{{ object.brand }}</a>
   	</li>
-  	<li class="active">{{ object.product_id }}
-	  	{# barcode #}
-		<img class="text-right" id="barcode">
+  	<li class="active">
+  		{{ object.product_id }}
 	</li>
 </ol>	
 {% endblock %}
@@ -47,7 +46,7 @@
 		{% endif %}
 		</ul>
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-5">
 		{% with object.attachments.all|first as img %} 
 			<a href="{{ img.file.url }}" data-toggle="lightbox" data-gallery="multiimages" data-parent data-title="{{img.name}}" data-footer="{{img.description}}">
 				<img src="{{img.file.url}}" class="img-responsive center-block"
@@ -57,7 +56,7 @@
 		{% endwith %}
 	</div>
 
-	<div class="col-md-4">
+	<div class="col-md-5">
 		{% if user.is_superuser %}
 			<a href="{% url 'item_edit' object.id %}">
 				<i class="fa fa-pencil"></i>
@@ -70,6 +69,9 @@
 				Add vendor
 			</a>
 		{% endif %}
+
+		{# barcode #}
+		<img class="text-right" id="barcode">
 
 		<h1 style="font-weight:bold;font-size:40px;">{{ object.name|upper }}</h1>
 		<p><span class="item-label">CODE:</span>{{ object.code }}</p>

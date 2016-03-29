@@ -4,6 +4,7 @@
 from django import forms
 from django.conf import settings
 from django.forms.models import modelformset_factory, inlineformset_factory
+from django.forms import formset_factory
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
@@ -1693,6 +1694,44 @@ class MyInvoiceReceiveList (FilterView):
 			if val and f != "csrfmiddlewaretoken" and f != "page":
 				if f == 'invoice': context['filters']['invoice'] = MyInvoice.objects.get(id=int(val))
 		return context
+
+class MyVendorSampleLineItemFormAdd(TemplateView):
+	template_name = 'erp/common/formset_as_table.html'
+	def post(self, request):
+		formset = formset_factory(VendorSampleInvoiceLineItemAddForm,extra=int(request.POST['extra']))	
+		content = loader.get_template(self.template_name)
+		html= content.render(Context({'formset':formset}))
+
+		return HttpResponse(json.dumps({'html':html}), 
+			content_type='application/javascript')	
+
+@class_view_decorator(login_required)
+class MyVendorSampleInvoiceAdd(TemplateView):
+	template_name = 'erp/invoice/vendor_sample_add.html'
+	def get_context_data(self, **kwargs):
+		context = super(TemplateView, self).get_context_data(**kwargs)
+
+		# get vendor items
+		context['vendor'] = vendor = MyCRM.objects.get(id=int(kwargs['pk']))
+
+		# invoice form
+		context['form'] = VendorSampleInvoiceAddForm(initial={
+			'crm':vendor,
+			'created_by':self.request.user,
+		})
+
+		# sample line item formset
+
+		return context
+
+	def post(self,request,pk):
+		# create invoice
+		form = VendorInvoiceAddForm(self.request.POST)
+		if form.is_valid():
+			# create invoice
+			invoice = form.save()
+
+	        return HttpResponseRedirect(reverse_lazy('invoice_detail',kwargs={'pk':invoice.id}))
 
 ###################################################
 #

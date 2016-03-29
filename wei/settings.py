@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     # custom packages
     #'devserver', # django-devserver
     # 'debug_toolbar',
+    # 'bootstrap3', # http://django-bootstrap3.readthedocs.org/en/latest/quickstart.html
     'storages', # django-storage
     's3_folder_storage', # django-s3-folder-storage
     'compressor', # django_compressor

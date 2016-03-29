@@ -1447,7 +1447,7 @@ class MyInvoice(models.Model):
 		verbose_name = u'Invoice no.'
 	)
 	issued_on = models.DateField()
-	gross_cost = models.FloatField()
+	gross_cost = models.FloatField(default=0)
 	discount = models.FloatField(default=0)
 	maturity_date = models.DateField(
 		null = True,

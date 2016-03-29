@@ -1,4 +1,4 @@
-{% extends "erp/so/add.html" %}
+{% extends "erp/common/base.html" %}
 
 {% load crispy_forms_tags %}
 {% load static %}
@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<form action="" enctype="multipart/form-data" method="POST">
+<form action="" method="POST">
 {% csrf_token %}
 
 {# invoice header #}
@@ -16,56 +16,25 @@
 {{ form|crispy }}
 
 {# invoice details #}
-<div id="item-details">
 <h2 class="page-header">Item details</h2>
-<div class="btn-group" role="group" aria-label="">
-	<a  id="btn-clear-all" data-toggle="tooltip" title="Click to clear all inputs">
-		<i class="fa fa-minus">&nbsp;Clear all</i>
-	</a> | 
-	<a id="btn-fill-all" data-toggle="tooltip" title="Click to fill all inputs to order qty">
-		<i class="fa fa-plus">&nbsp;Fullfill all</i>
-	</a>
-</div>
-
-{# include "erp/common/formset_as_table.html" #}
-<div id="sample-line-items"></div>
-
-<button class="btn my-command-btn"  id="preview" style="display:none;">
-	<i class="fa fa-save"></i>
-	<span>Preview</span>
-</button>
-<button class="btn my-command-btn"  id="reset" style="display:none;">
-	<i class="fa fa-save"></i>
-	<span>Reset</span>
-</button>
+{% include "erp/common/formset_as_table.html" %}
 <button class="btn btn-primary"  type="submit" id="create">
 	<i class="fa fa-save"></i>
 	<span>Save invoice</span>
 </button>
-</div>
 
 </form>
 {% endblock %}
 
-{% block custom_js_2 %}
+{% block custom_js %}
 <script type="text/javascript">
+var formset = j$('table tbody tr').formset();
 j$(document).ready(function(){
-	j$('#item-details').hide();
-
 	j$('#id_qty').change(function(){
-        j$.post(
-        	"{% url 'vendor_sample_invoice_line_item_form_add' %}",
-        	{
-        		'extra': j$(this).val()
-        	},
-            function(resp) { // success callback
-            	j$('#sample-line-items').html(resp['html']);
-            	j$('#item-details').show();
-            	// toastr.info('更新完成准备战斗');
-            },
-        	'json'
-        ).always(function(){     
-        });	
+		j$('tr.dynamic-form').remove();
+		for (var i=0;i<j$(this).val();i++){
+			j$('.add-row').click();
+		}	
 	});
 });
 </script>

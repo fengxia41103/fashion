@@ -14,7 +14,7 @@ from django.template import RequestContext
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import FormView,CreateView,UpdateView,DeleteView
 from django.core.urlresolvers import reverse_lazy, resolve, reverse
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
@@ -1695,43 +1695,37 @@ class MyInvoiceReceiveList (FilterView):
 				if f == 'invoice': context['filters']['invoice'] = MyInvoice.objects.get(id=int(val))
 		return context
 
-class MyVendorSampleLineItemFormAdd(TemplateView):
-	template_name = 'erp/common/formset_as_table.html'
-	def post(self, request):
-		formset = formset_factory(VendorSampleInvoiceLineItemAddForm,extra=int(request.POST['extra']))	
-		content = loader.get_template(self.template_name)
-		html= content.render(Context({'formset':formset}))
-
-		return HttpResponse(json.dumps({'html':html}), 
-			content_type='application/javascript')	
-
 @class_view_decorator(login_required)
 class MyVendorSampleInvoiceAdd(TemplateView):
 	template_name = 'erp/invoice/vendor_sample_add.html'
+	extra = 1
 	def get_context_data(self, **kwargs):
 		context = super(TemplateView, self).get_context_data(**kwargs)
 
-		# get vendor items
-		context['vendor'] = vendor = MyCRM.objects.get(id=int(kwargs['pk']))
-
 		# invoice form
 		context['form'] = VendorSampleInvoiceAddForm(initial={
-			'crm':vendor,
 			'created_by':self.request.user,
+			'issued_on': dt.now(),
+			'qty':self.extra
 		})
 
-		# sample line item formset
+		context['formset'] = formset_factory(VendorSampleInvoiceLineItemAddForm,extra=self.extra)
 
+		# sample line item formset
 		return context
 
-	def post(self,request,pk):
+	def post(self,request):
 		# create invoice
-		form = VendorInvoiceAddForm(self.request.POST)
-		if form.is_valid():
+		form = VendorSampleInvoiceAddForm(request.POST)
+		MyFormSet = formset_factory(VendorSampleInvoiceLineItemAddForm,extra=self.extra)
+		formset = MyFormSet(request.POST)
+
+		if form.is_valid() and formset.is_valid():
 			# create invoice
 			invoice = form.save()
-
-	        return HttpResponseRedirect(reverse_lazy('invoice_detail',kwargs={'pk':invoice.id}))
+			return HttpResponseRedirect(reverse_lazy('invoice_detail',kwargs={'pk':invoice.id}))
+		else: 
+			return render(request, self.template_name, {'form':form,'formset':formset})     
 
 ###################################################
 #

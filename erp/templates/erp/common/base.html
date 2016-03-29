@@ -33,7 +33,7 @@
 
 	<!-- Latest compiled and minified CSS -->
 	{# http://www.bootstrapcdn.com/?theme=14#bootswatch_tab #}
-	<!--link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap.min.css' %}"-->
+	<!-- <link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap.min.css' %}"> -->
 	<link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap-theme.simplex.min.css' %}">
 
 	<!--link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"-->
@@ -80,8 +80,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'visjs/vis.min.css' %}">
 
     {# google fonts #}
-<!-- 	<link href='http://fonts.googleapis.com/css?family=Abril+Fatface' rel='stylesheet' type='text/css'>	 
- -->
+
 	{# bootstrap toggle switch, http://www.bootstrap-switch.org/ #}
 	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-toggle-switch/css/bootstrap3/bootstrap-switch.min.css' %}">
 
@@ -328,9 +327,9 @@
 
 						{# vendor sample invoice #}
 						<li>
-							<a href="{% url "vendor_sample_invoice_add" 4 %}">
+							<a href="{% url "vendor_sample_invoice_add" %}">
 								<i class="fa fa-plus"></i>
-								Gertrude
+								New sample invoice
 							</a>						
 						</li>
 
@@ -582,6 +581,12 @@
     <script type="text/javascript"   
     	src="{% static 'hammer/hammer.min.js' %}">
     </script>
+
+    {# django dynamic formset, https://github.com/elo80ka/django-dynamic-formset #}
+    <script type="text/javascript"   
+    	src="{% static 'formset/jquery.formset.js' %}">
+    </script>
+
 
     {# application js #}
 	<script type="text/javascript">

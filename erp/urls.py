@@ -121,8 +121,7 @@ urlpatterns = patterns(
 		url(r'^invoice/edit/(?P<pk>\d+)/$', views.MyInvoiceEdit.as_view(), name='invoice_edit'),
 		url(r'^invoice/review/(?P<pk>\d+)/$', views.MyInvoiceReview.as_view(), name='invoice_review'),		
 		url(r'^invoice/line/edit/(?P<pk>\d+)/$', views.MyInvoiceLineItemEdit.as_view(), name='invoice_line_edit'),
-		url(r'^invoice/vendor/sample/add/(?P<pk>\d+)/$', views.MyVendorSampleInvoiceAdd.as_view(), name='vendor_sample_invoice_add'),	
-		url(r'^invoice/vendor/sample/items/add/$', views.MyVendorSampleLineItemFormAdd.as_view(), name='vendor_sample_invoice_line_item_form_add'),	
+		url(r'^invoice/vendor/sample/add/$', views.MyVendorSampleInvoiceAdd.as_view(), name='vendor_sample_invoice_add'),	
 
 		# Invoice receive
 		url(r'^invoice/receives/$', views.MyInvoiceReceiveList.as_view(), name='invoice_receive_list'),		

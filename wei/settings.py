@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     #'devserver', # django-devserver
     # 'debug_toolbar',
     # 'bootstrap3', # http://django-bootstrap3.readthedocs.org/en/latest/quickstart.html
+    'widget_tweaks', # https://github.com/kmike/django-widget-tweaks/
     'storages', # django-storage
     's3_folder_storage', # django-s3-folder-storage
     'compressor', # django_compressor

@@ -184,36 +184,46 @@ def MyInvoice_post_save_handler(sender, instance, **kwargs):
 		# Auto fullfill open PO items, sorted by order's created_on date stamp
 		inv_items = set([rcv_item.inv_item for rcv_item in rcv_items])
 		po_line_items = MyPurchaseOrderLineItem.objects.filter(inv_item__in=inv_items).order_by('po__created_on')
-		if len(po_line_items) == 0: return
 
-		group_by_po = {}
-		for tmp in po_line_items:
-			if tmp.po not in group_by_po: group_by_po[tmp.po] = []
-			group_by_po[tmp.po].append(tmp)
-		for po,line_items in group_by_po.iteritems():
-			# create PO FULLFILLMENT
-			fullfill = MyPOFullfillment(
-				po = po,
-				created_by = instance.reviewed_by,
-			)
-			fullfill.save()
+		if len(po_line_items): # has an associated PO
+			group_by_po = {}
+			for tmp in po_line_items:
+				if tmp.po not in group_by_po: group_by_po[tmp.po] = []
+				group_by_po[tmp.po].append(tmp)
+			for po,line_items in group_by_po.iteritems():
+				# create PO FULLFILLMENT
+				fullfill = MyPOFullfillment(
+					po = po,
+					created_by = instance.reviewed_by,
+				)
+				fullfill.save()
 
-			# add a reference to invoice
-			fullfill.invoices.add(instance)
+				# add a reference to invoice
+				fullfill.invoices.add(instance)
 
-			# create line items
-			for item in line_items:
-				MyPOFullfillmentLineItem(
-					po_fullfillment = fullfill,
-					po_line_item = item,
-					fullfill_qty = new_inventory[item.inv_item],
-					invoice = instance
+				# create line items
+				for item in line_items:
+					MyPOFullfillmentLineItem(
+						po_fullfillment = fullfill,
+						po_line_item = item,
+						fullfill_qty = new_inventory[item.inv_item],
+						invoice = instance
+					).save()
+
+				# auto finalize fullfill
+				fullfill.reviewed_by = instance.reviewed_by
+				fullfill.reviewed_on = dt.now()
+				fullfill.save()
+		else: # has no PO, we need to update inventory theoretical now
+			for invoice_item in rcv_items:
+				MyItemInventoryTheoreticalAudit(
+					created_by = instance.reviewed_by,
+					inv = invoice_item.inv_item,
+					out = False,
+					qty = invoice_item.qty,
+					content_object = instance,
+					reason = 'Sample INVOICE %s'% instance
 				).save()
-
-			# auto finalize fullfill
-			fullfill.reviewed_by = instance.reviewed_by
-			fullfill.reviewed_on = dt.now()
-			fullfill.save()
 
 @receiver(post_save, sender=MyInvoiceItem)
 def MyInvoiceItem_post_save_handler(sender, instance, **kwargs):

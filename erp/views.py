@@ -1754,13 +1754,12 @@ class MyVendorSampleInvoiceAdd(TemplateView):
 					).save()
 				
 				# create invoice line item for sample inventory item
-				inv = MyItemInventory(
+				inv,created = MyItemInventory.objects.get_or_create(
 					item = item,
 					size = f.cleaned_data['sample_size'],
 					storage = storage,
-					item_type = 'Sample'
+					item_type = 'New'
 				)
-				inv.save()
 
 				MyInvoiceItem(
 					invoice = invoice,

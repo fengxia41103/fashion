@@ -18,30 +18,6 @@ def MySizeChart_pre_save_hanelder(sender, instance, **kwargs):
 #	Item signals
 #
 ###################################################	
-@receiver(post_save, sender=MyItem)
-def MyItem_post_save_handler(sender, instance, created, **kwargs):
-	'''
-	Create MyItemInventory upon creation of MyItem
-	'''
-	# Location and Storage
-	location = MyLocation.objects.filter(crm = instance.brand)			
-	if len(location): location = location[0]
-	else: 
-		# Get location
-		location = MyLocation(crm=instance.brand)
-		location.save()
-
-	# Create a storage
-	storage, created = MyStorage.objects.get_or_create(location=location,is_primary=True)
-	
-	# Create MyItemInventory			
-	for size in instance.size_chart.size.split(','):
-		MyItemInventory(
-			item = instance,
-			size = size,
-			storage = storage
-		).save()	
-
 @receiver(pre_save, sender=MyItem)
 def MyItem_pre_save_handler(sender, instance, **kwargs):
 	try:
@@ -208,6 +184,8 @@ def MyInvoice_post_save_handler(sender, instance, **kwargs):
 		# Auto fullfill open PO items, sorted by order's created_on date stamp
 		inv_items = set([rcv_item.inv_item for rcv_item in rcv_items])
 		po_line_items = MyPurchaseOrderLineItem.objects.filter(inv_item__in=inv_items).order_by('po__created_on')
+		if len(po_line_items) == 0: return
+
 		group_by_po = {}
 		for tmp in po_line_items:
 			if tmp.po not in group_by_po: group_by_po[tmp.po] = []

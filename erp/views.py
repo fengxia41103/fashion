@@ -1716,13 +1716,57 @@ class MyVendorSampleInvoiceAdd(TemplateView):
 
 	def post(self,request):
 		# create invoice
-		form = VendorSampleInvoiceAddForm(request.POST)
+		sample_invoice_form = VendorSampleInvoiceAddForm(request.POST)
 		MyFormSet = formset_factory(VendorSampleInvoiceLineItemAddForm,extra=self.extra)
 		formset = MyFormSet(request.POST)
 
-		if form.is_valid() and formset.is_valid():
+		inv_items = []
+		if sample_invoice_form.is_valid() and formset.is_valid():
+			# TODO: this is hardcoded for now
+			currency = MyCurrency.objects.get(abbrev='RMB')
+
 			# create invoice
-			invoice = form.save()
+			invoice = sample_invoice_form.save()
+
+			# create invoice line items
+			vendor = sample_invoice_form.cleaned_data['crm']
+			season = sample_invoice_form.cleaned_data['season']
+			storage = sample_invoice_form.cleaned_data['storage']
+			for f in formset:
+				# create item
+				item = MyItem(
+					season = season,
+					brand = vendor,
+					name = f.cleaned_data['style'],
+					color = f.cleaned_data['color'],
+					size_chart = f.cleaned_data['size_chart'],
+					currency = currency,
+					price = 0
+				)
+				item.save()
+
+				# Create MyItemInventory			
+				for size in item.size_chart.size.split(','):
+					MyItemInventory(
+						item = item,
+						size = size,
+						storage = storage,
+					).save()
+				
+				# create invoice line item for sample inventory item
+				inv = MyItemInventory(
+					item = item,
+					size = f.cleaned_data['sample_size'],
+					storage = storage,
+					item_type = 'Sample'
+				)
+				inv.save()
+
+				MyInvoiceItem(
+					invoice = invoice,
+					inv_item = inv,
+					qty = 1
+				).save()
 			return HttpResponseRedirect(reverse_lazy('invoice_detail',kwargs={'pk':invoice.id}))
 		else: 
 			return render(request, self.template_name, {'form':form,'formset':formset})     

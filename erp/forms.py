@@ -129,10 +129,12 @@ class VendorInvoiceAddForm(ModelForm):
 		widgets = {'crm':HiddenInput(),'created_by':HiddenInput()}
 
 class VendorSampleInvoiceAddForm(ModelForm):
-	crm = forms.ModelChoiceField(queryset=MyCRM.objects.vendors())
+	season = forms.ModelChoiceField(queryset=MySeason.objects.all())
+	crm = forms.ModelChoiceField(queryset=MyCRM.objects.vendors(),label="Brand")
+	storage = forms.ModelChoiceField(queryset = MyStorage.objects.all())
 	class Meta:
 		model = MyInvoice
-		fields = ('crm','invoice_no','issued_on','qty','created_by')
+		fields = ('crm','season','storage','invoice_no','issued_on','qty','created_by')
 		widgets = {
 			'created_by':HiddenInput(),
 		}
@@ -140,7 +142,8 @@ class VendorSampleInvoiceAddForm(ModelForm):
 class VendorSampleInvoiceLineItemAddForm(forms.Form):
 	style = forms.CharField()
 	color = forms.CharField()
-	size = forms.ModelChoiceField(queryset=MySizeChart.objects.all())
-	qty = forms.IntegerField(min_value=1)
+	size_chart = forms.ModelChoiceField(queryset=MySizeChart.objects.all())
+	sample_size = forms.CharField()
+	qty = forms.IntegerField(min_value=1,initial=1)
 	fob = forms.FloatField(min_value=0, required=False)
 

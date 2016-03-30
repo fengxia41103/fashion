@@ -542,10 +542,11 @@ class MyItemInventoryPhysicalAdd(TemplateView):
 
 		storage = MyStorage.objects.get(id = int(kwargs['storage']))
 		context['vendor'] = vendor = MyCRM.objects.get(id = int(kwargs['vendor']))
+		context['season'] = season = MySeason.objects.get(id = int(kwargs['season']))
 
 		context['storage'] = storage
 		context['storages'] = MyStorage.objects.exclude(id=storage.id)
-		context['inv_items'] = MyItemInventory.objects.filter(storage=storage,item__brand=vendor).order_by('item__name')
+		context['inv_items'] = MyItemInventory.objects.filter(storage=storage,item__brand=vendor,item__season=season).order_by('item__name')
 		return context
 
 	def post(self,request,storage,vendor):

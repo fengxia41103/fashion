@@ -32,6 +32,10 @@
 			{{ inv_items|length }}
 		</div>
 		<div class="col-md-1"></div>		
+	</div><div class="row ">
+		<div class="col-md-2"><label>Season</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ season }}</div>
+		<div class="col-md-1"></div>		
 	</div>
 	</div>
 </div>
@@ -49,7 +53,7 @@
 	<input type="checkbox" name="my-checkbox" id="toggle-mode" checked> 
 </div>
 
-<form action="{% url 'item_inv_physical_add' storage.id vendor.id %}" method="POST">
+<form action="{% url 'item_inv_physical_add' storage.id season.id vendor.id %}" method="POST">
 {% csrf_token %}
 
 <table class="table table-striped table-hover table-responsive" id="fullfill">

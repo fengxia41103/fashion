@@ -37,7 +37,7 @@ urlpatterns = patterns(
 
 		# inventory
 		url(r'^item/inv/add/$', views.MyItemInventoryAdd.as_view(), name='item_inv_add'),	
-		url(r'^item/inv/physical/(?P<storage>\d+)/(?P<vendor>\d+)/$', views.MyItemInventoryPhysicalAdd.as_view(), name='item_inv_physical_add'),	
+		url(r'^item/inv/physical/(?P<storage>\d+)/(?P<season>\d+)/(?P<vendor>\d+)/$', views.MyItemInventoryPhysicalAdd.as_view(), name='item_inv_physical_add'),	
 
 		# season
 		url(r'^seasons/$', views.MySeasonList.as_view(), name='season_list'),		

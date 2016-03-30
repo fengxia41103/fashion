@@ -17,13 +17,19 @@ Count physical inventory
 					<label class="label label-info">primary</label>
 				{% endif %}
 			</h4>
-			<ul class="list-inline">
-			{% for v in s.vendors %}
-			<li data-toggle="tooltip" title="Click to count physical inventory">
-				<a href="{% url 'item_inv_physical_add' s.id v.id %}">
-					<span class="item-style flabel">{{ v }}</span>
-				</a>
-			</li>
+			<ul class="list-unstyled">
+			{% for season in s.seasons %}
+				<li>{{ season }}:
+				<ul class="list-inline">
+					{% for vendor in season.brands %}
+					<li data-toggle="tooltip" title="Click to count physical inventory">
+						<a href="{% url 'item_inv_physical_add' s.id season.id vendor.id %}">
+							<span class="">{{ vendor }}</span>
+						</a>
+					</li>
+					{% endfor %}
+				</ul>
+				</li>
 			{% endfor %}
 			</ul>
 		{% endfor %}

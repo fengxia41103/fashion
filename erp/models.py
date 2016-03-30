@@ -330,6 +330,11 @@ class MyStorage (models.Model):
 		return MyCRM.objects.filter(id__in=vendor_ids).order_by('name')
 	vendors = property(_vendors)
 
+	def _seasons(self):
+		season_ids = set(self.inv_items.values_list('item__season',flat=True))
+		return MySeason.objects.filter(id__in=season_ids).order_by('name')
+	seasons = property(_seasons)
+	
 ###################################################
 #
 #	CRM models

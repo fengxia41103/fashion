@@ -3,6 +3,7 @@ from django import forms
 from django.forms import formset_factory
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from datetime import datetime as dt
 from erp.models import *
 
@@ -15,6 +16,16 @@ class AttachmentForm(ModelForm):
 	class Meta:
 		model = Attachment
 		fields = ['description','file']
+
+###################################################
+#
+#	MyItem forms
+#
+###################################################
+class ItemImageBatchUploadForm(forms.Form):
+	season = forms.ModelChoiceField(queryset=MySeason.objects.all())
+	vendor = forms.ModelChoiceField(queryset=MyCRM.objects.vendors(),label="Brand")
+	images = forms.FileField(label="Images")
 
 ###################################################
 #

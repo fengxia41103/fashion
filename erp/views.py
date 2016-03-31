@@ -20,6 +20,8 @@ from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count,Max,Min,Avg
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.files import File
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -50,6 +52,7 @@ from datetime import datetime as dt
 import simplejson as json
 from itertools import groupby
 import urllib, lxml.html
+from tempfile import NamedTemporaryFile
 from utility import MyUtility
 
 from erp.models import *
@@ -153,6 +156,7 @@ def attachment_delete_view(request,pk):
 	a.delete()
 	return HttpResponseRedirect(reverse_lazy('item_detail',kwargs={'pk':object_id}))
 
+@login_required
 def item_attachment_add_view(request, pk):
 	tmp_form = AttachmentForm (request.POST, request.FILES)
 
@@ -172,6 +176,7 @@ def item_attachment_add_view(request, pk):
 		t.save()	
 	return HttpResponseRedirect(reverse_lazy('item_detail',kwargs={'pk':pk}))
 
+@login_required
 def crm_attachment_add_view(request, pk):
 	tmp_form = AttachmentForm (request.POST, request.FILES)
 
@@ -363,6 +368,69 @@ class MyItemListByVendor(TemplateView):
 		# Group item colors under the same item style
 		context['items'] = MyItem.objects.filter(brand=vendor,season=season)
 		return context
+
+from zipfile import ZipFile
+class MyItemImageBatchUpload(TemplateView):
+	template_name = 'erp/item/image_batch_upload.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(TemplateView,self).get_context_data(**kwargs)
+		context['form'] = ItemImageBatchUploadForm()
+		return context
+
+	def post(self,request):
+		form = ItemImageBatchUploadForm(request.POST, request.FILES)
+		errors = []
+
+		if form.is_valid():
+			season = form.cleaned_data['season']
+			vendor = form.cleaned_data['vendor']
+			my_zip = ZipFile(request.FILES['images'])
+			for member in my_zip.namelist():
+				head,file_name = os.path.split(member)
+				if not file_name: continue # if empty, skip
+
+				style,ext = os.path.splitext(file_name)
+				if '~' not in style:
+					errors.append((member,'Format error. "~" not found.'))
+					continue
+
+				tmp = style.split('~')
+				if len(tmp) < 2:
+					errors.append((member,'Format error. Should be "style~color[~index].jpg[|png]."'))
+					continue
+
+				style = tmp[0].strip()
+				color = tmp[1].strip()
+
+				items = MyItem.objects.filter(name__iexact=style,color__iexact=color,brand=vendor,season=season)
+				if not len(items):
+					errors.append((member,'Item not found'))
+					continue
+
+				# unzip file to a tmp file
+				data = my_zip.read(member)
+				prefix = MyUtility().legal_characters(9)
+				tmp_file = NamedTemporaryFile(prefix=prefix,suffix=ext,delete=True)
+				tmp_file.write(data)
+
+				# save image as attachment to item
+				for item in items:
+					Attachment(
+						name = os.path.split(tmp_file.name)[1],
+						description = item.name,
+						content_object = item,
+						created_by = request.user,
+						file = File(tmp_file)
+					).save()
+				tmp_file.close()
+
+			if len(errors):
+				return render(request, self.template_name, {'form':form,'errors':errors})     			
+			else:
+				return HttpResponseRedirect(reverse_lazy('item_list_by_vendor',kwargs={'season':season.id,'vendor':vendor.id}))
+		else: 
+			return render(request, self.template_name, {'form':form})     
 
 ###################################################
 #

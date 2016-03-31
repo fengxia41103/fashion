@@ -34,6 +34,7 @@ urlpatterns = patterns(
 		url(r'^item/(?P<pk>\d+)/edit/$', views.MyItemEdit.as_view(), name='item_edit'),
 		url(r'^item/(?P<pk>\d+)/delete/$', views.MyItemDelete.as_view(), name='item_delete'),
 		url(r'^items/(?P<season>\d+)/(?P<brand>\d+)/$', views.MyItemListByVendor.as_view(), name='item_list_by_vendor'),		
+		url(r'^item/image/batch/upload/$', views.MyItemImageBatchUpload.as_view(), name='item_image_batch_upload'),
 
 		# inventory
 		url(r'^item/inv/add/$', views.MyItemInventoryAdd.as_view(), name='item_inv_add'),	

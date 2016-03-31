@@ -21,7 +21,7 @@ Count physical inventory
 			{% for season in s.seasons %}
 				<li>{{ season }}:
 				<ul class="list-inline">
-					{% for vendor in season.brands %}
+					{% for vendor in season.vendors %}
 					<li data-toggle="tooltip" title="Click to count physical inventory">
 						<a href="{% url 'item_inv_physical_add' s.id season.id vendor.id %}">
 							<span class="">{{ vendor }}</span>

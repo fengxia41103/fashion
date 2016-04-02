@@ -37,7 +37,7 @@
 	</div>
 
 	<div class="" style="padding:0px 0;">
-		{% for brand in season.brands %}
+		{% for brand in season.vendors %}
 		{{ brand.name }}
 		{% with brand.attachments.all.0 as img %}
 			<a href="{% url 'item_list_by_vendor' season.id brand.id %}" >
@@ -54,7 +54,7 @@
 	<div class="" style="border-top: 1px solid #ddd;margin-top:10px;margin-bottom:10px;">
 			<span class="text-right item-label pull-right">			
 			<i class="fa fa-tag"></i>
-			{{season}}: {{ season.brands|length}} brands
+			{{season}}: {{ season.vendors|length}} brands
 			</span>
 	</div>
 </section>

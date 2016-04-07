@@ -60,6 +60,8 @@ INSTALLED_APPS = (
     'crispy_forms', # django-crispy-forms
     'social.apps.django_app.default', # python-social-auth
     'localflavor', # django-localflavor
+    'tastypie', # django-tastypie
+    'corsheaders', # django-cors-headers, https://github.com/OttoYiu/django-cors-headers
     'erp', # ERP
 )
 
@@ -67,6 +69,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',    
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.cache.FetchFromCacheMiddleware',     
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -261,3 +264,6 @@ EMAIL_HOST_USER = 'fengxia41103@gmail.com'
 EMAIL_HOST_PASSWORD = 'XFxf123456'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+# django-cors-headers
+CORS_ORIGIN_ALLOW_ALL = True

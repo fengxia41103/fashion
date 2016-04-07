@@ -19,10 +19,6 @@
     <link rel="icon" href="../../favicon.ico">
 
 {% block core-library %}
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <!-- script src="../../assets/js/ie-emulation-modes-warning.js"></script -->
-
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <!-- script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script -->
@@ -31,28 +27,19 @@
       <script src="{% static 'js/respond.min.js' %}"></script>
     <![endif]-->
 
+    {# bootstrap3 #}
+	<link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap.min.css' %}">
+
 	<!-- Latest compiled and minified CSS -->
 	{# http://www.bootstrapcdn.com/?theme=14#bootswatch_tab #}
 	<!-- <link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap.min.css' %}"> -->
-	<link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap-theme.simplex.min.css' %}">
 
-	<!--link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"-->
-
-	<!-- Optional theme -->
-	<!--link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap-theme.min.css' %}"-->
-	
-	<!-- http://fortawesome.github.io/Font-Awesome/get-started/ -->
-<!-- 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css">
- -->
 	{# used when there is no INTERNET #}
 	<link rel="stylesheet" href="{% static 'fontawesome/css/font-awesome.css' %}">
-
-	<!-- easyui stylesheets -->
-	<!--link rel="stylesheet" type="text/css" href="{% static 'easyui/themes/default/easyui.css' %}"-->
-	<!--link rel="stylesheet" type="text/css" href="{% static 'easyui/themes/icon.css' %}"-->
 	
 	<!-- application specific css -->
 	<!--link rel="stylesheet" type="text/x-scss" href="{% static 'sass/my.scss' %}"-->	
+	
 	{# lightbos http://ashleydw.github.io/lightbox/ #} 
 	<link rel="stylesheet" type="text/css" href="{% static 'lightbox/ekko-lightbox.css' %}">
 
@@ -92,12 +79,16 @@
 {% endblock %}
 
 {# extra css code #}
+{% block theme_css %}
+<link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap-theme.simplex.min.css' %}">
+{% endblock %}
 {% block custom_css %}
 {% endblock %}
 
 <title>SQ e-Commerce Platform</title>
 </head>
 
+{% block body %}
 <body>
 {% block navbar %}
 	<div class="navbar navbar-default navbar-static-top" role="navigation">
@@ -431,6 +422,15 @@
 
 {% block footer %}
 <footer class="" id="footer">
+	<div class="col-md-6">
+      <p>PY Consulting Ltd.</p>
+      <p>1236 Beacon St., #1</p>
+      <p>Brookline, MA 0246</p>
+      <abbr title="Phone">P:</abbr> (508) 801-1794
+    </div><div class="col-md-6">
+      <label>Email</label>
+      <a href="mailto:feng_xia41103@hotmail.com">feng_xia41103@hotmail.com</a>
+    </div>
 	<i class="fa fa-copyright"></i>
 	2015 PY Consulting Compile
 </footer>
@@ -438,9 +438,6 @@
 
 <!-- Placed at the end of the document so the pages load faster -->
 {% block Javascripts %}	
-    <!--script type="text/javascript"
-    	src="https://cdnjs.cloudflare.com/ajax/libs/echarts/2.2.0/echarts-all.js">
-    </script-->
     <script type="text/javascript"
     	src="{% static 'echarts/echarts-all.js' %}">
     </script> 
@@ -688,11 +685,13 @@
 {% endblock %} <!-- end of block JS -->
 
 {# extra javascript code #}
+{% block theme_js %}
+{% endblock %}
 {% block custom_js %}
 {% endblock %}
 
 </body>
-
+{% endblock %}
 </html>
 
 

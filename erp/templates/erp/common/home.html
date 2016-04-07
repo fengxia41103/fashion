@@ -1,29 +1,337 @@
-{% extends 'erp/common/home_base.html' %}
+{% extends 'erp/common/base.html' %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
 
-{%load staticfiles %}
-{% load compress %}
+{% block navbar %}
+<div class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom:0px;">
+    <div class="container-fluid">
+    <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fa fa-home"></i>
+                SQ FASHION
+            </a>
+    </div>
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <li>
+                <a href="#about" class="gn-icon gn-icon-download">About</a>
+            </li>
+            <li><a href="#service" class="gn-icon gn-icon-cog">Service</a></li>
+            <li><a href="#works" class="gn-icon gn-icon-help">Works</a></li>
+            <li>
+                <a href="#contact" class="gn-icon gn-icon-archive">Contact</a>
+            </li>
+        </ul>
+    </div>
 
-{% block extra_nav %}
-<li class="dropdown">                
-    <a href="" class="" data-toggle="dropdown">
-    NY                      
-    <b class="caret"></b>
-    </a>
-    <ul class="dropdown-menu" role="menu">
-        <li>
-            <a href="{% url 'social:begin' 'google-oauth2' %}?next={% url 'application_list' %}">用谷歌帐号登录</a>
-        </li>
-        <li>
-            <a href="" class="" data-toggle="modal" data-target="#loginModal">用户登录</a>
-        </li>        
-        <li>
-            <a href="" class="" data-toggle="modal" data-target="#registrationModal">新用户注册</a>
-        </li>
-    </ul>       
-</li>
+    </div>
+</div>
 {% endblock %}
 
-{% block modals %}
-    {% include 'registration/login_form_modal.html' %}
-    {% include 'registration/register_form_modal.html' %}
+{% block main %}
+    <!-- Section: intro -->
+    <section id="intro" class="text-center" style="background-image: url({% static 'img/background-1684.jpg' %});background-size: cover;min-height:700px;">
+        <div style="padding-top:100px;">
+            <h1 style="font-size:60px;font-weight:600;">Fashion e-Commerce</h1>
+            <p>Made Profitable Trade Easy</p>
+            
+            {#  login button #}
+            <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+            
+            <a href="#about" class="btn btn-skin scroll">Learn more</a>
+        </div>  
+    </section>
+    <!-- /Section: intro -->
+
+    <!-- Section: about -->
+    <section id="about" class="home-section text-center bg-gray">
+        <div class="heading-about marginbot-50">
+            <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+        
+                    <div class="section-heading">
+                    <h2>About us</h2>
+                    <p>
+                        PY Consulting focuses on building proof-of-concept web application for small to mid-size companies using Django framework and other related web technologies. A common cycle spans between 4 to 10 weeks carrying product from raw concept to a deployed prototype. This helps client to visualize his idea and to promote constructive discussion with his R&amp;D team or outsourced company. Further, the prototype helps to clarify and define key components within the final system architecture, therefore assisting clients in estimating future system's capability and scalability.
+                    </p>
+                    </div>
+            
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="container">
+
+        <div class="row">
+            <div class="col-xs-6 col-sm-3 col-md-3">
+
+                <div class="team boxed-grey">
+                    <div class="inner">
+                        <h5>Feng Xia</h5>
+                        <p class="subtitle">Founder</p>
+                        <div class="avatar"><img src="{% static 'img/team/1.jpg'%}" alt="" class="img-responsive" /></div>
+                    </div>
+                </div>
+        
+            </div>
+            <div class="col-xs-6 col-sm-3 col-md-3">
+
+                <div class="team boxed-grey">
+                    <div class="inner">
+                        <h5>Qing Hua</h5>
+                        <p class="subtitle">Lead Business Analyst</p>
+                        <div class="avatar"><img src="{% static 'img/team/2.jpg' %}" alt="" class="img-responsive" /></div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-xs-6 col-sm-3 col-md-3">
+        
+                <div class="team boxed-grey">
+                    <div class="inner">
+                        <h5>Xiaomin Peng</h5>
+                        <p class="subtitle">Lead Dev</p>
+                        <div class="avatar"><img src="{% static 'img/team/3.jpg' %}" alt="" class="img-responsive" /></div>
+                    </div>
+                </div>
+        
+            </div>
+            <div class="col-xs-6 col-sm-3 col-md-3">
+        
+                <div class="team boxed-grey">
+                    <div class="inner">
+                        <h5>Xiaoyang Ren</h5>
+                        <p class="subtitle">Lead Test</p>
+                        <div class="avatar"><img src="{% static 'img/team/4.jpg' %}" alt="" class="img-responsive" /></div>
+                    </div>
+                </div>
+    
+            </div>
+        </div>      
+        </div>
+    </section>
+    <!-- /Section: about -->
+    
+    
+    <!-- Section: services -->
+    <section id="service" class="home-section text-center">
+        
+        <div class="heading-about marginbot-50">
+            <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+        
+                    <div class="section-heading">
+                    <h2>Our Services</h2>
+                    <p>We offer consulting services that will transform your
+                    ideas into a fully documented specification and a live demo web application.</p>
+                    </div>
+            
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="container">
+        <div class="row">
+            <div class="col-sm-3 col-md-3">
+            
+                <div class="service-box">
+                    <div class="service-icon">
+                        <i class="fa fa-code fa-3x"></i>
+                    </div>
+                    <div class="service-desc">
+                        <h5>Business Analysis</h5>
+                        <p>We analyze your business scenarios and
+                         organize them into solid use cases.</p>
+                    </div>
+                </div>
+    
+            </div>
+            <div class="col-sm-3 col-md-3">
+    
+                <div class="service-box">
+                    <div class="service-icon">
+                        <i class="fa fa-suitcase fa-3x"></i>
+                    </div>
+                    <div class="service-desc">
+                        <h5>Specification</h5>
+                        <p>Based on the understanding of your business requirements,
+                        we will further develop written specifications.</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-3 col-md-3">
+
+                <div class="service-box">
+                    <div class="service-icon">
+                        <i class="fa fa-cog fa-3x"></i>
+                    </div>
+                    <div class="service-desc">
+                        <h5>Proof-of-concept Website</h5>
+                        <p>We will deliver a proof-of-concept website using the
+                        latest web technologies.</p>
+                    </div>
+                </div>
+            
+            </div>
+            <div class="col-sm-3 col-md-3">
+    
+                <div class="service-box">
+                    <div class="service-icon">
+                        <i class="fa fa-rocket fa-3x"></i>
+                    </div>
+                    <div class="service-desc">
+                        <h5>Intellectual Property</h5>
+                        <p>We will deliver all design documents and code back to you so
+                        you have a solid base to take your idea further.</p>
+                    </div>
+                </div>
+            
+            </div>
+        </div>      
+        </div>
+    </section>
+    <!-- /Section: services -->
+    
+        
+    <!-- Section: works -->
+    <section id="works" class="home-section text-center bg-gray">
+        <div class="heading-works marginbot-50">
+            <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+        
+                    <div class="section-heading">
+                    <h2>Recent Works</h2>
+                    <p>Lorem ipsum dolor sit amet, no nisl mentitum recusabo per, vim at blandit qualisque dissentiunt. Diam efficiantur conclusionemque ut has</p>
+                    </div>
+        
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="container my-multicol-3 gallery-item">
+            <a href="{% static 'img/works/1.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/1.jpg' %}" class="img-responsive" alt="img">
+            </a>
+            <a href="{% static 'img/works/2.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/2.jpg' %}" class="img-responsive" alt="img">
+            </a>
+            <a href="{% static 'img/works/3.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/3.jpg' %}" class="img-responsive" alt="img">
+            </a>
+            <a href="{% static 'img/works/4.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/4.jpg' %}" class="img-responsive" alt="img">
+            </a>
+            <a href="{% static 'img/works/5.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/5.jpg' %}" class="img-responsive" alt="img">
+            </a>
+            <a href="{% static 'img/works/6.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/6.jpg' %}" class="img-responsive" alt="img">
+            </a>
+            <a href="{% static 'img/works/7.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/7.jpg' %}" class="img-responsive" alt="img">
+            </a>  
+            <a href="{% static 'img/works/8.jpg' %}" title="This is an image title" data-lightbox-gallery="gallery1" data-lightbox-hidpi="img/works/1@2x.jpg">
+                <img src="{% static 'img/works/8.jpg' %}" class="img-responsive" alt="img">
+            </a>                                                                      
+        </div>
+
+    </section>
+    <!-- /Section: works -->
+
+    <!-- Section: contact -->
+    <section id="contact" class="home-section text-center">
+        <div class="heading-contact marginbot-50">
+            <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+    
+                    <div class="section-heading">
+                    <h2>Get in touch</h2>
+                    <p>
+                        Don't wait any longer to let another brilliant idea slip away (like many others in the past)! We can help, and we will be honored to 
+                        work with you to deliver a proof-of-concept so you can flush out 
+                        some details and have a firm grasp of how great your idea can be! 
+                    </p>
+                    </div>
+                
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="container">
+
+    <div class="row">
+        <div class="col-lg-8 col-md-offset-2">
+            <div class="boxed-grey">
+                <form id="contact-form">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="name">
+                                Name</label>
+                            <input type="text" class="form-control" id="name" placeholder="Enter name" required="required" />
+                        </div>
+                        <div class="form-group">
+                            <label for="email">
+                                Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span>
+                                </span>
+                                <input type="email" class="form-control" id="email" placeholder="Enter email" required="required" /></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">
+                                Subject</label>
+                            <select id="subject" name="subject" class="form-control" required="required">
+                                <option value="na" selected="">Choose One:</option>
+                                <option value="service">General Customer Service</option>
+                                <option value="suggestions">Suggestions</option>
+                                <option value="product">Product Support</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="name">
+                                Message</label>
+                            <textarea name="message" id="message" class="form-control" rows="9" cols="25" required="required"
+                                placeholder="Message"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-skin pull-right" id="btnContactUs">
+                            Send Message</button>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>  
+
+        </div>
+    </section>
+    <!-- /Section: contact -->
+{% endblock %}
+
+{% block modal %}
+    {% block login %}
+    {% endblock %}
+    {% block registration %}
+    {% endblock %}
+{% endblock %}
+
+{% block theme_css %}
+{% endblock %}
+
+{% block theme_js %}
 {% endblock %}

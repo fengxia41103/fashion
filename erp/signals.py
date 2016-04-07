@@ -1,6 +1,8 @@
 from django.db.models.signals import pre_save,post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from tastypie.models import create_api_key
+
 from datetime import datetime as dt
 from erp.models import *
 
@@ -291,3 +293,12 @@ def MyItemInventoryPhysicalAudit_post_save_handler(sender, instance, **kwargs):
 	# Saving a physical audit would also update ItemInventory's physical record
 	instance.inv.physical = instance.physical
 	instance.inv.save()
+
+###################################################
+#
+#	User signals
+#
+###################################################
+@receiver(post_save, sender=User)
+def User_post_save_handler(sender, instance, **kwargs):
+	create_api_key(sender,instance,**kwargs)

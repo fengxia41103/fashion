@@ -82,18 +82,14 @@ def class_view_decorator(function_decorator):
 #	Static views
 #
 ###################################################
-class HomeView (TemplateView):
-	template_name = 'erp/common/home_with_login_modal.html'
+class HomeView(TemplateView):
+	template_name = 'erp/common/home.html'
 
 	def get_context_data(self, **kwargs):
 		context = super(TemplateView, self).get_context_data(**kwargs)
-
-		user_auth_form = AuthenticationForm()
-		user_registration_form = UserCreationForm()
-
-		context['registration_form']=user_registration_form
-		context['auth_form']=user_auth_form
-		return context
+		context['login_form'] = AuthenticationForm()
+		context['contact_form'] = ContactForm()
+		return context	
 
 ###################################################
 #
@@ -112,7 +108,7 @@ class LoginView(FormView):
 
 		if user is not None and user.is_active:
 		    login(self.request, user)
-		    return super(LoginView, self).form_valid(form)
+		    return HttpResponseRedirect(reverse_lazy('location_list'))
 		else:
 		    return self.form_invalid(form)
 
@@ -120,12 +116,10 @@ class LogoutView(TemplateView):
 	template_name = 'registration/logged_out.html'
 	def get(self,request):
 		logout(request)
-    	# Redirect to a success page.
-		# messages.add_message(request, messages.INFO, 'Thank you for using our service. Hope to see you soon!')
 		return HttpResponseRedirect (reverse_lazy('home'))
 
 class UserRegisterView(FormView):
-	template_name = 'registration/register_form.html'
+	template_name = 'registration/registration.html'
 	form_class = UserCreationForm
 	success_url = reverse_lazy('login')
 	def form_valid(self,form):
@@ -137,7 +131,10 @@ class UserRegisterView(FormView):
 			user = User.objects.create_user(user_name, '', password)			
 			user.save()
 
-			return super(UserRegisterView,self).form_valid(form)
+			# login after
+			login(self.request, user)
+			return HttpResponseRedirect(reverse_lazy('location_list'))
+
 
 ###################################################
 #

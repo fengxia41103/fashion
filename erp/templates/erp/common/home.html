@@ -1,6 +1,7 @@
 {% extends 'erp/common/base.html' %}
 {% load staticfiles %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 
 {% block navbar %}
 <div class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom:0px;">
@@ -36,9 +37,10 @@
 
 {% block main %}
     <!-- Section: intro -->
-    <section id="intro" class="text-center" style="background-image: url({% static 'img/background-1684.jpg' %});background-size: cover;min-height:700px;">
-        <div style="padding-top:100px;">
-            <h1 style="font-size:60px;font-weight:600;">Fashion e-Commerce</h1>
+    <section  style="background-image: url({% static 'img/background-444.jpg' %});background-size: cover;min-height:700px;">
+        <div class="col-md-offset-1 col-md-6" style="padding-top:100px;color:white;">
+            <h1 style="font-size:55px;font-weight:600;color:white;">Fashion 
+            <span style="display:block;">e-Commerce</span></h1>
             <p>Made Profitable Trade Easy</p>
             
             {#  login button #}
@@ -249,75 +251,32 @@
     <!-- /Section: works -->
 
     <!-- Section: contact -->
-    <section id="contact" class="home-section text-center">
-        <div class="heading-contact marginbot-50">
+    <section id="contact" class="text-center">
+       <div class="heading-works marginbot-50">
             <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2">
-    
+        
                     <div class="section-heading">
-                    <h2>Get in touch</h2>
+                    <h2>Get In Touch</h2>
                     <p>
                         Don't wait any longer to let another brilliant idea slip away (like many others in the past)! We can help, and we will be honored to 
                         work with you to deliver a proof-of-concept so you can flush out 
                         some details and have a firm grasp of how great your idea can be! 
-                    </p>
+                    </p>  
                     </div>
-                
                 </div>
             </div>
             </div>
         </div>
-        <div class="container">
-
-    <div class="row">
-        <div class="col-lg-8 col-md-offset-2">
-            <div class="boxed-grey">
-                <form id="contact-form">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="name">
-                                Name</label>
-                            <input type="text" class="form-control" id="name" placeholder="Enter name" required="required" />
-                        </div>
-                        <div class="form-group">
-                            <label for="email">
-                                Email Address</label>
-                            <div class="input-group">
-                                <span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span>
-                                </span>
-                                <input type="email" class="form-control" id="email" placeholder="Enter email" required="required" /></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="subject">
-                                Subject</label>
-                            <select id="subject" name="subject" class="form-control" required="required">
-                                <option value="na" selected="">Choose One:</option>
-                                <option value="service">General Customer Service</option>
-                                <option value="suggestions">Suggestions</option>
-                                <option value="product">Product Support</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="name">
-                                Message</label>
-                            <textarea name="message" id="message" class="form-control" rows="9" cols="25" required="required"
-                                placeholder="Message"></textarea>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <button type="submit" class="btn btn-skin pull-right" id="btnContactUs">
-                            Send Message</button>
-                    </div>
-                </div>
-                </form>
+        <div class="container text-left">
+            <div class="col-md-3">
+                <img src="{% static 'img/contact-bg.jpg' %}">
             </div>
-        </div>
-    </div>  
-
+            <form action="" method="post" class="col-md-offset-5 col-md-4">
+                {{ contact_form|crispy }}
+                <input class="btn btn-primary pull-right" type="submit" />
+            </form>
         </div>
     </section>
     <!-- /Section: contact -->

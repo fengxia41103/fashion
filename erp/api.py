@@ -68,19 +68,20 @@ class AttachmentResource(MyModelResource):
     class Meta:
         queryset = Attachment.objects.all()
         resource_name = 'attachment'
-        # allowed_methods = ['get','post','delete']
+        # authentication = ApiKeyAuthentication()
+        # authorization = DjangoAuthorization()
 
 class UserResource(MyModelResource):
     class Meta:
         queryset = User.objects.all()
         resource_name = 'user'
         excludes = ['email', 'password', 'is_active', 'is_staff', 'is_superuser']
-
         filtering = {
             'username': 'exact',
             'id': ALL_WITH_RELATIONS,
         }
-        authentication = ApiKeyAuthentication
+        # authentication = ApiKeyAuthentication()
+        # authorization = DjangoAuthorization()
 
 class VendorResource(MyModelResource):
     class Meta:
@@ -88,11 +89,13 @@ class VendorResource(MyModelResource):
         filtering = {
             'name': ALL,
         }
+        # authentication = ApiKeyAuthentication()
         # authorization = DjangoAuthorization()
 
 class CustomerResource(MyModelResource):
     class Meta:
         queryset = MyCRM.objects.customers().order_by('name')
+        # authentication = ApiKeyAuthentication()
         # authorization = DjangoAuthorization()
 
 class ProductResource(MyModelResource):
@@ -100,13 +103,14 @@ class ProductResource(MyModelResource):
     attachments = fields.ToManyField(AttachmentResource, 'attachments', full=False)
     class Meta:
         queryset = MyItem.objects.all()
-        authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        # authorization = DjangoAuthorization()
+        allowed_methods = ['get','post']
         filtering = {
             'brand': ALL_WITH_RELATIONS,
             'name': ['icontains'],
         }
-        cache = SimpleCache(timeout=100)
+        # cache = SimpleCache(timeout=100)
     
-    def apply_authorization_limits(self, request, object_list):
-        return object_list.filter(name__icontains = 'LEO')
+    # def apply_authorization_limits(self, request, object_list):
+    #     return object_list.filter(name__icontains = 'LEO')

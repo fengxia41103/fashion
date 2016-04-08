@@ -21,7 +21,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count,Max,Min,Avg
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
-from django.core.files import File
+from django.core.files import File                                         
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -121,6 +122,7 @@ class UserRegisterView(FormView):
 	template_name = 'registration/registration.html'
 	form_class = UserCreationForm
 	success_url = reverse_lazy('login')
+
 	def form_valid(self,form):
 		user_name = form.cleaned_data['username']
 		password = form.cleaned_data['password2']
@@ -134,6 +136,30 @@ class UserRegisterView(FormView):
 			login(self.request, user)
 			return HttpResponseRedirect(reverse_lazy('location_list'))
 
+@class_view_decorator(csrf_exempt)
+class APILogin(TemplateView):
+	def post(self,request):
+		data = json.loads(request.body)
+		username = data['username']
+		password = data['password']
+		user = authenticate(username=username, password=password)
+
+		print 'here', username, password
+
+		if user is not None and user.is_active:
+		    login(self.request, user)
+		    return HttpResponse(json.dumps({'apikey':user.api_key.key}), 
+			content_type='application/javascript')
+		else:
+		    return HttpResponse(json.dumps({'status':'403','error':'user not found'}), 
+			content_type='application/javascript')
+
+@class_view_decorator(csrf_exempt)
+class APILogout(TemplateView):
+	def post(self,request):
+		logout(request)
+		return HttpResponse(json.dumps({'data':'bye'}), 
+			content_type='application/javascript')
 
 ###################################################
 #
@@ -385,19 +411,21 @@ class MyItemImageBatchUpload(TemplateView):
 			for member in my_zip.namelist():
 				head,file_name = os.path.split(member)
 				if not file_name: continue # if empty, skip
+				print file_name
 
 				style,ext = os.path.splitext(file_name)
-				if '~' not in style:
-					errors.append((member,'Format error. "~" not found.'))
+				if '&' not in style:
+					errors.append((member,'Format error. "&" not found.'))
 					continue
 
-				tmp = style.split('~')
+				tmp = style.split('&')
 				if len(tmp) < 2:
-					errors.append((member,'Format error. Should be "style~color[~index].jpg[|png]."'))
+					errors.append((member,'Format error. Should be "style&color[&index].jpg[|png]."'))
 					continue
 
-				style = tmp[0].strip()
+				style = tmp[0].replace(',','/').replace('-','').strip()
 				color = tmp[1].strip()
+				print style, color
 
 				items = MyItem.objects.filter(name__iexact=style,color__iexact=color,brand=vendor,season=season)
 				if not len(items):

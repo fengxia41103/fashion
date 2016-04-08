@@ -3,7 +3,6 @@ from django.conf.urls import url
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
 import django.contrib.auth.views as AuthViews
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.decorators.cache import cache_page
@@ -13,8 +12,8 @@ urlpatterns = patterns(
 		'',
 		# url(r'^$', views.HomeView.as_view(), name='home'),
 		url(r'^$', views.HomeView.as_view(), name='home'),
-		url(r'login/$', views.LoginView.as_view(),name='login'),
-		url(r'logout/$', views.LogoutView.as_view(), name='logout'),
+		url(r'^login/$', views.LoginView.as_view(),name='login'),
+		url(r'^logout/$', views.LogoutView.as_view(), name='logout'),
 		url(r'^register/$', views.UserRegisterView.as_view(), name='user_register'),
 
 		# attachments
@@ -151,5 +150,9 @@ urlpatterns = patterns(
 
 		# Shopping cart
 		url(r'^cart/update/$', views.MyShoppingCartUpdate.as_view(), name='cart_update'),		
+
+		# REST
+		url(r'^rest/login/$', views.APILogin.as_view(), name='api_login'),		
+		url(r'^rest/logout/$', views.APILogout.as_view(), name='api_logout'),		
 
 	)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

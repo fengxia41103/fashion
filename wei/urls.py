@@ -10,6 +10,10 @@ v1_api.register(UserResource())
 v1_api.register(VendorResource())
 v1_api.register(CustomerResource())
 v1_api.register(ProductResource())
+v1_api.register(AttachmentResource())
+v1_api.register(SeasonResource())
+v1_api.register(CurrencyResource())
+
 
 urlpatterns = patterns('',
     # REST endpoints

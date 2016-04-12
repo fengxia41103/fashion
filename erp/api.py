@@ -4,7 +4,9 @@ from tastypie.authentication import BasicAuthentication,ApiKeyAuthentication
 from tastypie.resources import Resource, ModelResource
 from tastypie import fields
 from tastypie.resources import ALL, ALL_WITH_RELATIONS
+from tastypie.contrib.contenttypes.fields import GenericForeignKeyField
 from tastypie.cache import SimpleCache
+from tastypie.paginator import Paginator
 from erp.models import *
 
 from django.http import HttpResponse
@@ -63,13 +65,12 @@ class MyModelResource(BaseCorsResource, ModelResource):
         # desired_format = self.determine_format(request)
         # serialized = self.serialize(request, data, desired_format)
         # return response_class(content=serialized, content_type=build_content_type(desired_format), **response_kwargs)
-
-class AttachmentResource(MyModelResource):
+  
+class CurrencyResource(MyModelResource):
     class Meta:
-        queryset = Attachment.objects.all()
-        resource_name = 'attachment'
-        # authentication = ApiKeyAuthentication()
-        # authorization = DjangoAuthorization()
+        queryset = MyCurrency.objects.all()
+        resource_name = 'currency'
+        fields = ['name', 'symbol']
 
 class UserResource(MyModelResource):
     class Meta:
@@ -84,8 +85,10 @@ class UserResource(MyModelResource):
         # authorization = DjangoAuthorization()
 
 class VendorResource(MyModelResource):
+    avartar = fields.FileField(attribute = 'avartar', blank=True, null=True)
     class Meta:
         queryset = MyCRM.objects.vendors().order_by('name')
+        fields = ['name', 'url']
         filtering = {
             'name': ALL,
         }
@@ -98,19 +101,74 @@ class CustomerResource(MyModelResource):
         # authentication = ApiKeyAuthentication()
         # authorization = DjangoAuthorization()
 
+class SeasonResource(MyModelResource):
+    item_count = fields.IntegerField('item_count')
+    vendor_count = fields.IntegerField('vendor_count')
+    vendors = fields.ListField(attribute='vendors', null = True)
+    items = fields.ListField(attribute='items', null = True)
+
+    class Meta:
+        queryset = MySeason.objects.all()
+        filtering = {
+            'name': ['icontains', 'exact']
+        }
+
+    def dehydrate_vendors(self, bundle):
+        if not 'vendorId' in bundle.request.GET:
+            vendors = bundle.data['vendors']
+        else:
+            vendors = filter(lambda x: x.id==int(bundle.request.GET['vendorId']), bundle.data['vendors'])            
+        tmp = []
+        for v in vendors:
+            if v.avartar:
+                tmp.append({'id': v.id,'name': v.name, 'avartar': v.avartar.file.url })
+            else:
+                tmp.append({'id': v.id,'name': v.name, 'avartar': None })
+        return tmp
+
+    def dehydrate_items(self,bundle):
+        if 'vendorId' in bundle.request.GET:
+            items = filter(lambda x: x.brand.id == int(bundle.request.GET['vendorId']), bundle.data['items'])
+            return [{'id': i.id, 'name': i.name, 'color': i.color, 'product_id':i.product_id} for i in items]
+        else:
+            return []
+
 class ProductResource(MyModelResource):
-    brand = fields.ForeignKey(VendorResource, 'brand', full=True)
-    attachments = fields.ToManyField(AttachmentResource, 'attachments', full=False)
+    brand = fields.ForeignKey(VendorResource, 'brand', full = True)
+    season = fields.ForeignKey(SeasonResource, 'season', full = True)
+    currency = fields.ForeignKey(CurrencyResource, 'currency', full = True)
+    attachments = fields.ToManyField('erp.api.AttachmentResource', 'attachments', full=True)
+
+    # derivative fields
+    product_id = fields.CharField(attribute='product_id', null = False)    
+    sizes = fields.ListField(attribute='sizes', null=True)
+
     class Meta:
         queryset = MyItem.objects.all()
-        authentication = ApiKeyAuthentication()
+        # authentication = ApiKeyAuthentication()
         # authorization = DjangoAuthorization()
         allowed_methods = ['get','post']
         filtering = {
             'brand': ALL_WITH_RELATIONS,
             'name': ['icontains'],
+            'price': ['lt', 'gt'],
+            'season': ALL_WITH_RELATIONS
         }
+        fields = ['id','brand','name', 'color','price','season','currency']
+        paginator_class = Paginator
+        # max_limit = None
         # cache = SimpleCache(timeout=100)
-    
+
     # def apply_authorization_limits(self, request, object_list):
     #     return object_list.filter(name__icontains = 'LEO')
+
+class AttachmentResource(MyModelResource):
+    content_object = GenericForeignKeyField({
+        MyItem: ProductResource,
+    }, 'content_object')    
+    class Meta:
+        queryset = Attachment.objects.all()
+        resource_name = 'attachment'
+        fields = ['name', 'description', 'file']
+        # authentication = ApiKeyAuthentication()
+        # authorization = DjangoAuthorization()      

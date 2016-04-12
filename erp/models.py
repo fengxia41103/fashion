@@ -410,6 +410,12 @@ class MyCRM(MyBaseModel):
 		return self.account_payable - self.account_receivable
 	balance = property(_balance)
 
+	def _avartar(self):
+		try:
+			return self.attachments.all()[0]
+		except: return None
+	avartar = property(_avartar)
+
 ###################################################
 #
 #	Product models
@@ -426,6 +432,18 @@ class MySeason(models.Model):
 		brand_ids = set(MyItem.objects.filter(season=self).values_list('brand',flat=True))
 		return MyCRM.objects.filter(id__in = brand_ids).order_by('name')
 	vendors = property(_vendors)
+
+	def _vendor_count(self):
+		return self.vendors.count()
+	vendor_count = property(_vendor_count)
+
+	def _items(self):
+		return MyItem.objects.filter(season = self).order_by('name')
+	items = property(_items)
+
+	def _item_count(self):
+		return self.items.count()
+	item_count = property(_item_count)
 
 class MySizeChart(models.Model):
 	# CSV format, eg "S,M,L", "0,2,4,6","XS,S,M,L,XL"
@@ -576,6 +594,10 @@ class MyItem(MyBaseModel):
 		'''
 		return self.converted_cost>0
 	is_po_ready = property(_is_po_ready)
+
+	def _sizes(self):
+		return [x.size for x in filter(lambda x: x.is_so_ready, self.myiteminventory_set.all())]
+	sizes = property(_sizes)
 
 ###################################################
 #

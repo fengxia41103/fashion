@@ -267,3 +267,6 @@ EMAIL_USE_TLS = True
 
 # django-cors-headers
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Tastypie settings
+# API_LIMIT_PER_PAGE = 0

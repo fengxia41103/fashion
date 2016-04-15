@@ -618,6 +618,16 @@ class MyItem(MyBaseModel):
 		return [x.size for x in filter(lambda x: x.is_so_ready, self.myiteminventory_set.all())]
 	sizes = property(_sizes)
 
+	def _avartar(self):
+		try:
+			return self.attachments.all()[0]
+		except: return None
+	avartar = property(_avartar)
+
+	def _season_name(self):
+		return self.season.name
+	season_name = property(_season_name)
+	
 ###################################################
 #
 #	Inventory models

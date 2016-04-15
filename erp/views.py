@@ -411,7 +411,6 @@ class MyItemImageBatchUpload(TemplateView):
 			for member in my_zip.namelist():
 				head,file_name = os.path.split(member)
 				if not file_name: continue # if empty, skip
-				print file_name
 
 				style,ext = os.path.splitext(file_name)
 				if '&' not in style:
@@ -423,7 +422,7 @@ class MyItemImageBatchUpload(TemplateView):
 					errors.append((member,'Format error. Should be "style&color[&index].jpg[|png]."'))
 					continue
 
-				style = tmp[0].replace(',','/').replace('-','').strip()
+				style = tmp[0].replace(',','/').strip()
 				color = tmp[1].strip()
 				print style, color
 
@@ -452,7 +451,7 @@ class MyItemImageBatchUpload(TemplateView):
 			if len(errors):
 				return render(request, self.template_name, {'form':form,'errors':errors})     			
 			else:
-				return HttpResponseRedirect(reverse_lazy('item_list_by_vendor',kwargs={'season':season.id,'vendor':vendor.id}))
+				return HttpResponseRedirect(reverse_lazy('item_list_by_vendor',kwargs={'season':season.id,'brand':vendor.id}))
 		else: 
 			return render(request, self.template_name, {'form':form})     
 

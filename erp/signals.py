@@ -322,7 +322,8 @@ def Attachment_pre_save_handler(sender, instance, **kwargs):
 		instance.file_base64 = data.encode('base64')
 
 		# Thumbnail
-		im = Image.open(StringIO(data))
+		instance.file.seek(0)
+		im = Image.open(instance.file)
 		im.thumbnail((128,128), Image.ANTIALIAS)
 
 		thumbnail_buffer = StringIO()				

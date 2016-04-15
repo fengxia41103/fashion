@@ -129,19 +129,25 @@ class SeasonResource(MyModelResource):
     def dehydrate_items(self,bundle):
         if 'vendorId' in bundle.request.GET:
             items = filter(lambda x: x.brand.id == int(bundle.request.GET['vendorId']), bundle.data['items'])
-            return [{'id': i.id, 'name': i.name, 'color': i.color, 'product_id':i.product_id} for i in items]
+            return [{'id': i.id, 'name': i.name, 'color': i.color, 'product_id':i.product_id, 'avartar': i.avartar.thumbnail_base64 if i.avartar else None} for i in items]
         else:
             return []
 
 class ProductResource(MyModelResource):
     brand = fields.ForeignKey(VendorResource, 'brand', full = True)
-    season = fields.ForeignKey(SeasonResource, 'season', full = True)
+
+    # Set full=False. Otherwise, it will return season details, which will involve computing
+    # a whole set of derivative values under the MySeason object.
+    season = fields.ForeignKey(SeasonResource, 'season', full = False)
+    
     currency = fields.ForeignKey(CurrencyResource, 'currency', full = True)
     attachments = fields.ToManyField('erp.api.AttachmentResource', 'attachments', full=True)
 
     # derivative fields
     product_id = fields.CharField(attribute='product_id', null = False)    
-    sizes = fields.ListField(attribute='sizes', null=True)
+    sizes = fields.ListField(attribute='sizes', blank = True, null = True)
+    avartar = fields.FileField(attribute = 'avartar', blank=True, null=True)
+    season_name = fields.CharField(attribute='season_name')
 
     class Meta:
         queryset = MyItem.objects.all()
@@ -157,7 +163,11 @@ class ProductResource(MyModelResource):
         fields = ['id','brand','name', 'color','price','season','currency']
         paginator_class = Paginator
         # max_limit = None
-        # cache = SimpleCache(timeout=100)
+        cache = SimpleCache(timeout=100)
+
+    def dehydrate_avartar(self, bundle):
+        # Using base64 version avoids the hassle of maintaining media_root server
+        return bundle.data['avartar'].thumbnail_base64 if bundle.data['avartar'] else None
 
     # def apply_authorization_limits(self, request, object_list):
     #     return object_list.filter(name__icontains = 'LEO')
@@ -169,6 +179,6 @@ class AttachmentResource(MyModelResource):
     class Meta:
         queryset = Attachment.objects.all()
         resource_name = 'attachment'
-        fields = ['name', 'description', 'file', 'thumbnail']
+        fields = ['name', 'description', 'file', 'thumbnail', 'thumbnail_base64']
         # authentication = ApiKeyAuthentication()
         # authorization = DjangoAuthorization()      

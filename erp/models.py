@@ -155,7 +155,26 @@ class Attachment (models.Model):
 		upload_to = '%Y/%m/%d',
 		verbose_name = u'附件',
 		help_text = u'附件'
-	)	
+	)
+	file_base64 = models.TextField (
+		null = True,
+		blank = True,
+		default = None,
+		help_text = u'Based64 encoded file data'
+	)
+	thumbnail = models.FileField(
+		null = True,
+		blank = True,
+		upload_to = '%Y/%m/%d',
+		verbose_name = u'Thumbnails',
+		help_text = u'Thumbnails'
+	)
+	thumbnail_base64 = models.TextField (
+		null = True,
+		blank = True,
+		default = None,
+		help_text = u'Base64 encoded thumbnail data'
+	)
 
 	def __unicode__(self):
 		return self.file.name

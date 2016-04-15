@@ -5,6 +5,11 @@ import lxml.html,codecs
 import urllib,urllib2
 import re
 import simplejson as json
+from base64 import b64encode, b64decode
+from PIL import Image
+from cStringIO import StringIO
+from django.core.files import File                                         
+from tempfile import NamedTemporaryFile
 
 # setup Django
 import django
@@ -16,6 +21,7 @@ from django.utils import timezone
 
 # import models
 from erp.models import *
+from erp.utility import MyUtility
 
 import xlrd, os.path
 def import_fa_product():
@@ -80,10 +86,34 @@ def populate_item_inventory():
 			item_inv,created = MyItemInventory.objects.get_or_create(item=item,size=size,storage=storage)
 		print item, 'done'
 
+def populate_attachment_base64():
+	for attach in Attachment.objects.all():
+		if attach.file and not attach.thumbnail:
+			data = attach.file.read()
+
+			# Thumbnail
+			im = Image.open(StringIO(data))
+			im.thumbnail((128,128), Image.ANTIALIAS)
+
+			thumbnail_buffer = StringIO()				
+			im.save(thumbnail_buffer, format='JPEG', quality=85)
+
+			prefix = '%s_thumbnail' % MyUtility().legal_characters(9)
+			tmp_file = NamedTemporaryFile(prefix=prefix,suffix='.jpg',delete=True)
+			tmp_file.write(thumbnail_buffer.getvalue())
+			attach.thumbnail = File(tmp_file)
+
+			attach.save()
+
+			thumbnail_buffer.close()
+			tmp_file.close()
+			print attach.file.name, 'done'
 def main():
 	django.setup()
 
 	# import_fa_product()
-	populate_item_inventory()
+	# populate_item_inventory()
+	populate_attachment_base64()
+
 if __name__ == '__main__':
 	main()

@@ -1,10 +1,17 @@
+from django.conf import settings
 from django.db.models.signals import pre_save,post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from tastypie.models import create_api_key
-
+from cStringIO import StringIO
 from datetime import datetime as dt
+from base64 import b64encode, b64decode
+from PIL import Image
+from django.core.files import File                                         
+from tempfile import NamedTemporaryFile
+
 from erp.models import *
+from erp.utility import MyUtility
 
 ###################################################
 #
@@ -302,3 +309,29 @@ def MyItemInventoryPhysicalAudit_post_save_handler(sender, instance, **kwargs):
 @receiver(post_save, sender=User)
 def User_post_save_handler(sender, instance, **kwargs):
 	create_api_key(sender,instance,**kwargs)
+
+###################################################
+#
+#	Attachment signals
+#
+###################################################	
+@receiver(pre_save, sender=Attachment)
+def Attachment_pre_save_handler(sender, instance, **kwargs):
+	if instance.file and not instance.file_base64:
+		data = instance.file.read()
+		instance.file_base64 = data.encode('base64')
+
+		# Thumbnail
+		im = Image.open(StringIO(data))
+		im.thumbnail((128,128), Image.ANTIALIAS)
+
+		thumbnail_buffer = StringIO()				
+		im.save(thumbnail_buffer, format='JPEG', quality=85)
+		instance.thumbnail_base64 = b64encode(thumbnail_buffer.getvalue())
+
+		prefix = MyUtility().legal_characters(9)
+		tmp_file = NamedTemporaryFile(prefix=prefix,suffix='.jpg',delete=True)
+		tmp_file.write(thumbnail_buffer.getvalue())
+		instance.thumbnail = File(tmp_file)
+
+		thumbnail_buffer.close()

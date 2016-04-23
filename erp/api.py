@@ -179,6 +179,6 @@ class AttachmentResource(MyModelResource):
     class Meta:
         queryset = Attachment.objects.all()
         resource_name = 'attachment'
-        fields = ['name', 'description', 'file', 'thumbnail', 'thumbnail_base64']
+        fields = ['name', 'description', 'file', 'thumbnail_base64']
         # authentication = ApiKeyAuthentication()
         # authorization = DjangoAuthorization()      

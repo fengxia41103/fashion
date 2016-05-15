@@ -837,7 +837,10 @@ class MySalesOrder(models.Model):
 		return u'%s for %s'%(self.code,self.customer)
 
 	def _code(self):
-		return '%s%d-%04d'%(self.default_storage.location.abbrev,dt.now().year,self.id)
+		if self.default_storage:
+			return '%s%d-%04d'%(self.default_storage.location.abbrev,dt.now().year,self.id)
+		else:
+			return '%s%d-%04d'%(self.default_storage,dt.now().year,self.id)
 	code = property(_code)
 
 	def _is_editable(self):

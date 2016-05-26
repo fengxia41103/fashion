@@ -2,9 +2,9 @@
 {% load crispy_forms_tags %} 
 {% load staticfiles %}
 
-{% block main %}
+{% block login %}
 
-<div class="modal-dialog modal-body">
+<div class="pin-card col-md-6">
     <form action="{% url 'login' %}" method="POST">
     {% csrf_token %}
     {{ form|crispy }}

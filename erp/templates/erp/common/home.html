@@ -43,11 +43,12 @@
             <span style="display:block;">e-Commerce</span></h1>
             <p>Made Profitable Trade Easy</p>
             
+            {% block login %}
             {#  login button #}
             <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
-            
+            {% endblock %}
             <a href="#about" class="btn btn-skin scroll">Learn more</a>
-        </div>  
+        </div>
     </section>
     <!-- /Section: intro -->
 
@@ -283,8 +284,6 @@
 {% endblock %}
 
 {% block modal %}
-    {% block login %}
-    {% endblock %}
     {% block registration %}
     {% endblock %}
 {% endblock %}

@@ -4,7 +4,7 @@
 {% load static %}
 {% block page-header %}
 <ol class="breadcrumb">
-  	<li><a href="{% url 'season_list' %}" 
+  	<li><a href="{% url 'season_list' %}"
 		<i class="fa fa-list-ul"></i>
 		ALL
 	</a></li>
@@ -16,7 +16,7 @@
   	<li class="active">
   		{{ object.product_id }}
 	</li>
-</ol>	
+</ol>
 {% endblock %}
 
 {% block content %}
@@ -25,7 +25,7 @@
 		<ul class="list-inline">
 		{% for img in object.attachments.all %}
 			<li>
-				<img src="{{ img.file.url }}" 
+				<img src="{{ img.file.url }}"
 				data-type="attachment-thumbnail" class="img-responsive img-thumbnail"
 				style="width:100px;height:100px;">
 				{% if user.is_superuser %}
@@ -36,22 +36,22 @@
 		{% endfor %}
 
 		{% if user.is_superuser %}
-			<li>			
+			<li>
 				<img src="{% static "images/upload.png" %}"
 				title="Add more images"
 				data-type="attachment-thumbnail" class="img-responsive img-thumbnail"
 				style="width:100px;height:100px;opacity: 0.2;"
-				data-toggle="modal" data-target="#upload-form">				
+				data-toggle="modal" data-target="#upload-form">
 			</li>
 		{% endif %}
 		</ul>
 	</div>
 	<div class="col-md-5">
-		{% with object.attachments.all|first as img %} 
-			<a href="{{ img.file.url }}" data-toggle="lightbox" data-gallery="multiimages" data-parent data-title="{{img.name}}" data-footer="{{img.description}}">
+		{% with object.attachments.all|first as img %}
+			<a href="{{ img.file.url }}" data-lightbox="{{ object}}" data-title="{{ object }}" data-toggle="lightbox">
 				<img src="{{img.file.url}}" class="img-responsive center-block"
 				style="margin-bottom:20px;">
-			</a>			
+			</a>
 			<p>{{ img.description }}</p>
 		{% endwith %}
 	</div>
@@ -75,7 +75,7 @@
 
 		<h1 style="font-weight:bold;font-size:40px;">{{ object.name|upper }}</h1>
 		<p><span class="item-label">CODE:</span>{{ object.code }}</p>
-		
+
 		{# Price #}
 		<p class="item-style">
 			{{object.currency}} {{ object.price|floatformat:0 }}
@@ -83,7 +83,7 @@
 				<span class="pull-right">x {{ object.multiplier|floatformat:2 }}</span>
 			{% endif %}
 		</p>
-		
+
 		{# Available colors #}
 		<span class="item-label">COLOR:</span><span class="item-value">{{ object.color }}</span>
 
@@ -91,7 +91,7 @@
 		<div style="margin-top:20px;">
 			<p><span class="item-label">SIZE SELECTION</span>:
 			</p>
-			
+
 			<ul class="list-inline" id="size-chart">
 				{% for item_inv in object.myiteminventory_set.all %}
 					{% if item_inv.is_so_ready %}
@@ -132,7 +132,7 @@
 			{% for style in same_styles %}
 				<li>
 					<a href="{% url 'item_detail' style.id %}">
-						<img src="{{ style.attachments.all.0.file.url }}" 
+						<img src="{{ style.attachments.all.0.file.url }}"
 						title="{{ style.product_id }}"
 						data-toggle="tooltip"
 						style="width:35px;height:35px;">
@@ -153,10 +153,10 @@
 					</a>
 				</p>
 			{% endfor %}
-			{% endif %}			
+			{% endif %}
 		</div>
 	</div>
-</div>	
+</div>
 
 {% if related_sales_orders %}
 {# Related SO Section #}
@@ -173,7 +173,7 @@ Related Sales Orders
 		<th>SALES TYPE</th>
 		<th>DISCOUNT</th>
 		<th>ON ORDER QTY</th>
-		<th>ON ORDER VALUE</th>		
+		<th>ON ORDER VALUE</th>
 	</thead>
 	<tbody>
 	{% for line_item in related_sales_orders %}
@@ -267,7 +267,7 @@ Related Purchase Orders
 			<button type="submit" class="btn btn-primary start">
 				<i class="fa fa-upload"></i>
 				<span>Start upload</span>
-			</button>	
+			</button>
 		</form>
       </div>
 
@@ -293,7 +293,7 @@ Related Purchase Orders
       </div>
 
       {# Modal body #}
-      <div class="modal-body">		
+      <div class="modal-body">
 			{% csrf_token %}
 
 			<h5 class="my-section-header">Select an order</h5>
@@ -341,7 +341,7 @@ Related Purchase Orders
 		<button class="btn btn-primary start" id="btn-so-add-item">
 			<i class="fa fa-plus"></i>
 			<span>Add Item</span>
-		</button>      
+		</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -361,7 +361,7 @@ Related Purchase Orders
 		</div>
 
 	    {# Modal body #}
-	    <div class="modal-body">		
+	    <div class="modal-body">
 			{% csrf_token %}
 			{{ vendor_item_form|crispy }}
 		</div>
@@ -371,7 +371,7 @@ Related Purchase Orders
 			<button class="btn btn-primary"  type="submit">
 				<i class="fa fa-save"></i>
 				<span>Create</span>
-			</button>      
+			</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 		</div>
 	</div>
@@ -387,16 +387,6 @@ j$(document).ready(function(){
 	// add-item-to-so button is disabled by default
 	j$('#btn-add-to-shopping-cart').prop('disabled',true);
 
-	j$(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
-	    e.preventDefault();
-	    j$(this).ekkoLightbox();
-	}); 
-
-	j$('[data-type="attachment-thumbnail"]').click(function(){
-		var url = j$(this).attr('src');
-		j$(this).closest('section').find('[data-toggle="lightbox"]').attr('href',url);
-		j$(this).closest('section').find('[data-toggle="lightbox"]').find('img:first-child').attr('src',url);
-	});	
 
 	j$('#size-chart > li').click(function(){
 		j$(this).siblings().find('span:first-child').removeClass('item-size-selected');
@@ -429,7 +419,7 @@ j$(document).ready(function(){
 		if (j$('#size-chart > li > span').hasClass('item-size-selected')){
 			var qty = j$('#qty').val();
 			j$('#selected-qty').val(qty);
-			j$('#selected-qty-display').html(qty);			
+			j$('#selected-qty-display').html(qty);
 		}
 	});
 
@@ -445,7 +435,7 @@ j$(document).ready(function(){
             }
         ).always(function(){
 			j$('#select-cart').modal('hide');
-        });		
+        });
 	})
 
 	// barcode, https://github.com/lindell/JsBarcode
@@ -456,4 +446,3 @@ j$(document).ready(function(){
 });
 </script>
 {% endblock %}
-

@@ -3,13 +3,13 @@
 
 {% block page-header %}
 <ol class="breadcrumb">
-  <li><a href="{% url 'season_list' %}" 
+  <li><a href="{% url 'season_list' %}"
 		<i class="fa fa-list-ul"></i>
 		ALL
 	</a></li>
   <li><a href="{% url 'season_detail' season.id %}">{{ season }}</a></li>
   <li class="active">{{ brand }}</li>
-</ol>	
+</ol>
 {% endblock %}
 
 
@@ -20,9 +20,9 @@
 	<div class="page-header">
 		<h4>
 			{{obj.name}}
-			<a class="pull-right" 
-			title="View product detail" 
-			data-toggle="tooltip" 
+			<a class="pull-right"
+			title="View product detail"
+			data-toggle="tooltip"
 			href="{% url 'item_detail' obj.id %}">
 				<i class="fa fa-external-link"></i>
 			</a>
@@ -33,20 +33,19 @@
 	<div class="" style="padding:0px 0;">
 		{% if obj.attachments.all|length %}
 		{% with obj.attachments.all.0 as item_img %}
-		<a href="{{ item_img.file.url }}" 
-		data-toggle="lightbox" 
-		data-gallery="multiimages" 
-		data-parent data-title="{{obj.name}}" 
+		<a href="{{ item_img.file.url }}"
+		data-lightbox="{{obj.name}}"
+		data-title="{{obj.name}}"
 		data-footer="{{obj.description}}">
 			<img src="{{item_img.file.url}}" class="img-responsive center-block"
 			style="margin-bottom:20px;">
-		</a>	
+		</a>
 		{% endwith %}
 		{% endif %}
 		<p>{{ obj.description }}</p>
 
 		{# Inventory info #}
-		{% if obj.total_theoretical > 0 %}	
+		{% if obj.total_theoretical > 0 %}
 		<div class="dropdown width=100%">
 			<a href="" class="" data-toggle="dropdown">
 				<i class="fa fa-folder-open"></i>
@@ -65,7 +64,7 @@
 						<tbody><tr>
 						{% for size,qty in obj.theoretical %}
 							<td>{{qty}}</td>
-						{% endfor %}				
+						{% endfor %}
 						</tr></tbody>
 					</table>
 				</li>
@@ -73,29 +72,29 @@
 		</div>
 		{% else %}
 
-		{% endif %}				
-	</div>	
+		{% endif %}
+	</div>
 
 	<div class="" style="border-top: 1px solid #dddddd;padding:10px 0;">
 		{% if obj.attachments.all %}
 			<ul class="list-inline">
 			{% for img in obj.attachments.all %}
 				<li>
-					<img src="{{img.file.url}}" 
+					<img src="{{img.file.url}}"
 					data-type="attachment-thumbnail" class="img-responsive img-thumbnail" width="40px">
 				</li>
 			{% endfor %}
 			</ul>
-		{% endif %}		
+		{% endif %}
 
 		{# show color #}
 		Color <span style="color:#89e;">{{ obj.color }}</span>
 
 		{# show price #}
-		<span class="text-right item-label pull-right" data-toggle="flippant-front" data-target="front-{{obj.id}}">	
-			{% if obj.price > 0 %}	
-				{{obj.currency}} {{ obj.price|floatformat:0 }}			
-				<i class="fa fa-shopping-cart"></i>				
+		<span class="text-right item-label pull-right" data-toggle="flippant-front" data-target="front-{{obj.id}}">
+			{% if obj.price > 0 %}
+				{{obj.currency}} {{ obj.price|floatformat:0 }}
+				<i class="fa fa-shopping-cart"></i>
 			{% else %}
 				<span class="badge">price missing</span>
 			{% endif %}
@@ -104,7 +103,7 @@
 </section>
 
 <section class="pin-card" id="back-{{obj.id}}" data-toggle="card-back" style="display:none;">
-	<form class="form-inline well" action="{% url 'cart_update' %}" 
+	<form class="form-inline well" action="{% url 'cart_update' %}"
 	method="POST" data-target="cart-update">
 	{% csrf_token %}
 
@@ -125,10 +124,10 @@
 				<div class="input-group-addon" style="min-width:50px;">
 					<b>{{ inv_item.size }}</b>
 				</div>
-				<input type="number" 
+				<input type="number"
 					id = "inv-item-{{inv_item.id}}"
 					name = "inv-item-{{inv_item.id}}"
-					min="0" class="form-control" 
+					min="0" class="form-control"
 					placeholder="Enter qty"/>
 			</div>
 		</div>
@@ -146,7 +145,7 @@
 		<i class="fa fa-shopping-cart"></i>
 		<span>Add to cart</span>
 		</span>
-	</div>	
+	</div>
 	</form>
 
 </section>
@@ -173,7 +172,7 @@ j$(document).ready(function(){
 
 	j$(document).delegate('[data-toggle="flippant-back"]','click',function(e){
 		if(back !="undefined" && back != null){ back.close();}
-	    e.preventDefault();	
+	    e.preventDefault();
 	});
 
 	j$(document).delegate('[data-target="form-submit"]',"click",function(event){

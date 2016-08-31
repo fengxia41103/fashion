@@ -8,7 +8,7 @@
   <li>
 	ALL SEASONS
   </li>
-</ol>	
+</ol>
 {% endblock %}
 
 
@@ -27,9 +27,9 @@
 	<div class="page-header">
 		<h4>
 			{{ season.name}}
-			<a class="pull-right" 
-			title="View season detail" 
-			data-toggle="tooltip" 
+			<a class="pull-right"
+			title="View season detail"
+			data-toggle="tooltip"
 			href="{% url 'season_detail' season.id %}">
 				<i class="fa fa-external-link"></i>
 			</a>
@@ -47,12 +47,12 @@
 				title="Click to view {{season}} {{brand.name}} details"
 				>
 			</a>
-		{% endwith %}			
+		{% endwith %}
 		{% endfor %}
-	</div>	
+	</div>
 
 	<div class="" style="border-top: 1px solid #ddd;margin-top:10px;margin-bottom:10px;">
-			<span class="text-right item-label pull-right">			
+			<span class="text-right item-label pull-right">
 			<i class="fa fa-tag"></i>
 			{{season}}: {{ season.vendors|length}} brands
 			</span>
@@ -60,23 +60,4 @@
 </section>
 {% endfor %}
 </div>
-{% endblock %}
-
-
-{% block custom_js %}
-<script type="text/javascript">
-var j$ = jQuery.noConflict();
-j$(document).ready(function(){
-	j$(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
-	    e.preventDefault();
-	    j$(this).ekkoLightbox();
-	}); 
-
-	j$('[data-type="attachment-thumbnail"]').click(function(){
-		var url = j$(this).attr('src');
-		j$(this).closest('section').find('[data-toggle="lightbox"]').attr('href',url);
-		j$(this).closest('section').find('[data-toggle="lightbox"]').find('img:first-child').attr('src',url);
-	});		
-});
-</script>
 {% endblock %}

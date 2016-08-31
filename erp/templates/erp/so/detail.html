@@ -16,7 +16,7 @@
 		data-toggle="modal" data-target="#so-edit">
 			<i class='fa fa-pencil'></i>
 			Edit
-		</button>		
+		</button>
 		<button class="btn btn-small btn-danger"
 		data-toggle="modal" data-target="#so-delete">
 			<i class='fa fa-pencil'></i>
@@ -39,7 +39,7 @@
 			<i class='fa fa-pencil'></i>
 			Create a return
 		</a>
-	</button>	
+	</button>
 	{% endif %}
 </div>
 
@@ -53,26 +53,26 @@
 		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Sales</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.sales }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Created On</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.created_on }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Created By</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.created_by }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Discount</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.discount_in_pcnt }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Sales Type</label></div>
 		<div class="col-md-3 my-sf-display-border">
 		<label class="label label-info">{{ object.business_model }}</label></div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Total Line Items</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.line_item_qty }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Total QTY</label></div>
 		<div class="col-md-3 my-sf-display-border dropdown">
 			<span class="dropdown-toggle" id="total-qty-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -85,16 +85,16 @@
 						<a><label>{{ brand }}:</label> {{ data.total_qty }}</a>
 					</li>
 				{% endfor %}
-			</ul>		
-		</div>		
-		<div class="col-md-1"></div>		
+			</ul>
+		</div>
+		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Retail Value</label></div>
 		<div class="col-md-3 my-sf-display-border item-price-original">
 			{{object.customer.currency}}
 			{{ object.total_std_value|floatformat:0 }}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Value On Order</label></div>
 		<div class="col-md-3 my-sf-display-border dropdown">
 			<span class="dropdown-toggle" id="total-value-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -105,13 +105,13 @@
 			<ul class="dropdown-menu" aria-labelledby="total-value-dropdown">
 				{% for brand,data in items.iteritems %}
 					<li>
-						<a><label>{{ brand }}:</label> 
+						<a><label>{{ brand }}:</label>
 							{{object.customer.currency}}
 							{{ data.total_value|floatformat:2 }}
 						</a>
 					</li>
 				{% endfor %}
-			</ul>		
+			</ul>
 		</div>
 		<div class="col-md-1"></div>
 	</div>
@@ -121,13 +121,13 @@
 <h2>Fullfillments</h2>
 <div class="panel panel-default">
   	<div class="panel-body">
-	<div class="row">	
+	<div class="row">
 		<div class="col-md-2"><label>Fullfiller</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.default_storage }}</div>
-		<div class="col-md-1"></div>	
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Last Fullfillment Date</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.last_fullfill_date }}&nbsp;</div>
-		<div class="col-md-1"></div>			
+		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Fullfilled QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
@@ -167,28 +167,28 @@
 			<a class="pull-right" data-toggle="modal" data-target="#batch-finalize-fullfill">
 				<i class='fa fa-lock'></i>
 				finalize all
-			</a>			
+			</a>
 			{% else %}
 				&nbsp;
 			{% endif %}
 		</div>
-		<div class="col-md-1"></div>	
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Fullfill Rate By QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.fullfill_rate_by_qty|floatformat:0 }}%
 		</div>
-		<div class="col-md-1"></div>				
+		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Fullfilled Value</label></div>
 		<div class="col-md-3 my-sf-display-border">
 		{{object.customer.currency}}
 		{{ object.fullfill_discount_value|floatformat:2 }}&nbsp;</div>
-		<div class="col-md-1"></div>	
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Fullfill Rate By Value</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.fullfill_rate_by_value|floatformat:0 }}%
-		</div>			
-		<div class="col-md-1"></div>	
+		</div>
+		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Returned QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
@@ -213,7 +213,7 @@
 									{{ f.code }}
 									{% if not f.is_editable %}
 										<i class="fa fa-lock"></i>
-									{% endif %}									
+									{% endif %}
 								</a>
 							</td><td>
 								{{ f.return_qty }}
@@ -228,15 +228,15 @@
 			</ul>
 			{% else %}
 				&nbsp;
-			{% endif %}		
+			{% endif %}
 		</div>
-		<div class="col-md-1"></div>	
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Return Credit</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{object.customer.currency}}
 			{{ object.credit|floatformat:2 }}
-		</div>			
-		<div class="col-md-1"></div>	
+		</div>
+		<div class="col-md-1"></div>
 	</div>
 	</div>{# end of panel body #}
 </div>
@@ -244,10 +244,10 @@
 <h2>Payments</h2>
 <div class="panel panel-default">
   	<div class="panel-body">
-	<div class="row">	
+	<div class="row">
 		<div class="col-md-2"><label>Paid</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.total_payment|floatformat:2 }}</div>
-		<div class="col-md-1"></div>	
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Total Account Receivable</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{object.customer.currency}}
@@ -257,7 +257,7 @@
 				<i class='fa fa-money'></i>
 				make payment
 			</a>
-		</div>			
+		</div>
 		<div class="col-md-1"></div>
 	</div><div class="row">
 		<div class="col-md-2"><label>Payment History</label></div>
@@ -275,8 +275,8 @@
 					{% endif %}
 				{% endif %}
 
-				{% if not forloop.last %} 
-					+ 
+				{% if not forloop.last %}
+					+
 				{% endif %}
 			{% endfor %}
 		</div>
@@ -310,7 +310,7 @@
 					data-type="attachment-thumbnail" class="img-responsive img-thumbnail"
 					style="width:90%;">
 				{% endwith %}
-			</div>		
+			</div>
 			<div class="col-md-4">
 				<h4 style="font-weight:bold;font-size:20px;">
 				{{ item.name|upper }}
@@ -320,19 +320,19 @@
 					<i class="fa fa-hand-o-right"></i>
 					SKU {{ item.product_id }}
 				</a>
-				</p>				
-				
+				</p>
+
 				{# color #}
 				<p>
 					<span class="item-label">COLOR:
 					</span><span class="item-value">{{ item.color }}</span>
 					<span class="item-label">SEASON:
-					</span><span class="item-value">{{ item.season }}</span>					
+					</span><span class="item-value">{{ item.season }}</span>
 				</p>
-				
+
 				<p class="item-price-original">
 					{{object.customer.currency}}
-					{{ item.price|floatformat:0 }}				
+					{{ item.price|floatformat:0 }}
 				</p>
 				<p class="on_sale">
 					<label>On sale:</label>
@@ -347,19 +347,19 @@
 			{# fullfillment details #}
 			<div class="col-md-4">
 				<h4 class="my-section-header">
-				<span class="item-label">Order Value:</span> 
+				<span class="item-label">Order Value:</span>
 				<span class="">
 					{{object.customer.currency}}
 					{{ detail.value|floatformat:2 }}
 				</span>
-				</h4>			
+				</h4>
 
 				{# order QTY details #}
 				<dl class="dl-horizontal" style="margin-top:20px;">
 					<dt>Size:</dt><dd></dd>
 
 					{% for so_line_item in detail.so_line_items %}
-					
+
 					{# size #}
 					<dt>
 						{{so_line_item.item.size}}
@@ -379,7 +379,7 @@
 							</a>
 						{% else %}
 							{# qty input box #}
-							<input type="number" value="{{ so_line_item.fullfill_qty }}" style="width:50px;" disabled> / {{so_line_item.qty}}						
+							<input type="number" value="{{ so_line_item.fullfill_qty }}" style="width:50px;" disabled> / {{so_line_item.qty}}
 						{% endif %}
 					</dd>
 					{% endfor %}
@@ -418,7 +418,7 @@
 		</div>
 	</div>
 {% endfor %}
-</div>    
+</div>
 
 {% if purchase_orders %}
 {# Related Order Section #}
@@ -458,7 +458,7 @@ Related Purchase Orders
 				<a data-toggle="modal" data-target="#po-place-{{po.id}}">Place</a>
 			{% else %}
 				Order sent on {{ po.placed_on }}
-			{% endif %}		
+			{% endif %}
 		</td></tr>
 		{% endfor %}
 	</tbody>
@@ -497,7 +497,7 @@ Related payments
 		</td><td>
 			{{ payment.created_on }}
 		</td><td>
-			{{ payment.created_by }}	
+			{{ payment.created_by }}
 		</td><td>
 			{{ payment.reviewed_on }}
 		</td><td>
@@ -514,7 +514,7 @@ Related payments
 <div id="so-edit" class="modal fade" role="dialog">
 <div class="modal-dialog">
 <form action="{% url 'so_edit' object.id %}" method="POST">
- 
+
     <!-- Modal content-->
     <div class="modal-content">
 
@@ -525,7 +525,7 @@ Related payments
       </div>
 
       {# Modal body #}
-      <div class="modal-body">	
+      <div class="modal-body">
 			{% csrf_token %}
 			{{ so_edit_form|crispy }}
       </div>
@@ -535,11 +535,11 @@ Related payments
 		<button class="btn btn-primary" type="submit">
 			<i class="fa fa-save"></i>
 			<span>Save</span>
-		</button>      
+		</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
-</form>          
+</form>
 </div>
 </div>
 
@@ -556,7 +556,7 @@ Related payments
 		</div>
 
 	    {# Modal body #}
-	    <div class="modal-body">			
+	    <div class="modal-body">
 			{% csrf_token %}
 			{{ so_payment_add_form|crispy }}
 		</div>
@@ -566,7 +566,7 @@ Related payments
 			<button class="btn btn-primary"  type="submit">
 				<i class="fa fa-save"></i>
 				<span>Register payment</span>
-			</button>      
+			</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 		</div>
 	</div>
@@ -578,7 +578,7 @@ Related payments
 <div id="so-delete" class="modal fade" role="dialog">
 <div class="modal-dialog">
 <form action="{% url 'so_delete' object.id %}" method="POST">
- 
+
     <!-- Modal content-->
     <div class="modal-content">
 
@@ -589,10 +589,10 @@ Related payments
       </div>
 
       {# Modal body #}
-      <div class="modal-body">	
+      <div class="modal-body">
 			{% csrf_token %}
 			<p>
-			Order cancellation is not recoverable. All history of this order will 
+			Order cancellation is not recoverable. All history of this order will
 			be lost.
 			</p>
 
@@ -605,13 +605,13 @@ Related payments
       <div class="modal-footer">
 		<button class="btn btn-primary" type="submit">
 			<i class="fa fa-check">Yes</i>
-		</button>      
+		</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">
         	<i class="fa fa-close">No</i>
         </button>
       </div>
     </div>
-</form>          
+</form>
 </div>
 </div>
 
@@ -620,7 +620,7 @@ Related payments
 <div class="modal-dialog">
 <form action="{% url 'so_fullfill_review_batch' object.id %}" method="POST">
 	{% csrf_token %}
-	
+
     <!-- Modal content-->
     <div class="modal-content">
 		{# Modal header #}
@@ -630,7 +630,7 @@ Related payments
 		</div>
 
 	    {# Modal body #}
-	    <div class="modal-body">			
+	    <div class="modal-body">
 	    	<p>
 			This will finalize all open fullfillments that are associated
 			with this sales order. You will not
@@ -647,7 +647,7 @@ Related payments
 			<button class="btn btn-primary"  type="submit">
 				<i class="fa fa-lock"></i>
 				<span>Yes</span>
-			</button>      
+			</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
 		</div>
 	</div>
@@ -660,7 +660,7 @@ Related payments
 <div class="modal-dialog">
 <form action="{% url 'so_return_review_batch' object.id %}" method="POST">
 	{% csrf_token %}
-	
+
     <!-- Modal content-->
     <div class="modal-content">
 		{# Modal header #}
@@ -670,7 +670,7 @@ Related payments
 		</div>
 
 	    {# Modal body #}
-	    <div class="modal-body">			
+	    <div class="modal-body">
 	    	<p>
 			This will finalize all open returns that are associated
 			with this sales order. You will not
@@ -687,7 +687,7 @@ Related payments
 			<button class="btn btn-primary"  type="submit">
 				<i class="fa fa-lock"></i>
 				<span>Yes</span>
-			</button>      
+			</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
 		</div>
 	</div>
@@ -702,7 +702,7 @@ Related payments
 	<div class="modal-dialog">
 	<form action="{% url 'po_place' po.id %}" method="POST">
 		{% csrf_token %}
-		
+
 	    <!-- Modal content-->
 	    <div class="modal-content">
 			{# Modal header #}
@@ -712,9 +712,9 @@ Related payments
 			</div>
 
 		    {# Modal body #}
-		    <div class="modal-body">			
+		    <div class="modal-body">
 		    	<p>
-				This will send order to {{ po.vendor }}. Depending on your term with 
+				This will send order to {{ po.vendor }}. Depending on your term with
 				{{po.vendor}}, you may not be able to recall this order and thus have a responsibility to make proper payment to this vendor.
 				</p>
 
@@ -728,7 +728,7 @@ Related payments
 				<button class="btn btn-primary"  type="submit">
 					<i class="fa fa-lock"></i>
 					<span>Yes</span>
-				</button>      
+				</button>
 		        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
 			</div>
 		</div>
@@ -745,7 +745,7 @@ Related payments
 <div class="modal-dialog">
 <form action="{% url 'so_payment_review' payment.id %}" method="POST">
 	{% csrf_token %}
-	
+
     <!-- Modal content-->
     <div class="modal-content">
 		{# Modal header #}
@@ -755,7 +755,7 @@ Related payments
 		</div>
 
 	    {# Modal body #}
-	    <div class="modal-body">			
+	    <div class="modal-body">
 	    	<p>
 			Payment {{ payment.code }} can not be edited or deleted after it has been finalized.
 			</p>
@@ -770,7 +770,7 @@ Related payments
 			<button class="btn btn-primary"  type="submit">
 				<i class="fa fa-lock"></i>
 				<span>Yes</span>
-			</button>      
+			</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
 		</div>
 	</div>
@@ -788,17 +788,6 @@ j$(document).ready(function(){
 	// starting first tab
 	j$('[data-toggle="tab"]:first').tab('show');
 
-	j$(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
-	    e.preventDefault();
-	    j$(this).ekkoLightbox();
-	}); 
-
-	j$('[data-type="attachment-thumbnail"]').click(function(){
-		var url = j$(this).attr('src');
-		j$(this).closest('section').find('[data-toggle="lightbox"]').attr('href',url);
-		j$(this).closest('section').find('[data-toggle="lightbox"]').find('img:first-child').attr('src',url);
-	});	
-
 	j$('[data-toggle="order-qty"]').change(function(){
 		j$.post(
 			"{% url 'so_update_qty' %}",
@@ -809,7 +798,7 @@ j$(document).ready(function(){
 			function(){
 				toastr.success('Item qty has been updated.');
 			}
-		);		
+		);
 	});
 });
 </script>

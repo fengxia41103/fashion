@@ -369,7 +369,6 @@
             // lightbox
 			j$(document).delegate('[data-type="attachment-thumbnail"]', 'click', function(e){
 				var url = j$(this).attr('src');
-
 				j$(this).closest('div.row').find('[data-toggle="lightbox"]').attr('href',url);
 				j$(this).closest('div.row').find('[data-toggle="lightbox"]').find('img:first-child').attr('src',url);
 			});

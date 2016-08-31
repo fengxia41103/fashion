@@ -5,12 +5,12 @@
 
 {% block page-header %}
 <ol class="breadcrumb">
-  <li><a href="{% url 'season_list' %}" 
+  <li><a href="{% url 'season_list' %}"
 		<i class="fa fa-list-ul"></i>
 		ALL
 	</a></li>
   <li class="active">{{ object }}</a></li>
-</ol>	
+</ol>
 {% endblock %}
 
 
@@ -21,9 +21,9 @@
 	<div class="page-header">
 		<h4>
 			{{vendor.name}}
-			<a class="pull-right" 
-			title="View brand detail" 
-			data-toggle="tooltip" 
+			<a class="pull-right"
+			title="View brand detail"
+			data-toggle="tooltip"
 			href="{% url 'item_list_by_vendor' object.id vendor.id %}">
 				<i class="fa fa-external-link"></i>
 			</a>
@@ -33,14 +33,13 @@
 	<div class="" style="padding:0px 0;">
 		{% if vendor.attachments.all|length %}
 			{% with vendor.attachments.all.0 as item_img %}
-			<a href="{{ item_img.file.url }}" 
-			data-toggle="lightbox" 
-			data-gallery="multiimages" 
-			data-parent data-title="{{vendor.name}}" 
+			<a href="{{ item_img.file.url }}"
+               data-lightbox="{{ object }}"
+			data-title="{{vendor.name}}"
 			data-footer="{{ vendor.description }}">
 				<img src="{{item_img.file.url}}" class="img-responsive center-block"
 				style="margin-bottom:20px;">
-			</a>	
+			</a>
 			{% if user.is_superuser %}
 				<a href="{% url 'attachment_delete' item_img.id %}">
 				<i class="fa fa-trash"></i></a>
@@ -52,14 +51,14 @@
 			title="Add {{ vendor.name }} logo image"
 			data-type="attachment-thumbnail" class="img-responsive img-thumbnail"
 			style="width:100px;height:100px;opacity: 0.2;"
-			data-toggle="modal" data-target="#upload-form-{{vendor.id}}">			
-		{% endif %}			
-	</div>	
+			data-toggle="modal" data-target="#upload-form-{{vendor.id}}">
+		{% endif %}
+	</div>
 
 	<div class="" style="border-top: 1px solid #dddddd;padding:10px 0;">
 		<span class="text-right item-label pull-right"
 		data-toggle="tooltip"
-		title="Number of line items">			
+		title="Number of line items">
 		<i class="fa fa-tag"></i>
 		SKU count: {{ num_of_items }}
 		</span>
@@ -91,7 +90,7 @@
 			<button type="submit" class="btn btn-primary start">
 				<i class="fa fa-upload"></i>
 				<span>Start upload</span>
-			</button>	
+			</button>
 		</form>
       </div>
 
@@ -104,22 +103,4 @@
   </div>
 </div>
 {% endfor %}
-{% endblock %}
-
-{% block custom_js %}
-<script type="text/javascript">
-var j$ = jQuery.noConflict();
-j$(document).ready(function(){
-	j$(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
-	    e.preventDefault();
-	    j$(this).ekkoLightbox();
-	}); 
-
-	j$('[data-type="attachment-thumbnail"]').click(function(){
-		var url = j$(this).attr('src');
-		j$(this).closest('section').find('[data-toggle="lightbox"]').attr('href',url);
-		j$(this).closest('section').find('[data-toggle="lightbox"]').find('img:first-child').attr('src',url);
-	});		
-});
-</script>
 {% endblock %}

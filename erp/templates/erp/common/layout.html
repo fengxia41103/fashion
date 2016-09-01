@@ -28,8 +28,8 @@
       <script src="{% static 'js/respond.min.js' %}"></script>
     <![endif]-->
 
-    {# bootstrap3 #}
-	<link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap.min.css' %}">
+    {# Bootstrap #}
+	<link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
 
 	<!-- Latest compiled and minified CSS -->
 	{# http://www.bootstrapcdn.com/?theme=14#bootswatch_tab #}
@@ -155,8 +155,10 @@
     	src="{% static 'echarts/echarts-all.js' %}">
     </script>
 
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="{% static 'bootstrap3/js/bootstrap.min.js' %}"></script>
+	<!-- Bootstrap -->
+	<script
+       src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}">
+    </script>
 
 
 	<!-- syntaxhighlighter -->

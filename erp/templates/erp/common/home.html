@@ -4,49 +4,61 @@
 {% load widget_tweaks %}
 
 {% block main %}
-		<!-- Main -->
-			<div id="main">
+<!-- Main -->
+<div id="main">
 
-				<!-- Header -->
-					<header id="header">
-						<h1>SQ Fashion</h1>
-						<p>e-Commer Made Easy</p>
-                        {% block login %}
-                        {#  login button #}
-                        <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
-                        {% endblock %}
+	<!-- Header -->
+	<header id="header">
+		<h1>SQ Fashion</h1>
+		<p>e-Commer Made Easy</p>
 
-						<ul class="icons">
-							<li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-							<li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-							<li><a href="http://github.com/fengxia41103/fashion" class="icon fa-github"><span class="label">Github</span></a></li>
-							<li><a href="mailto:feng_xia41103@hotmail.com" class="icon fa-envelope-o"><span class="label">Email</span></a></li>
-						</ul>
-					</header>
+        {% block login %}
+        <ul class="list-inline">
+            <li>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registrationModal">
+                    Register
+                </button>
+            </li><li>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#loginModal">
+                    Login
+                </button>
+            </li></ul>
 
-				<!-- Thumbnail -->
-					<section id="thumbnails">
-                      {% for v in vendors %}
-                      {% for a in v.attachments.all %}
-						<article>
-							<a class="thumbnail" href="{{ a.file.url }}" data-position="top left">
-                              <img src="{{ a.file.url }}" alt="" />
-                            </a>
-							<h2>{{ v.name }}</h2>
-							<p>{{ v.description }}</p>
-						</article>
-                        {% endfor %}
-                      {% endfor %}
-					</section>
+        {% endblock %}
 
-				<!-- Footer -->
-					<footer id="footer">
-						<ul class="copyright">
-							<li>&copy; PY Consulting Ltd.</li><li>Learn more:<a href="http://fengxia.co">blog</a>.</li>
-						</ul>
-					</footer>
+		<ul class="icons">
+			<li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+			<li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+			<li><a href="http://github.com/fengxia41103/fashion" class="icon fa-github"><span class="label">Github</span></a></li>
+			<li><a href="mailto:feng_xia41103@hotmail.com" class="icon fa-envelope-o"><span class="label">Email</span></a></li>
+		</ul>
+	</header>
 
-			</div>
+	<!-- Thumbnail -->
+	<section id="thumbnails">
+        {% for v in vendors %}
+        {% for a in v.attachments.all %}
+		<article>
+			<a class="thumbnail" href="{{ a.file.url }}" data-position="top left">
+                <img src="{{ a.file.url }}" alt="" />
+            </a>
+			<h2>{{ v.name }}</h2>
+            {% if v.description %}
+			<p>{{ v.description }}</p>
+            {% endif %}
+		</article>
+        {% endfor %}
+        {% endfor %}
+	</section>
+
+	<!-- Footer -->
+	<footer id="footer">
+		<ul class="copyright">
+			<li>&copy; PY Consulting Ltd.</li><li>Learn more:<a href="http://fengxia.co">blog</a>.</li>
+		</ul>
+	</footer>
+
+</div>
 
 {% endblock %}
 
@@ -56,14 +68,91 @@
 
 {% block theme_js %}
 <script type="text/javascript"
-    src="{% static 'theme/lens/assets/js/skel.min.js' %}">
+        src="{% static 'theme/lens/assets/js/skel.min.js' %}">
 </script>
 <script type="text/javascript"
-    src="{% static 'theme/lens/assets/js/main.js' %}">
+        src="{% static 'theme/lens/assets/js/main.js' %}">
 </script>
 {% endblock %}
 
 {% block navbar %}
 {% endblock %}
 {% block footer %}
+{% endblock %}
+
+{% block modal %}
+<div class="modal fade" id="loginModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{% url 'login' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">User login</h4>
+                </div>
+                <div class="modal-body">
+
+
+                    {{ login_form|crispy }}
+                    {% if login_form.errors %}
+                    <div class="alert alert-danger">
+                        <p>Your username and password didn’t match. Please try again.</p>
+                    </div>
+                    {% endif %}
+
+
+                </div><!-- end of modal body-->
+                <div class="modal-footer">
+                    <input class="btn btn-primary btn-default" type="submit" value="Login" />
+                </div><!-- end of modal footer-->
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="registrationModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{% url 'user_register' %}" method="POST">
+
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Register new user</h4>
+                </div>
+                <div class="modal-body">
+
+                    {{ registration_form|crispy }}
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <p>Your username/password are not successful. Please try again.</p>
+                    </div>
+                    {% endif %}
+
+
+                </div><!-- end of modal body-->
+                <div class="modal-footer">
+                    <input class="btn btn-primary default" type="submit" value="Register" />
+                </div><!-- end of modal footer-->
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+ var j$ = jQuery.noConflict();
+ j$(document).ready(function(){
+     {% if messages %}
+     {% for message in messages %}
+     toastr.error('{{ message }}');
+     {% endfor %}
+     {% endif %}
+});
+</script>
 {% endblock %}

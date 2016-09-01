@@ -1,8 +1,8 @@
 {% extends 'erp/common/home.html' %}
-{% load crispy_forms_tags %} 
+{% load crispy_forms_tags %}
 
-{% block main %} 
-<div class="modal-dialog modal-body">
+{% block login %}
+<div class="pin-card col-md-6">
 <form action="{% url 'user_register' %}" method="POST">
 {% csrf_token %}
 {{ form|crispy }}
@@ -10,18 +10,18 @@
     <div class="alert alert-danger">
         <p>Your username/password are not successful. Please try again.</p>
     </div>
-{% endif %}                
-      
+{% endif %}
+
 <ul class="list-inline modal-footer">
     <li>
-        <a href="{% url 'login' %}">来这里登录吧</a>
+        <a href="{% url 'login' %}">Login here</a>
     </li><li>
-        <input class="btn btn-primary default" type="submit" value="注册用户" />
+        <input class="btn btn-primary" type="submit" value="Regisgter" />
         <input type="hidden" name="next" value="{% url 'login' %}" />
     </li><li>
-        <a href="{% url 'home' %}" class="btn btn-default">取消</a>
+        <a href="{% url 'home' %}" class="btn btn-default">Cancel</a>
     </li>
-</ul>        
+</ul>
 </form>
 </div>
 {% endblock %}

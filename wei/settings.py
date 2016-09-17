@@ -33,10 +33,10 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
-																		
+
 INSTALLED_APPS = (
-	'django_admin_bootstrapped.bootstrap3',
-	'django_admin_bootstrapped',
+    'django_admin_bootstrapped.bootstrap3',
+    'django_admin_bootstrapped',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,38 +45,40 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_extensions',
     # The Django sites framework is required
-    'django.contrib.sites', 
+    'django.contrib.sites',
 
     # custom packages
-    #'devserver', # django-devserver
+    # 'devserver', # django-devserver
     # 'debug_toolbar',
     # 'bootstrap3', # http://django-bootstrap3.readthedocs.org/en/latest/quickstart.html
-    'widget_tweaks', # https://github.com/kmike/django-widget-tweaks/
-    'storages', # django-storage
-    's3_folder_storage', # django-s3-folder-storage
-    'compressor', # django_compressor
-    'django_filters', # django-filters
-    'pagination_bootstrap', # django-pagination-bootstrap
-    'crispy_forms', # django-crispy-forms
-    'social.apps.django_app.default', # python-social-auth
-    'localflavor', # django-localflavor
-    'tastypie', # django-tastypie
-    'corsheaders', # django-cors-headers, https://github.com/OttoYiu/django-cors-headers
-    'erp', # ERP
+    'widget_tweaks',  # https://github.com/kmike/django-widget-tweaks/
+    'storages',  # django-storage
+    's3_folder_storage',  # django-s3-folder-storage
+    'compressor',  # django_compressor
+    'django_filters',  # django-filters
+    'pagination_bootstrap',  # django-pagination-bootstrap
+    'crispy_forms',  # django-crispy-forms
+    'social.apps.django_app.default',  # python-social-auth
+    'localflavor',  # django-localflavor
+    'tastypie',  # django-tastypie
+    # django-cors-headers, https://github.com/OttoYiu/django-cors-headers
+    'corsheaders',
+    'erp',  # ERP
 )
 
 MIDDLEWARE_CLASSES = (
     # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',    
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.cache.FetchFromCacheMiddleware',     
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'pagination_bootstrap.middleware.PaginationMiddleware', # django-pagination-bootstrap   
+    # django-pagination-bootstrap
+    'pagination_bootstrap.middleware.PaginationMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
@@ -87,36 +89,38 @@ WSGI_APPLICATION = 'wei.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-if DEPLOY_TYPE == 'dev' :
+if DEPLOY_TYPE == 'dev':
     DATABASES = {
         #'default': {
         #    'ENGINE': 'django.db.backends.sqlite3',
         #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         #}
-    	'default': {
-    		'ENGINE': 'django.db.backends.mysql', 
-    		'NAME': 'wei',
-    		'USER': DEV_DB_USER,
-    		'PASSWORD': DEV_DB_PWD,
-    		'HOST': DEV_DB_HOST,   # Or an IP Address that your DB is hosted on
-    		'PORT': DEV_DB_PORT,
-    	}
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'wei',
+            'USER': DEV_DB_USER,
+            'PASSWORD': DEV_DB_PWD,
+            # Or an IP Address that your DB is hosted on
+            'HOST': DEV_DB_HOST,
+            'PORT': DEV_DB_PORT,
+        }
     }
-elif DEPLOY_TYPE=='production':
-	DATABASES = {
-    	#'default': {
-    	#    'ENGINE': 'django.db.backends.sqlite3',
-    	#    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    	#}
-    	'default': {
-            	'ENGINE': 'django.db.backends.mysql', 
-            	'NAME': PRODUCTION_DB,
-            	'USER': PRODUCTION_DB_USER,
-            	'PASSWORD': PRODUCTION_DB_PWD,
-            	'HOST': AWS_MYSQL_ENDPOINT,   # Or an IP Address that your DB is hosted on
-            	'PORT': PRODUCTION_DB_PORT,
-    	}
-	}
+elif DEPLOY_TYPE == 'production':
+    DATABASES = {
+        #'default': {
+        #    'ENGINE': 'django.db.backends.sqlite3',
+        #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #}
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': PRODUCTION_DB,
+            'USER': PRODUCTION_DB_USER,
+            'PASSWORD': PRODUCTION_DB_PWD,
+            # Or an IP Address that your DB is hosted on
+            'HOST': AWS_MYSQL_ENDPOINT,
+            'PORT': PRODUCTION_DB_PORT,
+        }
+    }
 elif DEPLOY_TYPE == 'test':
     DATABASES = {
         #'default': {
@@ -124,14 +128,14 @@ elif DEPLOY_TYPE == 'test':
         #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         #}
         'default': {
-            'ENGINE': 'django.db.backends.mysql', 
+            'ENGINE': 'django.db.backends.mysql',
             'NAME': 'wei',
             'USER': DEV_DB_USER,
             'PASSWORD': DEV_DB_PWD,
             'HOST': DEV_DB_HOST,   # Or an IP Address that your DB is hosted on
             'PORT': DEV_DB_PORT,
         }
-    }    
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -151,7 +155,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-	os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "static"),
 )
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -165,9 +169,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # for django-pagination, very COOL!
 from django.conf import global_settings
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
-	'django.core.context_processors.request',
-   'social.apps.django_app.context_processors.backends',
-   'social.apps.django_app.context_processors.login_redirect',        
+    'django.core.context_processors.request',
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
 )
 
 # for django-allauth
@@ -175,8 +179,8 @@ SITE_ID = 1
 
 
 # LOGIN LOGOUT
-LOGIN_URL ='/wei/login'
-LOGOUT_URL ='/wei/home'
+LOGIN_URL = '/wei/login'
+LOGOUT_URL = '/wei/home'
 
 # libsass "pip install django-libsass"
 COMPRESS_ENABLED = True
@@ -189,7 +193,7 @@ COMPRESS_PRECOMPILERS = (
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # django-devserver
-if DEPLOY_TYPE in ['dev','test']:
+if DEPLOY_TYPE in ['dev', 'test']:
     DEVSERVER_MODULES = (
         'devserver.modules.sql.SQLRealTimeModule',
         'devserver.modules.sql.SQLSummaryModule',
@@ -201,15 +205,16 @@ if DEPLOY_TYPE in ['dev','test']:
         'devserver.modules.cache.CacheSummaryModule',
         'devserver.modules.profile.LineProfilerModule',
     )
-    DEVSERVER_AUTO_PROFILE = False  # profiles all views without the need of function decorator
+    # profiles all views without the need of function decorator
+    DEVSERVER_AUTO_PROFILE = False
 
 # S3 storages
 
-if DEPLOY_TYPE in ['dev','test']:
-    STATIC_ROOT='/var/www/static'
+if DEPLOY_TYPE in ['dev', 'test']:
+    STATIC_ROOT = '/var/www/static'
     MEDIA_ROOT = '/var/www/media'
-    MEDIA_URL='http://'+DEV_HOST+'/media/'
-elif DEPLOY_TYPE=='production':
+    MEDIA_URL = 'http://' + DEV_HOST + '/media/'
+elif DEPLOY_TYPE == 'production':
     DEFAULT_FILE_STORAGE = 's3_folder_storage.s3.DefaultStorage'
     STATICFILES_STORAGE = 's3_folder_storage.s3.StaticStorage'
 
@@ -221,7 +226,6 @@ elif DEPLOY_TYPE=='production':
     STATIC_ROOT = "/%s/" % STATIC_S3_PATH
     STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
     ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
-
 
     #STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
@@ -243,7 +247,7 @@ INTERNAL_IPS = ('127.0.0.1',)
 #         'LOCATION': 'localhost:11211',
 #         'TIMEOUT': 500,
 #         'BINARY': True,
-#         'OPTIONS': {  # Maps to pylibmc "behaviors"
+# 'OPTIONS': {  # Maps to pylibmc "behaviors"
 #             'tcp_nodelay': True,
 #             'ketama': True
 #         }
@@ -252,10 +256,10 @@ INTERNAL_IPS = ('127.0.0.1',)
 
 # python social auth
 AUTHENTICATION_BACKENDS = (
-   'social.backends.facebook.FacebookOAuth2',
-   'social.backends.google.GoogleOAuth2',
-   'social.backends.twitter.TwitterOAuth',
-   'django.contrib.auth.backends.ModelBackend',
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 # emails

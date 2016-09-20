@@ -2,10 +2,6 @@
 
 {% block page-header %}
 	Items
-	<a href="{% url 'item_add' %}" class="btn btn-xs addlink">
-		<i class="fa fa-plus"></i>
-		Add
-	</a>
 {% endblock %}
 
 
@@ -38,7 +34,7 @@
 	<tbody>
 		{% for obj in object_list %}
 		<tr><td>
-			<a href="{% url 'item_edit' obj.id %}">Edit</a> | 
+			<a href="{% url 'item_edit' obj.id %}">Edit</a> |
 			<a href="{% url 'item_detail' obj.id %}">Detail</a>
 		</td><td>
 			{{ obj.product_id }}
@@ -59,7 +55,7 @@
 				<div class="dropdown">
 					<a href="" class="" data-toggle="dropdown">
 						<i class="fa fa-bar-chart"></i>
-						{{ obj.total_theoretical }}				
+						{{ obj.total_theoretical }}
 						<b class="caret"></b>
 					</a>
 					<ul class="dropdown-menu" style="padding:10px;">
@@ -74,7 +70,7 @@
 								<tbody><tr>
 								{% for size,qty in obj.theoretical %}
 									<td>{{qty}}</td>
-								{% endfor %}				
+								{% endfor %}
 								</tr></tbody>
 							</table>
 						</li>
@@ -88,4 +84,3 @@
 	</tbody>
 	</table>
 {% endblock %}
-

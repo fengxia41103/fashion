@@ -1,11 +1,7 @@
 {% extends "erp/common/base.html" %}
 
 {% block page-header %}
-	Items
-	<a href="{% url 'vendor_item_add' %}" class="btn btn-xs addlink">
-		<i class="fa fa-plus"></i>
-		Add
-	</a>
+	Vendor items
 {% endblock %}
 
 
@@ -26,7 +22,7 @@
 	<tbody>
 		{% for obj in object_list %}
 		<tr><td>
-			<a href="{% url 'vendor_item_edit' obj.id %}">Edit</a> | 
+			<a href="{% url 'vendor_item_edit' obj.id %}">Edit</a> |
 			<a href="{% url 'vendor_item_delete' obj.id %}">Delete</a>
 		</td><td>
 			<a href="{% url 'item_detail' obj.product.id %}">
@@ -49,4 +45,3 @@
 	</tbody>
 	</table>
 {% endblock %}
-

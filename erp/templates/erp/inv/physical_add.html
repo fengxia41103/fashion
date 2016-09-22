@@ -17,12 +17,12 @@
 		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Storage</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ storage.code }} 
+			{{ storage.code }}
 			{% if storage.is_primary %}
 				<label class="label label-info pull-right">primary</label>
 			{% endif %}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row ">
 		<div class="col-md-2"><label>Brand</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ vendor }}</div>
@@ -31,11 +31,11 @@
 		<div class="col-md-3 my-sf-display-border">
 			{{ inv_items|length }}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row ">
 		<div class="col-md-2"><label>Season</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ season }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div>
 	</div>
 </div>
@@ -43,14 +43,14 @@
 <div class="btn-group" role="group" aria-label="">
 	<a  id="btn-clear-all" data-toggle="tooltip" title="Click to clear all inputs">
 		<i class="fa fa-minus">&nbsp;Clear all</i>
-	</a> 
+	</a>
 	<a id="btn-fill-all" data-toggle="tooltip" title="Click to fill all inputs to order qty">
 		| <i class="fa fa-plus">&nbsp;Fullfill all</i>
 	</a>
 </div>
 
 <div class="pull-right">
-	<input type="checkbox" name="my-checkbox" id="toggle-mode" checked> 
+	<input type="checkbox" name="my-checkbox" id="toggle-mode" checked>
 </div>
 
 <form action="{% url 'item_inv_physical_add' storage.id season.id vendor.id %}" method="POST">
@@ -64,7 +64,7 @@
 		<th data-toggle="product-info">COLOR</th>
 		<th data-toggle="product-info" style="border-right:1px solid #ddd;">CONDITION</th>
 		<th>PRODUCT ID</th>
-		<th>SIZE</th>	
+		<th>SIZE</th>
 		<th>PHYSICAL COUNT</th>
 		{% if user.is_superuser %}
 		<th>THEORETICAL</th>
@@ -88,10 +88,10 @@
 				{{ item.product_id }}
 			</a>
 		</td><td>
-			{{ inv_item.size }}			
+			{{ inv_item.size }}
 		</td><td>
 			<input type="number" value="0" name="inv-item-{{inv_item.id}}" id="{{inv_item.id}}" min="0"  max="1000" data-toggle="qty" style="width:100px;" />
-			<input type="checkbox" name="set-zero-{{inv_item.id}}" id="set-zero-{{inv_item.id}}" style="display:none;"/>		
+			<input type="checkbox" name="set-zero-{{inv_item.id}}" id="set-zero-{{inv_item.id}}" style="display:none;"/>
 			<div class="btn-group" role="group" aria-label="">
 				<button type="button" class="btn btn-tiny btn-secondary" data-toggle="minus">
 					<i class="fa fa-minus"></i>
@@ -103,7 +103,7 @@
 					<i class="fa"></i>
 				</button>
 			</div>
-		{% if user.is_superuser %}	
+		{% if user.is_superuser %}
 		</td><td>
 			{{ inv_item.theoretical }}
 		{% endif %}
@@ -124,7 +124,7 @@
 <button class="btn btn-primary"  type="submit" id="create">
 	<i class="fa fa-save"></i>
 	<span>Save physical inventory</span>
-</button>  
+</button>
 </form>
 {% endblock %}
 
@@ -137,10 +137,12 @@ j$(document).ready(function(){
 		onText:"Admin mode",
 		offText:"User mode",
 		onSwitchChange:function(event,state){
+		    {% if user.is_superuser %}
 			j$('th:last').toggle();
 			j$.each(j$('tr'),function(index,val){
 				j$(this).children('td:last').toggle();
-			});				
+			});
+            {% endif %}
 			j$('[data-toggle="product-info"]').toggle();
 		}
 	});

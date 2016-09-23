@@ -28,12 +28,12 @@
 		<tr><td>
 			<a href="{% url 'so_detail' obj.id %}">Detail</a>
 
-			{# fullfill shortcut #}
-			{% if obj.fullfill_rate_by_qty < 100 %}
-			| <a href="{% url 'so_fullfill_add' obj.id %}">Fullfill</a>
+			{# fulfill shortcut #}
+			{% if obj.fulfill_rate_by_qty < 100 %}
+			| <a href="{% url 'so_fulfill_add' obj.id %}">Fulfill</a>
 			{% endif %}
 
-			{% if obj.fullfill_qty > 0 %}
+			{% if obj.fulfill_qty > 0 %}
 			| <a href="{% url 'so_return_add' obj.id %}">Return</a>
 			{% endif %}
 

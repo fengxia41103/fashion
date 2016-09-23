@@ -26,14 +26,14 @@
 
 	{% if object.qty_balance > 0 %}
 	<button class="btn btn-small my-command-btn">
-		<a href="{% url 'so_fullfill_add' object.id %}">
+		<a href="{% url 'so_fulfill_add' object.id %}">
 			<i class='fa fa-pencil'></i>
-			Create a fullfillment
+			Create a fulfillment
 		</a>
 	</button>
 	{% endif %}
 
-	{% if object.fullfill_qty > 0 %}
+	{% if object.fulfill_qty > 0 %}
 	<button class="btn btn-small my-command-btn">
 		<a href="{% url 'so_return_add' object.id %}">
 			<i class='fa fa-pencil'></i>
@@ -118,36 +118,36 @@
   </div>
 </div>
 
-<h2>Fullfillments</h2>
+<h2>Fulfillments</h2>
 <div class="panel panel-default">
   	<div class="panel-body">
 	<div class="row">
-		<div class="col-md-2"><label>Fullfiller</label></div>
+		<div class="col-md-2"><label>Fulfiller</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.default_storage }}</div>
 		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Last Fullfillment Date</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.last_fullfill_date }}&nbsp;</div>
+		<div class="col-md-2"><label>Last Fulfillment Date</label></div>
+		<div class="col-md-3 my-sf-display-border">{{ object.last_fulfill_date }}&nbsp;</div>
 		<div class="col-md-1"></div>
 	</div><div class="row">
-		<div class="col-md-2"><label>Fullfilled QTY</label></div>
+		<div class="col-md-2"><label>Fulfilled QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{% if object.fullfill_qty > 0 %}
-			<span class="dropdown-toggle" id="fullfillments-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-				{{ object.fullfill_qty|floatformat:0 }}
+			{% if object.fulfill_qty > 0 %}
+			<span class="dropdown-toggle" id="fulfillments-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				{{ object.fulfill_qty|floatformat:0 }}
 				<span class="caret"></span>
 			</span>
-			<ul class="dropdown-menu" aria-labelledby="fullfillments-dropdown" style="padding:10px 20px;">
+			<ul class="dropdown-menu" aria-labelledby="fulfillments-dropdown" style="padding:10px 20px;">
 				<table class="table table-striped table-hover table-responsive">
 					<thead>
-						<th>Fullfillment</th>
+						<th>Fulfillment</th>
 						<th>QTY</th>
 						<th>Created On</th>
 					</thead>
 
 					<tbody>
-						{% for f in object.fullfillments %}
+						{% for f in object.fulfillments %}
 							<tr><td>
-								<a href="{% url 'so_fullfill_detail' f.id %}">
+								<a href="{% url 'so_fulfill_detail' f.id %}">
 									{{ f.code }}
 									{% if not f.is_editable %}
 										<i class="fa fa-lock"></i>
@@ -163,8 +163,8 @@
 				</table>
 			</ul>
 
-			{# Batch fullfill #}
-			<a class="pull-right" data-toggle="modal" data-target="#batch-finalize-fullfill">
+			{# Batch fulfill #}
+			<a class="pull-right" data-toggle="modal" data-target="#batch-finalize-fulfill">
 				<i class='fa fa-lock'></i>
 				finalize all
 			</a>
@@ -173,20 +173,20 @@
 			{% endif %}
 		</div>
 		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Fullfill Rate By QTY</label></div>
+		<div class="col-md-2"><label>Fulfill Rate By QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ object.fullfill_rate_by_qty|floatformat:0 }}%
+			{{ object.fulfill_rate_by_qty|floatformat:0 }}%
 		</div>
 		<div class="col-md-1"></div>
 	</div><div class="row">
-		<div class="col-md-2"><label>Fullfilled Value</label></div>
+		<div class="col-md-2"><label>Fulfilled Value</label></div>
 		<div class="col-md-3 my-sf-display-border">
 		{{object.customer.currency}}
-		{{ object.fullfill_discount_value|floatformat:2 }}&nbsp;</div>
+		{{ object.fulfill_discount_value|floatformat:2 }}&nbsp;</div>
 		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Fullfill Rate By Value</label></div>
+		<div class="col-md-2"><label>Fulfill Rate By Value</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ object.fullfill_rate_by_value|floatformat:0 }}%
+			{{ object.fulfill_rate_by_value|floatformat:0 }}%
 		</div>
 		<div class="col-md-1"></div>
 	</div><div class="row">
@@ -344,7 +344,7 @@
 				</p>
 			</div>
 
-			{# fullfillment details #}
+			{# fulfillment details #}
 			<div class="col-md-4">
 				<h4 class="my-section-header">
 				<span class="item-label">Order Value:</span>
@@ -379,7 +379,7 @@
 							</a>
 						{% else %}
 							{# qty input box #}
-							<input type="number" value="{{ so_line_item.fullfill_qty }}" style="width:50px;" disabled> / {{so_line_item.qty}}
+							<input type="number" value="{{ so_line_item.fulfill_qty }}" style="width:50px;" disabled> / {{so_line_item.qty}}
 						{% endif %}
 					</dd>
 					{% endfor %}
@@ -615,10 +615,10 @@ Related payments
 </div>
 </div>
 
-{# Batch finalizing fullfillments modal #}
-<div id="batch-finalize-fullfill" class="modal fade" role="dialog">
+{# Batch finalizing fulfillments modal #}
+<div id="batch-finalize-fulfill" class="modal fade" role="dialog">
 <div class="modal-dialog">
-<form action="{% url 'so_fullfill_review_batch' object.id %}" method="POST">
+<form action="{% url 'so_fulfill_review_batch' object.id %}" method="POST">
 	{% csrf_token %}
 
     <!-- Modal content-->
@@ -626,15 +626,15 @@ Related payments
 		{# Modal header #}
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Finalize fullfillments</h4>
+	        <h4 class="modal-title">Finalize fulfillments</h4>
 		</div>
 
 	    {# Modal body #}
 	    <div class="modal-body">
 	    	<p>
-			This will finalize all open fullfillments that are associated
+			This will finalize all open fulfillments that are associated
 			with this sales order. You will not
-			be able make further change to it once a fullfillment has been finalized.
+			be able make further change to it once a fulfillment has been finalized.
 			</p>
 
 			<p class="alert alert-warning">

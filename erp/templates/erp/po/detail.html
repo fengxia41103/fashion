@@ -91,29 +91,29 @@
 	</div>
 </div>
 
-<h2>Fullfillments</h2>
+<h2>Fulfillments</h2>
 <div class="panel panel-default">
   	<div class="panel-body">
 	<div class="row ">
-		<div class="col-md-2"><label>Fullfill QTY</label></div>
+		<div class="col-md-2"><label>Fulfill QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ object.fullfill_qty }}
+			{{ object.fulfill_qty }}
 		</div>
 		<div class="col-md-1"></div>		
-		<div class="col-md-2"><label>Fullfill value</label></div>
+		<div class="col-md-2"><label>Fulfill value</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ object.fullfill_value|floatformat:2 }}
+			{{ object.fulfill_value|floatformat:2 }}
 		</div>
 		<div class="col-md-1"></div>		
 	</div><div class="row ">
-		<div class="col-md-2"><label>Fullfill rate by QTY</label></div>
+		<div class="col-md-2"><label>Fulfill rate by QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ object.fullfill_rate_by_qty|floatformat:2 }}%
+			{{ object.fulfill_rate_by_qty|floatformat:2 }}%
 		</div>
 		<div class="col-md-1"></div>		
-		<div class="col-md-2"><label>Fullfill rate by value</label></div>
+		<div class="col-md-2"><label>Fulfill rate by value</label></div>
 		<div class="col-md-3 my-sf-display-border">
-			{{ object.fullfill_rate_by_value|floatformat:2 }}%
+			{{ object.fulfill_rate_by_value|floatformat:2 }}%
 		</div>
 		<div class="col-md-1"></div>		
 	</div>
@@ -171,11 +171,11 @@
 	</tbody>
 </table>
 
-{% if fullfillments %}
-{# Related fullfillment Section #}
+{% if fulfillments %}
+{# Related fulfillment Section #}
 <h2 class="page-header">
 <i class="fa fa-book"></i>
-Fullfillment details
+Fulfillment details
 </h2>
 <table class="table table-striped table-hover table-responsive">
 	<thead>
@@ -188,9 +188,9 @@ Fullfillment details
 		<th>REVIEWED ON</th>
 	</thead>
 	<tbody>
-		{% for f in fullfillments %}
+		{% for f in fulfillments %}
 		<tr><td>
-			<a href="{% url 'po_fullfill_detail' f.id %}">Detail</a>
+			<a href="{% url 'po_fulfill_detail' f.id %}">Detail</a>
 		</td><td>
 			{{ f.code }}
 			{% if not f.is_editable %}

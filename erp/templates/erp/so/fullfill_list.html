@@ -1,7 +1,7 @@
 {% extends "erp/common/base.html" %}
 
 {% block page-header %}
-Sales order fullfillments
+Sales order fulfillments
 {% endblock %}
 
 
@@ -23,7 +23,7 @@ Sales order fullfillments
 <tbody>
 	{% for obj in object_list %}
 	<tr><td>
-		<a href="{% url 'so_fullfill_detail' obj.id %}">Detail</a>
+		<a href="{% url 'so_fulfill_detail' obj.id %}">Detail</a>
 	</td><td>
 		{{ obj.code}}
 		{% if not obj.is_editable %}

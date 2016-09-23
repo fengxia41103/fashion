@@ -867,8 +867,8 @@ def add_item_to_sales_order(quick_notion, so):
 
             existing = MySalesOrderLineItem.objects.filter(
                 order=so, item=item_inv)
-            if len(existing) and not existing[0].fullfill_qty > 0:
-                # only modifiable when there has not been any fullfillment yet
+            if len(existing) and not existing[0].fulfill_qty > 0:
+                # only modifiable when there has not been any fulfillment yet
                 # to this item
                 existing[0].qty += int(qty)
                 existing[0].save()
@@ -1184,15 +1184,15 @@ class MySalesOrderPaymentDelete(DeleteView):
 
 ###################################################
 #
-#	Sales Order Fullfillment views
+#	Sales Order Fulfillment views
 #
 ###################################################
 
 
 @class_view_decorator(login_required)
-class MySalesOrderFullfillmentAdd(DetailView):
+class MySalesOrderFulfillmentAdd(DetailView):
     model = MySalesOrder
-    template_name = 'erp/so/fullfill_add.html'
+    template_name = 'erp/so/fulfill_add.html'
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
@@ -1209,7 +1209,7 @@ class MySalesOrderFullfillmentAdd(DetailView):
 
     def post(self, request, pk):
         '''
-        Post to this API will create a sales order fullfillment.
+        Post to this API will create a sales order fulfillment.
         '''
         items = []
         for line_id, qty in self.request.POST.iteritems():
@@ -1219,32 +1219,32 @@ class MySalesOrderFullfillmentAdd(DetailView):
                 items.append((line_item, qty))
 
         if len(items):
-            # Create MySalesOrderFullfillment
-            fullfill = MySalesOrderFullfillment(
+            # Create MySalesOrderFulfillment
+            fulfill = MySalesOrderFulfillment(
                 so=items[0][0].order,
                 created_by=self.request.user
             )
-            fullfill.save()
+            fulfill.save()
 
-            # Add fullfill items to MySalesOrderFullfillment
+            # Add fulfill items to MySalesOrderFulfillment
             for so_line_item, qty in items:
-                MySalesOrderFullfillmentLineItem(
-                    so_fullfillment=fullfill,
+                MySalesOrderFulfillmentLineItem(
+                    so_fulfillment=fulfill,
                     so_line_item=so_line_item,
-                    fullfill_qty=int(qty)
+                    fulfill_qty=int(qty)
                 ).save()
-        return HttpResponseRedirect(reverse_lazy('so_fullfill_detail', kwargs={'pk': fullfill.id}))
+        return HttpResponseRedirect(reverse_lazy('so_fulfill_detail', kwargs={'pk': fulfill.id}))
 
 
-class MySalesOrderFullfillmentDetail(DetailView):
-    model = MySalesOrderFullfillment
-    template_name = 'erp/so/fullfill_detail.html'
+class MySalesOrderFulfillmentDetail(DetailView):
+    model = MySalesOrderFulfillment
+    template_name = 'erp/so/fulfill_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
 
         items = {}
-        for line_item in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=self.object).order_by('so_line_item__id'):
+        for line_item in MySalesOrderFulfillmentLineItem.objects.filter(so_fulfillment=self.object).order_by('so_line_item__id'):
             brand = line_item.so_line_item.item.item.brand
             if brand not in items:
                 items[brand] = []
@@ -1254,27 +1254,27 @@ class MySalesOrderFullfillmentDetail(DetailView):
 
 
 @class_view_decorator(login_required)
-class MySalesOrderFullfillmentEdit(UpdateView):
-    model = MySalesOrderFullfillment
+class MySalesOrderFulfillmentEdit(UpdateView):
+    model = MySalesOrderFulfillment
 
     def post(self, request, pk):
         items = []
         for line_id, qty in self.request.POST.iteritems():
-            if 'line-item-fullfill' in line_id:
+            if 'line-item-fulfill' in line_id:
                 qty = int(qty)
-                f = MySalesOrderFullfillmentLineItem.objects.get(
+                f = MySalesOrderFulfillmentLineItem.objects.get(
                     id=int(line_id.split('-')[-1]))
-                if qty and qty != f.fullfill_qty:
-                    f.fullfill_qty = qty
-                    f.save()  # update FullfillLineItem qty
+                if qty and qty != f.fulfill_qty:
+                    f.fulfill_qty = qty
+                    f.save()  # update FulfillLineItem qty
                 elif qty == 0:  # equal to delete this line item
                     f.delete()
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 @class_view_decorator(login_required)
-class MySalesOrderFullfillmentDelete(DeleteView):
-    model = MySalesOrderFullfillment
+class MySalesOrderFulfillmentDelete(DeleteView):
+    model = MySalesOrderFulfillment
     template_name = 'erp/common/delete_form.html'
 
     def get_success_url(self):
@@ -1282,54 +1282,54 @@ class MySalesOrderFullfillmentDelete(DeleteView):
 
 
 @class_view_decorator(login_required)
-class MySalesOrderFullfillmentReview(TemplateView):
+class MySalesOrderFulfillmentReview(TemplateView):
 
     '''
-    Finalize a SO fullfillment. Once finalized, the fullfillment will not be editable.
+    Finalize a SO fulfillment. Once finalized, the fulfillment will not be editable.
     '''
 
     def post(self, request, pk):
-        fullfill = MySalesOrderFullfillment.objects.get(id=int(pk))
-        fullfill.reviewed_by = self.request.user
-        fullfill.reviewed_on = dt.now()
-        fullfill.save()
+        fulfill = MySalesOrderFulfillment.objects.get(id=int(pk))
+        fulfill.reviewed_by = self.request.user
+        fulfill.reviewed_on = dt.now()
+        fulfill.save()
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 @class_view_decorator(login_required)
-class MySalesOrderFullfillmentReviewBatch(TemplateView):
+class MySalesOrderFulfillmentReviewBatch(TemplateView):
 
     '''
-    Batch finalize all fullfillments that are linked to a SO.
+    Batch finalize all fulfillments that are linked to a SO.
     '''
 
     def post(self, request, pk):
         so = MySalesOrder.objects.get(id=int(pk))
-        for fullfill in MySalesOrderFullfillment.objects.filter(so=so):
-            if not fullfill.is_editable:
+        for fulfill in MySalesOrderFulfillment.objects.filter(so=so):
+            if not fulfill.is_editable:
                 continue
 
-            fullfill.reviewed_by = self.request.user
-            fullfill.reviewed_on = dt.now()
-            fullfill.save()
+            fulfill.reviewed_by = self.request.user
+            fulfill.reviewed_on = dt.now()
+            fulfill.save()
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
-class MySalesOrderFullfillmentListFilter (FilterSet):
+class MySalesOrderFulfillmentListFilter (FilterSet):
 
     class Meta:
-        model = MySalesOrderFullfillment
+        model = MySalesOrderFulfillment
         fields = {
             'so': ['exact'],
         }
 
 
-class MySalesOrderFullfillmentList (FilterView):
-    template_name = 'erp/so/fullfill_list.html'
+class MySalesOrderFulfillmentList (FilterView):
+    template_name = 'erp/so/fulfill_list.html'
     paginate_by = 25
 
     def get_filterset_class(self):
-        return MySalesOrderFullfillmentListFilter
+        return MySalesOrderFulfillmentListFilter
 
     def get_context_data(self, **kwargs):
         context = super(FilterView, self).get_context_data(**kwargs)
@@ -1360,7 +1360,7 @@ class MySalesOrderReturnAdd(DetailView):
 
         items = {}
         for line_item in MySalesOrderLineItem.objects.filter(order=self.object).order_by('item__id'):
-            if line_item.fullfill_qty > 0:
+            if line_item.fulfill_qty > 0:
                 brand = line_item.item.item.brand
                 if brand not in items:
                     items[brand] = []
@@ -1371,7 +1371,7 @@ class MySalesOrderReturnAdd(DetailView):
 
     def post(self, request, pk):
         '''
-        Post to this API will create a sales order fullfillment.
+        Post to this API will create a sales order fulfillment.
         '''
         items = {}
         for line_id, val in self.request.POST.iteritems():
@@ -1389,7 +1389,7 @@ class MySalesOrderReturnAdd(DetailView):
         if len(items):
             so = MySalesOrder.objects.get(id=pk)
 
-            # Create MySalesOrderFullfillment
+            # Create MySalesOrderFulfillment
             so_return = MySalesOrderReturn(
                 so=so,
                 created_by=self.request.user
@@ -1656,8 +1656,8 @@ def add_item_to_purchase_order(quick_notion, po):
 
             existing = MyPurchaseOrderLineItem.objects.filter(
                 po=po, inv_item=item_inv)
-            if len(existing) and not existing[0].fullfill_qty > 0:
-                # only modifiable when there has not been any fullfillment yet
+            if len(existing) and not existing[0].fulfill_qty > 0:
+                # only modifiable when there has not been any fulfillment yet
                 # to this item
                 existing[0].qty += int(qty)
                 existing[0].save()
@@ -1741,7 +1741,7 @@ class MyPurchaseOrderDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['months'] = ESTIMATED_MONTH_CHOICES
-        context['fullfillments'] = MyPOFullfillment.objects.filter(
+        context['fulfillments'] = MyPOFulfillment.objects.filter(
             po=self.object)
         return context
 
@@ -1986,7 +1986,7 @@ class MyInvoiceReceiveEdit(UpdateView):
     def post(self, request, pk):
         items = []
         for line_id, qty in self.request.POST.iteritems():
-            if 'line-item-fullfill' in line_id:
+            if 'line-item-fulfill' in line_id:
                 qty = int(qty)
                 f = MyInvoiceReceiveItem.objects.get(
                     id=int(line_id.split('-')[-1]))
@@ -2137,26 +2137,26 @@ class MyVendorSampleInvoiceAdd(TemplateView):
 
 ###################################################
 #
-#	MyPOFullfillment views
+#	MyPOFulfillment views
 #
 ###################################################
 
 
-class MyPOFullfillmentListFilter (FilterSet):
+class MyPOFulfillmentListFilter (FilterSet):
 
     class Meta:
-        model = MyPOFullfillment
+        model = MyPOFulfillment
         fields = {
             'po': ['exact'],
         }
 
 
-class MyPOFullfillmentList (FilterView):
-    template_name = 'erp/po/fullfill_list.html'
+class MyPOFulfillmentList (FilterView):
+    template_name = 'erp/po/fulfill_list.html'
     paginate_by = 25
 
     def get_filterset_class(self):
-        return MyPOFullfillmentListFilter
+        return MyPOFulfillmentListFilter
 
     def get_context_data(self, **kwargs):
         context = super(FilterView, self).get_context_data(**kwargs)
@@ -2172,50 +2172,50 @@ class MyPOFullfillmentList (FilterView):
         return context
 
 
-class MyPOFullfillmentDetail(DetailView):
-    model = MyPOFullfillment
-    template_name = 'erp/po/fullfill_detail.html'
+class MyPOFulfillmentDetail(DetailView):
+    model = MyPOFulfillment
+    template_name = 'erp/po/fulfill_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
-        context['items'] = MyPOFullfillmentLineItem.objects.filter(
-            po_fullfillment=self.object).order_by('po_line_item__id')
+        context['items'] = MyPOFulfillmentLineItem.objects.filter(
+            po_fulfillment=self.object).order_by('po_line_item__id')
         return context
 
 
 @class_view_decorator(login_required)
-class MyPOFullfillmentReview(TemplateView):
+class MyPOFulfillmentReview(TemplateView):
 
     def post(self, request, pk):
-        po_fullfill = MyPOFullfillment.objects.get(id=int(pk))
-        po_fullfill.reviewed_by = self.request.user
-        po_fullfill.reviewed_on = dt.now()
-        po_fullfill.save()
+        po_fulfill = MyPOFulfillment.objects.get(id=int(pk))
+        po_fulfill.reviewed_by = self.request.user
+        po_fulfill.reviewed_on = dt.now()
+        po_fulfill.save()
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 @class_view_decorator(login_required)
-class MyPOFullfillmentEdit(UpdateView):
-    model = MyPOFullfillment
+class MyPOFulfillmentEdit(UpdateView):
+    model = MyPOFulfillment
 
     def post(self, request, pk):
         items = []
         for line_id, qty in self.request.POST.iteritems():
-            if 'line-item-fullfill' in line_id:
+            if 'line-item-fulfill' in line_id:
                 qty = int(qty)
-                f = MyPOFullfillmentLineItem.objects.get(
+                f = MyPOFulfillmentLineItem.objects.get(
                     id=int(line_id.split('-')[-1]))
-                if qty and qty != f.fullfill_qty:
-                    f.fullfill_qty = qty
-                    f.save()  # update FullfillLineItem qty
+                if qty and qty != f.fulfill_qty:
+                    f.fulfill_qty = qty
+                    f.save()  # update FulfillLineItem qty
                 elif qty == 0:  # equal to delete this line item
                     f.delete()
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 @class_view_decorator(login_required)
-class MyPOFullfillmentDelete(DeleteView):
-    model = MyPOFullfillment
+class MyPOFulfillmentDelete(DeleteView):
+    model = MyPOFulfillment
     template_name = 'erp/common/delete_form.html'
 
     def get_success_url(self):
@@ -2323,12 +2323,12 @@ class ReportTopProductByPO(TemplateView):
         return context
 
 
-class ReportTopProductByFullfillProfit(TemplateView):
-    template_name = 'erp/report/top_fullfill_profit_items_list.html'
+class ReportTopProductByFulfillProfit(TemplateView):
+    template_name = 'erp/report/top_fulfill_profit_items_list.html'
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
-        context['data'] = data = MyItemInventory.objects.rank_by_fullfill_profit(
+        context['data'] = data = MyItemInventory.objects.rank_by_fulfill_profit(
             top=int(kwargs['top']))
         context['limited_to'] = kwargs['top']
 
@@ -2375,12 +2375,12 @@ class ReportTopSOByQtyBalance(TemplateView):
         return context
 
 
-class ReportSOFullfillInProgress(TemplateView):
-    template_name = 'erp/report/top_so_fullfill_in_progress.html'
+class ReportSOFulfillInProgress(TemplateView):
+    template_name = 'erp/report/top_so_fulfill_in_progress.html'
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
-        context['data'] = data = MySalesOrder.objects.rank_by_fullfill_rate_by_qty(
+        context['data'] = data = MySalesOrder.objects.rank_by_fulfill_rate_by_qty(
             top=int(kwargs['top']))
         context['limited_to'] = kwargs['top']
 

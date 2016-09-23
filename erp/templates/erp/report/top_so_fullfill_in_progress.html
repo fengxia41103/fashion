@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block page-header %}
-    Top {{limited_to}} SO in-progress fullfills
+    Top {{limited_to}} SO in-progress fulfills
 {% endblock %}
 
 {% block chart-navigation %}
@@ -11,7 +11,7 @@ Top:
 <div class="btn btn-group">
     {% for alt in alternatives %}
     <button class="btn btn-small my-command-btn">
-        <a href="{% url 'top_so_fullfill_in_progress_report' alt %}">
+        <a href="{% url 'top_so_fulfill_in_progress_report' alt %}">
             {{ alt }}
         </a>
     </button>
@@ -36,7 +36,7 @@ Top:
         </td><td>
             {{ so.customer }}
         </td><td>
-            {{ so.fullfill_rate_by_qty|floatformat:2 }}%
+            {{ so.fulfill_rate_by_qty|floatformat:2 }}%
         </td></tr>
         {% endfor %}
     </tbody>
@@ -51,7 +51,7 @@ j$('#chart').highcharts({
             type: 'bar'
         },
         title: {
-            text: 'Top {{limited_to}} SO In-progress Fullfills'
+            text: 'Top {{limited_to}} SO In-progress Fulfills'
         },
         subtitle: {
             text: ''
@@ -69,7 +69,7 @@ j$('#chart').highcharts({
         yAxis: {
             // min: 0,
             title: {
-                text: 'Fullfill rate by QTY',
+                text: 'Fulfill rate by QTY',
                 align: 'high'
             },
             labels: {
@@ -103,10 +103,10 @@ j$('#chart').highcharts({
             enabled: false
         },
         series: [{
-            name: 'Fullfill rate by QTY',
+            name: 'Fulfill rate by QTY',
             data: [
             {% for so in data %}
-                {{so.fullfill_rate_by_qty|floatformat:2}},
+                {{so.fulfill_rate_by_qty|floatformat:2}},
             {% endfor %}
             ]
         }],

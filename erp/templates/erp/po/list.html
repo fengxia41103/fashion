@@ -33,7 +33,7 @@
 				| <a data-toggle="modal" data-target="#po-place-{{obj.id}}">Place</a>			
 				| <a href="{% url 'po_delete' obj.id %}" data-toggle="tooltip" title="Cancel order">Cancel</a>
 			{% else %}
-				{% if obj.fullfill_qty < obj.order_qty %}
+				{% if obj.fulfill_qty < obj.order_qty %}
 					| <a href="{% url 'vendor_invoice_add' obj.vendor.id %}">Invoice</a>
 				{% endif %}
 			{% endif %}
@@ -55,7 +55,7 @@
 				{{ m }}
 			{% endfor %}
 		</td><td>
-			{{ obj.fullfill_rate_by_qty|floatformat:2 }}%
+			{{ obj.fulfill_rate_by_qty|floatformat:2 }}%
 		</td></tr>
     	{% endfor %}
 	</tbody>

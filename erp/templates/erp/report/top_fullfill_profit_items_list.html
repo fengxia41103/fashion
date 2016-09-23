@@ -11,7 +11,7 @@ Top:
 <div class="btn btn-group">
     {% for alt in alternatives %}
     <button class="btn btn-small my-command-btn">
-        <a href="{% url 'top_fullfill_profit_product_report' alt %}">
+        <a href="{% url 'top_fulfill_profit_product_report' alt %}">
             {{ alt }}
         </a>
     </button>
@@ -49,7 +49,7 @@ Top:
         </td><td>
             {{ inv_item.size }}
         </td><td>
-            {{ inv_item.fullfill_profit|floatformat:2 }}
+            {{ inv_item.fulfill_profit|floatformat:2 }}
         </td></tr>
         {% endwith %}
         {% endfor %}
@@ -83,7 +83,7 @@ j$('#chart').highcharts({
         yAxis: {
             // min: 0,
             title: {
-                text: 'Fullfill profit',
+                text: 'Fulfill profit',
                 align: 'high'
             },
             labels: {
@@ -117,10 +117,10 @@ j$('#chart').highcharts({
             enabled: false
         },
         series: [{
-            name: 'Fullfill profit',
+            name: 'Fulfill profit',
             data: [
             {% for inv_item in data %}
-                {{inv_item.fullfill_profit|floatformat:2}},
+                {{inv_item.fulfill_profit|floatformat:2}},
             {% endfor %}
             ]
         }],

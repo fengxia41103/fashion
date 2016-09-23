@@ -394,7 +394,7 @@ class MyCRMCustomManager(models.Manager):
 
     def vendor_need_invoice(self):
         vendor_ids = set([x.vendor.id for x in filter(
-            lambda x: x.fullfill_qty < x.order_qty, MyPurchaseOrder.objects.filter(vendor__in=self.vendors()))])
+            lambda x: x.fulfill_qty < x.order_qty, MyPurchaseOrder.objects.filter(vendor__in=self.vendors()))])
         return self.get_queryset().filter(id__in=vendor_ids)
 
 
@@ -700,9 +700,9 @@ class MyItemInventoryCustomManager(models.Manager):
             lambda x: x.on_po_qty, self.get_queryset().filter(item_type='New'))
         return list(reversed(sorted(tmp, lambda x, y: cmp(x.on_po_qty, y.on_po_qty))))[:top]
 
-    def rank_by_fullfill_profit(self, top=10):
-        tmp = filter(lambda x: x.fullfill_profit, self.get_queryset())
-        return list(reversed(sorted(tmp, lambda x, y: cmp(x.fullfill_profit, y.fullfill_profit))))[:top]
+    def rank_by_fulfill_profit(self, top=10):
+        tmp = filter(lambda x: x.fulfill_profit, self.get_queryset())
+        return list(reversed(sorted(tmp, lambda x, y: cmp(x.fulfill_profit, y.fulfill_profit))))[:top]
 
 
 class MyItemInventory(models.Model):
@@ -762,9 +762,9 @@ class MyItemInventory(models.Model):
         return sum(MySalesOrderLineItem.objects.filter(item=self).values_list('qty', flat=True))
     on_so_qty = property(_on_so_qty)
 
-    def _fullfill_profit(self):
-        return sum([x.fullfill_profit for x in MySalesOrderLineItem.objects.filter(item=self) if x.fullfill_profit])
-    fullfill_profit = property(_fullfill_profit)
+    def _fulfill_profit(self):
+        return sum([x.fulfill_profit for x in MySalesOrderLineItem.objects.filter(item=self) if x.fulfill_profit])
+    fulfill_profit = property(_fulfill_profit)
 
 
 class MyItemInventoryPhysicalAudit(models.Model):
@@ -870,17 +870,17 @@ class MySalesOrderCustomManager(models.Manager):
         else:
             return list(sorted(tmp, lambda x, y: cmp(x.qty_balance, y.qty_balance)))[:top]
 
-    def rank_by_fullfill_rate_by_qty(self, top=10, reverse=False):
+    def rank_by_fulfill_rate_by_qty(self, top=10, reverse=False):
         tmp = filter(
-            lambda x: x.fullfill_rate_by_qty and x.fullfill_rate_by_qty < 100, self.get_queryset())
+            lambda x: x.fulfill_rate_by_qty and x.fulfill_rate_by_qty < 100, self.get_queryset())
 
         if reverse:
-            return list(reversed(sorted(tmp, lambda x, y: cmp(x.fullfill_rate_by_qty, y.fullfill_rate_by_qty))))[:top]
+            return list(reversed(sorted(tmp, lambda x, y: cmp(x.fulfill_rate_by_qty, y.fulfill_rate_by_qty))))[:top]
         else:
-            return list(sorted(tmp, lambda x, y: cmp(x.fullfill_rate_by_qty, y.fullfill_rate_by_qty)))[:top]
+            return list(sorted(tmp, lambda x, y: cmp(x.fulfill_rate_by_qty, y.fulfill_rate_by_qty)))[:top]
 
-    def zero_fullfill(self):
-        return filter(lambda x: x.fullfill_rate_by_qty == 0, self.get_queryset())
+    def zero_fulfill(self):
+        return filter(lambda x: x.fulfill_rate_by_qty == 0, self.get_queryset())
 
 
 class MySalesOrder(models.Model):
@@ -921,11 +921,11 @@ class MySalesOrder(models.Model):
 
     def _is_editable(self):
         '''
-        Sales order becomes locked when there has been fullfillment or a payment.
-        Since return is only available when there has been fullfillments, it is
-        sufficient to check fullfillment.
+        Sales order becomes locked when there has been fulfillment or a payment.
+        Since return is only available when there has been fulfillments, it is
+        sufficient to check fulfillment.
         '''
-        return self.total_payment == 0 and self.fullfill_qty == 0
+        return self.total_payment == 0 and self.fulfill_qty == 0
     is_editable = property(_is_editable)
 
     def _life_in_days(self):
@@ -955,42 +955,42 @@ class MySalesOrder(models.Model):
             return ''
     implied_discount = property(_implied_discount)
 
-    def _fullfill_qty(self):
-        return sum([line.fullfill_qty for line in MySalesOrderLineItem.objects.filter(order=self)])
-    fullfill_qty = property(_fullfill_qty)
+    def _fulfill_qty(self):
+        return sum([line.fulfill_qty for line in MySalesOrderLineItem.objects.filter(order=self)])
+    fulfill_qty = property(_fulfill_qty)
 
-    def _fullfill_std_value(self):
-        return sum([line.fullfill_qty * line.price for line in MySalesOrderLineItem.objects.filter(order=self)])
-    fullfill_std_value = property(_fullfill_std_value)
+    def _fulfill_std_value(self):
+        return sum([line.fulfill_qty * line.price for line in MySalesOrderLineItem.objects.filter(order=self)])
+    fulfill_std_value = property(_fulfill_std_value)
 
-    def _fullfill_discount_value(self):
-        return sum([line.fullfill_qty * line.discount_price for line in MySalesOrderLineItem.objects.filter(order=self)])
-    fullfill_discount_value = property(_fullfill_discount_value)
+    def _fulfill_discount_value(self):
+        return sum([line.fulfill_qty * line.discount_price for line in MySalesOrderLineItem.objects.filter(order=self)])
+    fulfill_discount_value = property(_fulfill_discount_value)
 
-    def _fullfill_rate_by_qty(self):
+    def _fulfill_rate_by_qty(self):
         if self.total_qty:
-            return self.fullfill_qty * 100.0 / self.total_qty
+            return self.fulfill_qty * 100.0 / self.total_qty
         else:
             return ''
-    fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
+    fulfill_rate_by_qty = property(_fulfill_rate_by_qty)
 
-    def _fullfill_rate_by_value(self):
+    def _fulfill_rate_by_value(self):
         if self.total_std_value:
-            return self.fullfill_std_value * 100.0 / self.total_std_value
+            return self.fulfill_std_value * 100.0 / self.total_std_value
         else:
             return ''
-    fullfill_rate_by_value = property(_fullfill_rate_by_value)
+    fulfill_rate_by_value = property(_fulfill_rate_by_value)
 
-    def _last_fullfill_date(self):
+    def _last_fulfill_date(self):
         try:
-            return MySalesOrderFullfillment.objects.filter(so=self).order_by('-created_on')[0].created_on
+            return MySalesOrderFulfillment.objects.filter(so=self).order_by('-created_on')[0].created_on
         except:
             return ''
-    last_fullfill_date = property(_last_fullfill_date)
+    last__date = property(_last_fulfill_date)
 
-    def _fullfillments(self):
-        return MySalesOrderFullfillment.objects.filter(so=self).order_by('created_on')
-    fullfillments = property(_fullfillments)
+    def _fulfillments(self):
+        return MySalesOrderFulfillment.objects.filter(so=self).order_by('created_on')
+    fulfillments = property(_fulfillments)
 
     def _discount_in_pcnt(self):
         return '%d%%' % (self.discount * 100)
@@ -1005,7 +1005,7 @@ class MySalesOrder(models.Model):
     total_payment = property(_total_payment)
 
     def _qty_balance(self):
-        return self.total_qty - self.fullfill_qty + self.return_qty
+        return self.total_qty - self.fulfill_qty + self.return_qty
     qty_balance = property(_qty_balance)
 
     def _returns(self):
@@ -1026,9 +1026,9 @@ class MySalesOrder(models.Model):
 
     def _account_receivable(self):
         '''
-        AR is computed by actual fullfilled value instead of what's on order.
+        AR is computed by actual fulfilled value instead of what's on order.
         '''
-        return self.fullfill_discount_value - (self.total_payment)
+        return self.fulfill_discount_value - (self.total_payment)
     account_receivable = property(_account_receivable)
 
     def _vendors(self):
@@ -1048,13 +1048,13 @@ class MySalesOrder(models.Model):
         return self.business_model.process_model == 2 and len(existing) == 0
     is_po_needed = property(_is_po_needed)
 
-    def _fullfill_cost(self):
-        return sum([x.fullfill_cost for x in MySalesOrderLineItem.objects.filter(order=self) if x.fullfill_cost])
-    fullfill_cost = property(_fullfill_cost)
+    def _fulfill_cost(self):
+        return sum([x.fulfill_cost for x in MySalesOrderLineItem.objects.filter(order=self) if x.fulfill_cost])
+    fulfill_cost = property(_fulfill_cost)
 
-    def _fullfill_profit(self):
-        return sum([x.fullfill_profit for x in MySalesOrderLineItem.objects.filter(order=self) if x.fullfill_profit])
-    fullfill_profit = property(_fullfill_profit)
+    def _fulfill_profit(self):
+        return sum([x.fulfill_profit for x in MySalesOrderLineItem.objects.filter(order=self) if x.fulfill_profit])
+    fulfill_profit = property(_fulfill_profit)
 
 
 class MySalesOrderLineItem(models.Model):
@@ -1069,7 +1069,7 @@ class MySalesOrderLineItem(models.Model):
     price = models.FloatField(default=0)
 
     def _is_editable(self):
-        return self.fullfill_qty == 0
+        return self.fulfill_qty == 0
     is_editable = property(_is_editable)
 
     def _std_value(self):
@@ -1091,18 +1091,18 @@ class MySalesOrderLineItem(models.Model):
             return self.std_value * (1 - self.order.discount)
     discount_value = property(_discount_value)
 
-    def _fullfill_qty(self):
-        qty = MySalesOrderFullfillmentLineItem.objects.filter(
-            so_line_item=self).values_list('fullfill_qty', flat=True)
+    def _fulfill_qty(self):
+        qty = MySalesOrderFulfillmentLineItem.objects.filter(
+            so_line_item=self).values_list('fulfill_qty', flat=True)
         return sum(qty) - self.refundable_qty
-    fullfill_qty = property(_fullfill_qty)
+    fulfill_qty = property(_fulfill_qty)
 
-    def _fullfill_rate(self):
-        return self.fullfill_qty / self.qty
-    fullfill_rate = property(_fullfill_rate)
+    def _fulfill_rate(self):
+        return self.fulfill_qty / self.qty
+    fulfill_rate = property(_fulfill_rate)
 
     def _qty_balance(self):
-        return self.qty - self.fullfill_qty
+        return self.qty - self.fulfill_qty
     qty_balance = property(_qty_balance)
 
     def _return_qty(self):
@@ -1117,28 +1117,28 @@ class MySalesOrderLineItem(models.Model):
         return sum(MySalesOrderReturnLineItem.objects.filter(so_line_item=self, reason__is_refundable=True).values_list('return_qty', flat=True))
     refundable_qty = property(_refundable_qty)
 
-    def _fullfill_cost(self):
+    def _fulfill_cost(self):
         cost = self.item.item.converted_cost
         if cost:
-            return self.fullfill_qty * cost
+            return self.fulfill_qty * cost
         else:
             return None
-    fullfill_cost = property(_fullfill_cost)
+    fulfill_cost = property(_fulfill_cost)
 
-    def _fullfill_profit(self):
+    def _fulfill_profit(self):
         cost = self.item.item.converted_cost
         if cost:
             unit_profit = self.discount_price - cost
-            return self.fullfill_qty * unit_profit
+            return self.fulfill_qty * unit_profit
         else:
             return None
-    fullfill_profit = property(_fullfill_profit)
+    fulfill_profit = property(_fulfill_profit)
 
 
-class MySalesOrderFullfillment(models.Model):
+class MySalesOrderFulfillment(models.Model):
 
     '''
-    Fullfillment would require an associated SO.
+    Fulfillment would require an associated SO.
     '''
     so = models.ForeignKey('MySalesOrder')
 
@@ -1150,7 +1150,7 @@ class MySalesOrderFullfillment(models.Model):
         default=None,
         verbose_name=u'创建用户',
         help_text='',
-        related_name="so_fullfillment_loggers"
+        related_name="so_fulfillment_loggers"
     )
     reviewed_on = models.DateField(
         null=True,
@@ -1164,7 +1164,7 @@ class MySalesOrderFullfillment(models.Model):
         default=None,
         verbose_name=u'Reviewer',
         help_text='',
-        related_name='so_fullfillment_reviewers'
+        related_name='so_fulfillment_reviewers'
     )
 
     def __unicode__(self):
@@ -1175,11 +1175,11 @@ class MySalesOrderFullfillment(models.Model):
     code = property(_code)
 
     def _qty(self):
-        return sum([f.fullfill_qty for f in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=self)])
+        return sum([f.fulfill_qty for f in MySalesOrderFulfillmentLineItem.objects.filter(so_fulfillment=self)])
     qty = property(_qty)
 
     def _value(self):
-        return sum([f.fullfill_value for f in MySalesOrderFullfillmentLineItem.objects.filter(so_fullfillment=self)])
+        return sum([f.fulfill_value for f in MySalesOrderFulfillmentLineItem.objects.filter(so_fulfillment=self)])
     value = property(_value)
 
     def _is_editable(self):
@@ -1187,24 +1187,24 @@ class MySalesOrderFullfillment(models.Model):
     is_editable = property(_is_editable)
 
 
-class MySalesOrderFullfillmentLineItem(models.Model):
-    so_fullfillment = models.ForeignKey('MySalesOrderFullfillment')
+class MySalesOrderFulfillmentLineItem(models.Model):
+    so_fulfillment = models.ForeignKey('MySalesOrderFulfillment')
     so_line_item = models.ForeignKey('MySalesOrderLineItem')
-    fullfill_qty = models.IntegerField(
+    fulfill_qty = models.IntegerField(
         default=0,
         validators=[MinValueValidator(0), ]
     )
 
-    def _fullfill_value(self):
-        return self.fullfill_qty * self.so_line_item.price
-    fullfill_value = property(_fullfill_value)
+    def _fulfill_value(self):
+        return self.fulfill_qty * self.so_line_item.price
+    fulfill_value = property(_fulfill_value)
 
     def _max_qty(self):
         '''
         If to edit this record, max_qty holds the current max qty balance including
-        what is currently saved in this recorded as fullfilled.
+        what is currently saved in this recorded as fulfilled.
         '''
-        return self.so_line_item.qty_balance + self.fullfill_qty
+        return self.so_line_item.qty_balance + self.fulfill_qty
     max_qty = property(_max_qty)
 
 ###################################################
@@ -1307,7 +1307,7 @@ class MySalesOrderReturnLineItem(models.Model):
     credit = models.FloatField(default=0)
 
     def _max_qty(self):
-        return self.so_line_item.fullfill_qty + self.return_qty
+        return self.so_line_item.fulfill_qty + self.return_qty
     max_qty = property(_max_qty)
 
 ###################################################
@@ -1455,30 +1455,30 @@ class MyPurchaseOrder(models.Model):
         return sum(filter(lambda x: x is not None, [item.value for item in self.line_items]))
     order_value = property(_order_value)
 
-    def _fullfill_qty(self):
-        return sum([x.fullfill_qty for x in MyPOFullfillment.objects.filter(po=self)])
-    fullfill_qty = property(_fullfill_qty)
+    def _fulfill_qty(self):
+        return sum([x.fulfill_qty for x in MyPOFulfillment.objects.filter(po=self)])
+    fulfill_qty = property(_fulfill_qty)
 
-    def _fullfill_value(self):
-        return sum([x.fullfill_value for x in MyPOFullfillment.objects.filter(po=self)])
-    fullfill_value = property(_fullfill_value)
+    def _fulfill_value(self):
+        return sum([x.fulfill_value for x in MyPOFulfillment.objects.filter(po=self)])
+    fulfill_value = property(_fulfill_value)
 
-    def _fullfill_rate_by_qty(self):
+    def _fulfill_rate_by_qty(self):
         if self.order_qty:
-            return self.fullfill_qty * 100.0 / self.order_qty
+            return self.fulfill_qty * 100.0 / self.order_qty
         else:
             return 0
-    fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
+    fulfill_rate_by_qty = property(_fulfill_rate_by_qty)
 
-    def _fullfill_rate_by_value(self):
+    def _fulfill_rate_by_value(self):
         if self.order_value:
-            return self.fullfill_value * 100.0 / self.order_value
+            return self.fulfill_value * 100.0 / self.order_value
         else:
             return 0
-    fullfill_rate_by_value = property(_fullfill_rate_by_value)
+    fulfill_rate_by_value = property(_fulfill_rate_by_value)
 
     def _account_payable(self):
-        return self.order_value - self.fullfill_value
+        return self.order_value - self.fulfill_value
     account_payable = property(_account_payable)
 
 
@@ -1510,30 +1510,30 @@ class MyPurchaseOrderLineItem(models.Model):
             return None
     value = property(_value)
 
-    def _fullfill_qty(self):
-        return sum(MyPOFullfillmentLineItem.objects.filter(po_line_item=self).values_list('fullfill_qty', flat=True))
-    fullfill_qty = property(_fullfill_qty)
+    def _fulfill_qty(self):
+        return sum(MyPOFulfillmentLineItem.objects.filter(po_line_item=self).values_list('fulfill_qty', flat=True))
+    fulfill_qty = property(_fulfill_qty)
 
-    def _fullfill_value(self):
-        return sum([x.fullfill_value for x in MyPOFullfillmentLineItem.objects.filter(po_line_item=self)])
-    fullfill_value = property(_fullfill_value)
+    def _fulfill_value(self):
+        return sum([x.fulfill_value for x in MyPOFulfillmentLineItem.objects.filter(po_line_item=self)])
+    fulfill_value = property(_fulfill_value)
 
-    def _fullfill_rate_by_qty(self):
-        return self.fullfill_qty / self.qty * 100
-    fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
+    def _fulfill_rate_by_qty(self):
+        return self.fulfill_qty / self.qty * 100
+    fulfill_rate_by_qty = property(_fulfill_rate_by_qty)
 
-    def _fullfill_rate_by_value(self):
+    def _fulfill_rate_by_value(self):
         if self.value:
-            return self.fullfill_value / self.value
+            return self.fulfill_value / self.value
         else:
             return ''
-    fullfill_rate_by_value = property(_fullfill_rate_by_value)
+    fulfill_rate_by_value = property(_fulfill_rate_by_value)
 
 
-class MyPOFullfillment(models.Model):
+class MyPOFulfillment(models.Model):
 
     '''
-    Fullfillment would require an associated PO.
+    Fulfillment would require an associated PO.
     '''
     po = models.ForeignKey('MyPurchaseOrder')
 
@@ -1545,7 +1545,7 @@ class MyPOFullfillment(models.Model):
         default=None,
         verbose_name=u'创建用户',
         help_text='',
-        related_name="po_fullfillment_loggers"
+        related_name="po_fulfillment_loggers"
     )
     reviewed_on = models.DateField(
         null=True,
@@ -1559,7 +1559,7 @@ class MyPOFullfillment(models.Model):
         default=None,
         verbose_name=u'Reviewer',
         help_text='',
-        related_name='po_fullfillment_reviewers'
+        related_name='po_fulfillment_reviewers'
     )
 
     invoices = models.ManyToManyField('MyInvoice')
@@ -1572,38 +1572,38 @@ class MyPOFullfillment(models.Model):
     code = property(_code)
 
     def _qty(self):
-        return sum(MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self).values_list('fullfill_qty', flat=True))
+        return sum(MyPOFulfillmentLineItem.objects.filter(po_fulfillment=self).values_list('fulfill_qty', flat=True))
     qty = property(_qty)
 
     def _value(self):
-        return sum([f.fullfill_value for f in MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self)])
+        return sum([f.fulfill_value for f in MyPOFulfillmentLineItem.objects.filter(po_fulfillment=self)])
     value = property(_value)
 
     def _is_editable(self):
         return self.reviewed_on is None
     is_editable = property(_is_editable)
 
-    def _fullfill_qty(self):
-        return sum(MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self).values_list('fullfill_qty', flat=True))
-    fullfill_qty = property(_fullfill_qty)
+    def _fulfill_qty(self):
+        return sum(MyPOFulfillmentLineItem.objects.filter(po_fulfillment=self).values_list('fulfill_qty', flat=True))
+    fulfill_qty = property(_fulfill_qty)
 
-    def _fullfill_value(self):
-        return sum([x.fullfill_value for x in MyPOFullfillmentLineItem.objects.filter(po_fullfillment=self)])
-    fullfill_value = property(_fullfill_value)
+    def _fulfill_value(self):
+        return sum([x.fulfill_value for x in MyPOFulfillmentLineItem.objects.filter(po_fulfillment=self)])
+    fulfill_value = property(_fulfill_value)
 
 
-class MyPOFullfillmentLineItem(models.Model):
-    po_fullfillment = models.ForeignKey('MyPOFullfillment')
+class MyPOFulfillmentLineItem(models.Model):
+    po_fulfillment = models.ForeignKey('MyPOFulfillment')
     po_line_item = models.ForeignKey('MyPurchaseOrderLineItem')
-    fullfill_qty = models.IntegerField(
+    fulfill_qty = models.IntegerField(
         default=0,
         validators=[MinValueValidator(0), ]
     )
     invoice = models.ForeignKey('MyInvoice')
 
-    def _fullfill_value(self):
-        return self.fullfill_qty * self.po_line_item.price
-    fullfill_value = property(_fullfill_value)
+    def _fulfill_value(self):
+        return self.fulfill_qty * self.po_line_item.price
+    fulfill_value = property(_fulfill_value)
 
 ###################################################
 #
@@ -1670,7 +1670,7 @@ class MyInvoice(models.Model):
     is_editable = property(_is_editable)
 
     def _is_receivable(self):
-        return self.is_editable and self.qty_balance_items_fullfill > 0
+        return self.is_editable and self.qty_balance_items_fulfill > 0
     is_receivable = property(_is_receivable)
 
     def _discount_value(self):
@@ -1703,51 +1703,51 @@ class MyInvoice(models.Model):
         return self.items_value - self.discount_value
     value_delta = property(_value_delta)
 
-    def _fullfill_qty(self):
-        return sum([x.fullfill_qty for x in MyInvoiceItem.objects.filter(invoice=self)])
-    fullfill_qty = property(_fullfill_qty)
+    def _fulfill_qty(self):
+        return sum([x.fulfill_qty for x in MyInvoiceItem.objects.filter(invoice=self)])
+    fulfill_qty = property(_fulfill_qty)
 
-    def _fullfill_value(self):
-        return sum([x.fullfill_value for x in MyInvoiceItem.objects.filter(invoice=self)])
-    fullfill_value = property(_fullfill_value)
+    def _fulfill_value(self):
+        return sum([x.fulfill_value for x in MyInvoiceItem.objects.filter(invoice=self)])
+    fulfill_value = property(_fulfill_value)
 
-    def _qty_balance_invoice_fullfill(self):
-        # diff between entered invoice qty vs. line item fullfill
-        return self.qty - self.fullfill_qty
+    def _qty_balance_invoice_fulfill(self):
+        # diff between entered invoice qty vs. line item fulfill
+        return self.qty - self.fulfill_qty
 
-    def _value_balance_invoice_fullfill(self):
-        # diff between entered invoice value vs. line item fullfill
-        return self.discount_value - self.fullfill_value
+    def _value_balance_invoice_fulfill(self):
+        # diff between entered invoice value vs. line item fulfill
+        return self.discount_value - self.fulfill_value
 
-    def _qty_balance_items_fullfill(self):
-        # diff between line item qty vs. fullfill
-        return self.items_qty - self.fullfill_qty
-    qty_balance_items_fullfill = property(_qty_balance_items_fullfill)
+    def _qty_balance_items_fulfill(self):
+        # diff between line item qty vs. fulfill
+        return self.items_qty - self.fulfill_qty
+    qty_balance_items_fulfill = property(_qty_balance_items_fulfill)
 
-    def _value_balance_items_fullfill(self):
-        # diff between line item value vs. fullfill
-        return self.items - self.fullfill_value
-    value_balance_items_fullfill = property(_value_balance_items_fullfill)
+    def _value_balance_items_fulfill(self):
+        # diff between line item value vs. fulfill
+        return self.items - self.fulfill_value
+    value_balance_items_fulfill = property(_value_balance_items_fulfill)
 
-    def _fullfill_rate_by_invoice_qty(self):
-        return self.fullfill_qty * 100.0 / self.qty
-    fullfill_rate_by_invoice_qty = property(_fullfill_rate_by_invoice_qty)
+    def _fulfill_rate_by_invoice_qty(self):
+        return self.fulfill_qty * 100.0 / self.qty
+    fulfill_rate_by_invoice_qty = property(_fulfill_rate_by_invoice_qty)
 
-    def _fullfill_rate_by_invoice_value(self):
-        return self.fullfill_value * 100.0 / self.discount_value
-    fullfill_rate_by_invoice_value = property(_fullfill_rate_by_invoice_value)
+    def _fulfill_rate_by_invoice_value(self):
+        return self.fulfill_value * 100.0 / self.discount_value
+    fulfill_rate_by_invoice_value = property(_fulfill_rate_by_invoice_value)
 
-    def _fullfill_rate_by_items_qty(self):
-        return self.fullfill_qty * 100.0 / self.items_qty
-    fullfill_rate_by_items_qty = property(_fullfill_rate_by_items_qty)
+    def _fulfill_rate_by_items_qty(self):
+        return self.fulfill_qty * 100.0 / self.items_qty
+    fulfill_rate_by_items_qty = property(_fulfill_rate_by_items_qty)
 
-    def _fullfill_rate_by_items_value(self):
-        return self.fullfill_value * 100.0 / self.items_value
-    fullfill_rate_by_items_value = property(_fullfill_rate_by_items_value)
+    def _fulfill_rate_by_items_value(self):
+        return self.fulfill_value * 100.0 / self.items_value
+    fulfill_rate_by_items_value = property(_fulfill_rate_by_items_value)
 
-    def _fullfillments(self):
+    def _fulfillments(self):
         return MyInvoiceReceive.objects.filter(invoice=self)
-    fullfillments = property(_fullfillments)
+    fulfillments = property(_fulfillments)
 
 
 class MyInvoiceItem(models.Model):
@@ -1778,31 +1778,31 @@ class MyInvoiceItem(models.Model):
             return None
     value = property(_value)
 
-    def _fullfill_qty(self):
+    def _fulfill_qty(self):
         return sum(MyInvoiceReceiveItem.objects.filter(item=self).values_list('qty', flat=True))
-    fullfill_qty = property(_fullfill_qty)
+    fulfill_qty = property(_fulfill_qty)
 
-    def _fullfill_value(self):
+    def _fulfill_value(self):
         return sum([x.value for x in MyInvoiceReceiveItem.objects.filter(item=self)])
-    fullfill_value = property(_fullfill_value)
+    fulfill_value = property(_fulfill_value)
 
-    def _fullfill_rate_by_qty(self):
-        return self.fullfill_qty * 100.0 / self.qty
-    fullfill_rate_by_qty = property(_fullfill_rate_by_qty)
+    def _fulfill_rate_by_qty(self):
+        return self.fulfill_qty * 100.0 / self.qty
+    fulfill_rate_by_qty = property(_fulfill_rate_by_qty)
 
-    def _fullfill_rate_by_value(self):
+    def _fulfill_rate_by_value(self):
         if self.value:
-            return self.fullfill_value * 100.0 / self.value
+            return self.fulfill_value * 100.0 / self.value
         else:
             return None
-    fullfill_rate_by_value = property(_fullfill_rate_by_value)
+    fulfill_rate_by_value = property(_fulfill_rate_by_value)
 
     def _qty_balance(self):
-        return self.qty - self.fullfill_qty
+        return self.qty - self.fulfill_qty
     qty_balance = property(_qty_balance)
 
     def _is_editable(self):
-        return self.fullfill_qty == 0
+        return self.fulfill_qty == 0
     is_editable = property(_is_editable)
 
 

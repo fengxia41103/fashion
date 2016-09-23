@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block page-header %}
-	Edit PO FULLFILLMENT {{ object.code }}
+	Edit PO FULFILLMENT {{ object.code }}
 	{% if not object.is_editable %}
 		<i class="fa fa-lock"></i>
 	{% endif %}
@@ -113,7 +113,7 @@
 		<th>COST</th>		
 		<th>SIZE</th>
 		<th>ORDER QTY</th>
-		<th>FULLFILLING QTY</th>
+		<th>FULFILLING QTY</th>
 		<th>FROM INVOICE</th>
 	</thead>
 
@@ -195,7 +195,7 @@
 {% endblock %}
 
 {% block modal %}
-{# Delete SO FULLFILL modal #}
+{# Delete SO FULFILL modal #}
 <div id="po-fulfill-delete" class="modal fade" role="dialog">
 <div class="modal-dialog">
 <form action="{% url 'po_fulfill_delete' object.id %}" method="POST">

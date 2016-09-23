@@ -986,7 +986,7 @@ class MySalesOrder(models.Model):
             return MySalesOrderFulfillment.objects.filter(so=self).order_by('-created_on')[0].created_on
         except:
             return ''
-    last__date = property(_last_fulfill_date)
+    last_fulfill_date = property(_last_fulfill_date)
 
     def _fulfillments(self):
         return MySalesOrderFulfillment.objects.filter(so=self).order_by('created_on')

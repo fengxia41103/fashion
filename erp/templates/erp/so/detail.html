@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block page-header %}
-	销售订单: {{ object.code }}
+	Sales order: {{ object.code }}
 	{% if not object.is_editable %}
 		<i class="fa fa-lock"></i>
 	{% endif %}
@@ -507,7 +507,8 @@ Related payments
 	</tbody>
 </table>
 {% endif %}
-{% endblock %}{# end block content #}
+{% endblock %}
+{# end block content #}
 
 {% block modal %}
 {# SO edit modal #}

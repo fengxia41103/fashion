@@ -1,10 +1,10 @@
 {% extends "erp/common/base.html" %}
 
 {% block page-header %}
-	采购订单: {{ object.code }}
+	Purchase order: {{ object.code }}
 	{% if not object.is_editable %}
 		<i class="fa fa-lock"></i>
-	{% endif %}	
+	{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
 		data-toggle="modal" data-target="#po-edit">
 			<i class='fa fa-pencil'></i>
 			Edit
-		</button>				
+		</button>
 		<button class="btn btn-small btn-danger"
 		data-toggle="modal" data-target="#po-delete">
 			<i class='fa fa-pencil'></i>
@@ -24,7 +24,7 @@
 		data-toggle="modal" data-target="#po-place">
 			<i class='fa fa-pencil'></i>
 			Place order
-		</button>		
+		</button>
 
 	{% else %}
 		<button class="btn btn-small my-command-btn">
@@ -32,7 +32,7 @@
 				<i class='fa fa-pencil'></i>
 				Save a {{object.vendor}} invoice
 			</a>
-		</button>		
+		</button>
 	{% endif %}
 
 </div>
@@ -47,7 +47,7 @@
 		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Created on</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.created_on }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row ">
 		<div class="col-md-2"><label>Associated SO</label></div>
 		<div class="col-md-3 my-sf-display-border">
@@ -60,7 +60,7 @@
 		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Total QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">{{ object.order_qty|floatformat:0 }}</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row ">
 		<div class="col-md-2"><label>Total line items</label></div>
 		<div class="col-md-3 my-sf-display-border">
@@ -71,13 +71,13 @@
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.vendor.currency}}{{ object.order_value|floatformat:2 }}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row ">
 		<div class="col-md-2"><label>In Currency</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.vendor.currency.name }}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Order placed on</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{% if object.placed_on %}
@@ -86,7 +86,7 @@
 				&nbsp;
 			{% endif %}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div>
 	</div>
 </div>
@@ -99,23 +99,23 @@
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.fulfill_qty }}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Fulfill value</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.fulfill_value|floatformat:2 }}
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div><div class="row ">
 		<div class="col-md-2"><label>Fulfill rate by QTY</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.fulfill_rate_by_qty|floatformat:2 }}%
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 		<div class="col-md-2"><label>Fulfill rate by value</label></div>
 		<div class="col-md-3 my-sf-display-border">
 			{{ object.fulfill_rate_by_value|floatformat:2 }}%
 		</div>
-		<div class="col-md-1"></div>		
+		<div class="col-md-1"></div>
 	</div>
 	</div>
 </div>
@@ -149,7 +149,7 @@
 		</td><td>
 			{{ inv_item.size }}
 		</td><td>
-			{{ object.vendor.currency }}{{ line_item.price|floatformat:2 }}			
+			{{ object.vendor.currency }}{{ line_item.price|floatformat:2 }}
 		</td><td>
 			{{ line_item.qty }}
 		</td><td>
@@ -226,7 +226,7 @@ Fulfillment details
 <div class="modal-dialog">
 <form action="{% url 'po_place' object.id %}" method="POST">
 	{% csrf_token %}
-	
+
     <!-- Modal content-->
     <div class="modal-content">
 		{# Modal header #}
@@ -236,7 +236,7 @@ Fulfillment details
 		</div>
 
 	    {# Modal body #}
-	    <div class="modal-body">			
+	    <div class="modal-body">
 	    	<p>
 			This will send order to {{ object.vendor }}. Depending on your term with {{object.vendor}}, you may not be able to recall this order and thus have a responsibility to
 			make proper payment to this vendor.
@@ -252,7 +252,7 @@ Fulfillment details
 			<button class="btn btn-primary"  type="submit">
 				<i class="fa fa-lock"></i>
 				<span>Yes</span>
-			</button>      
+			</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
 		</div>
 	</div>

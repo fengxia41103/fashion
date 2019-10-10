@@ -4,243 +4,288 @@
 {% load static %}
 {% block page-header %}
 <ol class="breadcrumb">
-  	<li><a href="{% url 'season_list' %}"
-		<i class="fa fa-list-ul"></i>
-		ALL
-	</a></li>
-  	<li><a href="{% url 'season_detail' object.season.id %}">{{ object.season }}</a></li>
-  	<li>
-  		<a href="{%url 'item_list_by_vendor' object.season.id object.brand.id %}">
-  		{{ object.brand }}</a>
-  	</li>
-  	<li class="active">
-  		{{ object.product_id }}
-	</li>
+  <li>
+    <a href="{% url 'season_list' %}"
+      <i class="fa fa-list-ul"></i>
+      ALL
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'season_detail' object.season.id %}">
+      {{ object.season }}
+    </a>
+  </li>
+  <li>
+    <a href="{%url 'item_list_by_vendor' object.season.id object.brand.id %}">
+      {{ object.brand }}
+    </a>
+  </li>
+  <li class="active">
+    {{ object.product_id }}
+  </li>
 </ol>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-2">
-		<ul class="list-inline">
-		{% for img in object.attachments.all %}
-			<li>
-				<img src="{{ img.file.url }}"
-				data-type="attachment-thumbnail" class="img-responsive img-thumbnail"
-				style="width:100px;height:100px;">
-				{% if user.is_superuser %}
-					<a href="{% url 'attachment_delete' img.id %}">
-					<i class="fa fa-trash"></i></a>
-				{% endif %}
-			</li>
-		{% endfor %}
+  <div class="col-md-2">
+    <ul class="list-inline">
+      {% for img in object.attachments.all %}
+      <li>
+	<img src="{{ img.file.url }}"
+             data-type="attachment-thumbnail"
+             class="img-responsive img-thumbnail"
+             style="width:100px;height:100px;">
 
-		{% if user.is_superuser %}
-			<li>
-				<img src="{% static "images/upload.png" %}"
-				title="Add more images"
-				data-type="attachment-thumbnail" class="img-responsive img-thumbnail"
-				style="width:100px;height:100px;opacity: 0.2;"
-				data-toggle="modal" data-target="#upload-form">
-			</li>
-		{% endif %}
-		</ul>
-	</div>
-	<div class="col-md-5">
-		{% with object.attachments.all|first as img %}
-			<a href="{{ img.file.url }}" data-lightbox="{{ object}}" data-title="{{ object }}" data-toggle="lightbox">
-				<img src="{{img.file.url}}" class="img-responsive center-block"
-				style="margin-bottom:20px;">
-			</a>
-			<p>{{ img.description }}</p>
-		{% endwith %}
-	</div>
+        {% if user.is_superuser %}
+	<a href="{% url 'attachment_delete' img.id %}">
+	  <i class="fa fa-trash"></i></a>
+	{% endif %}
+      </li>
+      {% endfor %}
 
-	<div class="col-md-5">
-		{% if user.is_superuser %}
-			<a href="{% url 'item_edit' object.id %}">
-				<i class="fa fa-pencil"></i>
-				Edit
-			</a>
+      {% if user.is_superuser %}
+      <li>
+	<img src="{% static "images/upload.png" %}"
+             title="Add more images"
+             data-type="attachment-thumbnail"
+             class="img-responsive img-thumbnail"
+             style="width:100px;height:100px;opacity: 0.2;"
+             data-toggle="modal"
+             data-target="#upload-form">
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+  <div class="col-md-5">
+    {% with object.attachments.all|first as img %}
+    <a href="{{ img.file.url }}"
+       data-lightbox="{{ object}}"
+       data-title="{{ object }}"
+       data-toggle="lightbox">
+      <img src="{{img.file.url}}"
+           class="img-responsive center-block"
+           style="margin-bottom:20px;">
+    </a>
+    <p>{{ img.description }}</p>
+    {% endwith %}
+  </div>
 
-			{# Create vendor item #}
-			<a data-toggle="modal" data-target="#new_vendor_item">
-				<i class='fa fa-pencil'></i>
-				Add vendor
-			</a>
-		{% endif %}
+  <div class="col-md-5">
+    {% if user.is_superuser %}
+    <a href="{% url 'item_edit' object.id %}">
+      <i class="fa fa-pencil"></i>
+      Edit
+    </a>
 
-		{# barcode #}
-		<img class="text-right" id="barcode">
+    {# Create vendor item #}
+    <a data-toggle="modal"
+       data-target="#new_vendor_item">
+      <i class='fa fa-pencil'></i>
+      Add vendor
+    </a>
+    {% endif %}
 
-		<h1 style="font-weight:bold;font-size:40px;">{{ object.name|upper }}</h1>
-		<p><span class="item-label">CODE:</span>{{ object.code }}</p>
+    {# barcode #}
+    <img class="text-right" id="barcode">
 
-		{# Price #}
-		<p class="item-style">
-			{{object.currency}} {{ object.price|floatformat:0 }}
-			{% if user.is_superuser %}
-				<span class="pull-right">x {{ object.multiplier|floatformat:2 }}</span>
-			{% endif %}
-		</p>
+    <h1 style="font-weight:bold;font-size:40px;">
+      {{ object.name|upper }}
+    </h1>
+    <p>
+      <span class="item-label">
+        CODE:
+      </span>
+      {{ object.code }}
+    </p>
 
-		{# Available colors #}
-		<span class="item-label">COLOR:</span><span class="item-value">{{ object.color }}</span>
+    {# Price #}
+    <p class="item-style">
+      {{object.currency}} {{ object.price|floatformat:0 }}
+      {% if user.is_superuser %}
+      <span class="pull-right">
+        x {{ object.multiplier|floatformat:2 }}
+      </span>
+      {% endif %}
+    </p>
 
-		{# Sizes #}
-		<div style="margin-top:20px;">
-			<p><span class="item-label">SIZE SELECTION</span>:
-			</p>
+    {# Available colors #}
+    <span class="item-label">
+      COLOR:
+    </span>
+    <span class="item-value">
+      {{ object.color }}
+    </span>
 
-			<ul class="list-inline" id="size-chart">
-				{% for item_inv in object.myiteminventory_set.all %}
-					{% if item_inv.is_so_ready %}
-						<li data-object="{{ item_inv.id }}">
-							<span class="item-size text-center" data-toggle="tooltip" title="{{ item_inv.theoretical }} in stock" disabled="disabled">
-								{{ item_inv.size }}
-							</span>
-						</li>
-					{% endif %}
-				{% endfor %}
-			</ul>
-		</div>
+    {# Sizes #}
+    <div style="margin-top:20px;">
+      <p>
+        <span class="item-label">
+          SIZE SELECTION
+        </span>:
+      </p>
 
-		{# QTY #}
-		<p><span class="item-label">QTY:</span></p>
-		<select class="my-select" id="qty">
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>
-		</select>
+      <ul class="list-inline" id="size-chart">
+	{% for item_inv in object.myiteminventory_set.all %}
+	{% if item_inv.is_so_ready %}
+	<li data-object="{{ item_inv.id }}">
+	  <span class="item-size text-center"
+                data-toggle="tooltip"
+                title="{{ item_inv.theoretical }} in stock"
+                disabled="disabled">
+	    {{ item_inv.size }}
+	  </span>
+	</li>
+	{% endif %}
+	{% endfor %}
+      </ul>
+    </div>
 
-		<div>
-			<button class="btn btn-default"
-			data-toggle="modal" data-target="#select-cart"
-			id="btn-add-to-shopping-cart">
-				Add to order
-				<i class='fa fa-briefcase'></i>
-			</button>
-		</div>
+    {# QTY #}
+    <p><span class="item-label">QTY:</span></p>
+    <select class="my-select" id="qty">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+    </select>
 
-		{# Related colors, same style #}
-		<div>
-			<h4 class="page-header">Available In Colors</h4>
-			<ul class="list-inline">
-			{% for style in same_styles %}
-				<li>
-					<a href="{% url 'item_detail' style.id %}">
-						<img src="{{ style.attachments.all.0.file.url }}"
-						title="{{ style.product_id }}"
-						data-toggle="tooltip"
-						style="width:35px;height:35px;">
-						{{ style.color }}
-					</a>
-				</li>
-			{% endfor %}
-			</ul>
+    <div>
+      <button class="btn btn-default"
+              data-toggle="modal"
+              data-target="#select-cart"
+              id="btn-add-to-shopping-cart">
+	Add to order
+	<i class='fa fa-briefcase'></i>
+      </button>
+    </div>
 
-			{# Vendor item info #}
-			{% if user.is_superuser and vendor_items %}
-			<h4 class="page-header">Available From</h4>
-			{% for vendor_item in vendor_items %}
-				<p class="flabel"><span class="item-label">{{ vendor_item.vendor }} </span>:
-					{{vendor_item.currency }} {{ vendor_item.price|floatformat:2 }}
-					<a href="{% url 'vendor_item_delete' vendor_item.id %}">
-						<i class="glyphicon glyphicon-remove my-filter-value-close"></i>
-					</a>
-				</p>
-			{% endfor %}
-			{% endif %}
-		</div>
-	</div>
+    {# Related colors, same style #}
+    <div>
+      <h4 class="page-header">
+        Available In Colors
+      </h4>
+      <ul class="list-inline">
+	{% for style in same_styles %}
+	<li>
+	  <a href="{% url 'item_detail' style.id %}">
+	    <img src="{{ style.attachments.all.0.file.url }}"
+                 title="{{ style.product_id }}"
+                 data-toggle="tooltip"
+                 style="width:35px;height:35px;">
+	    {{ style.color }}
+	  </a>
+	</li>
+	{% endfor %}
+      </ul>
+
+      {# Vendor item info #}
+      {% if user.is_superuser and vendor_items %}
+      <h4 class="page-header">
+        Available From
+      </h4>
+
+      {% for vendor_item in vendor_items %}
+      <p class="flabel">
+        <span class="item-label">
+          {{ vendor_item.vendor }}
+        </span>:
+	{{vendor_item.currency }} {{ vendor_item.price|floatformat:2 }}
+	<a href="{% url 'vendor_item_delete' vendor_item.id %}">
+	  <i class="glyphicon glyphicon-remove my-filter-value-close"></i>
+	</a>
+      </p>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 {% if related_sales_orders %}
 {# Related SO Section #}
 <div class="row">
-<h2 class="page-header">
-<i class="fa fa-book"></i>
-Related Sales Orders
-</h2>
-<table class="table table-striped table-hover table-responsive">
-	<thead>
-		<th>#</th>
-		<th>CUSTOMER</th>
-		<th>FULFILLED BY</th>
-		<th>SALES TYPE</th>
-		<th>DISCOUNT</th>
-		<th>ON ORDER QTY</th>
-		<th>ON ORDER VALUE</th>
-	</thead>
-	<tbody>
-	{% for line_item in related_sales_orders %}
-		{% with line_item.order as so %}
-		<tr><td>
-			<a href="{% url 'so_detail' so.id %}">{{ so.code }}
-			{% if not so.is_editable %}
-				<i class="fa fa-lock"></i>
-			{% endif %}
-			</a>
-		</td><td>
-			{{ so.customer }}
-		</td><td>
-			{{ so.default_storage }}
-		</td><td>
-			{{ so.business_model }}
-		</td><td>
-			{{ so.discount_in_pcnt }}
-		</td><td>
-			{{ line_item.qty }}
-		</td><td>
-			{{ line_item.discount_value|floatformat:2 }}
-		</td></tr>
-		{% endwith %}
-	{% endfor %}
-	</tbody>
-</table>
+  <h2 class="page-header">
+    <i class="fa fa-book"></i>
+    Related Sales Orders
+  </h2>
+  <table class="table table-striped table-hover table-responsive">
+    <thead>
+      <th>#</th>
+      <th>CUSTOMER</th>
+      <th>FULFILLED BY</th>
+      <th>SALES TYPE</th>
+      <th>DISCOUNT</th>
+      <th>ON ORDER QTY</th>
+      <th>ON ORDER VALUE</th>
+    </thead>
+    <tbody>
+      {% for line_item in related_sales_orders %}
+      {% with line_item.order as so %}
+      <tr><td>
+	<a href="{% url 'so_detail' so.id %}">{{ so.code }}
+	  {% if not so.is_editable %}
+	  <i class="fa fa-lock"></i>
+	  {% endif %}
+	</a>
+      </td><td>
+	{{ so.customer }}
+      </td><td>
+	{{ so.default_storage }}
+      </td><td>
+	{{ so.business_model }}
+      </td><td>
+	{{ so.discount_in_pcnt }}
+      </td><td>
+	{{ line_item.qty }}
+      </td><td>
+	{{ line_item.discount_value|floatformat:2 }}
+      </td></tr>
+      {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endif %}
 
 {% if related_purchase_orders %}
 {# Related PO Section #}
 <div class="row">
-<h2 class="page-header">
-<i class="fa fa-book"></i>
-Related Purchase Orders
-</h2>
-<table class="table table-striped table-hover table-responsive">
-	<thead>
-		<th>#</th>
-		<th>VENDOR</th>
-		<th>ON ORDER QTY</th>
-		<th>ON ORDER VALUE</th>
-		<th>AVAILABILITY</th>
-	</thead>
-	<tbody>
-		{% for line_item in related_purchase_orders %}
-		{% with line_item.po as po %}
-		<tr><td>
-			<a href="{% url 'po_detail' po.id %}">{{ po.code }}
-			{% if not po.is_editable %}
-				<i class="fa fa-lock"></i>
-			{% endif %}
-			</a>
-		</td><td>
-			{{ po.vendor }}
-		</td><td>
-			{{ line_item.qty }}
-		</td><td>
-			{{ po.vendor.currency }}{{ line_item.value|floatformat:2 }}
-		</td><td>
-			{{ po.available_in}}
-		</td></tr>
-		{% endwith %}
-		{% endfor %}
-	</tbody>
-</table>
+  <h2 class="page-header">
+    <i class="fa fa-book"></i>
+    Related Purchase Orders
+  </h2>
+  <table class="table table-striped table-hover table-responsive">
+    <thead>
+      <th>#</th>
+      <th>VENDOR</th>
+      <th>ON ORDER QTY</th>
+      <th>ON ORDER VALUE</th>
+      <th>AVAILABILITY</th>
+    </thead>
+    <tbody>
+      {% for line_item in related_purchase_orders %}
+      {% with line_item.po as po %}
+      <tr><td>
+	<a href="{% url 'po_detail' po.id %}">{{ po.code }}
+	  {% if not po.is_editable %}
+	  <i class="fa fa-lock"></i>
+	  {% endif %}
+	</a>
+      </td><td>
+	{{ po.vendor }}
+      </td><td>
+	{{ line_item.qty }}
+      </td><td>
+	{{ po.vendor.currency }}{{ line_item.value|floatformat:2 }}
+      </td><td>
+	{{ po.available_in}}
+      </td></tr>
+      {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endif %}
 {% endblock %}
@@ -252,7 +297,7 @@ Related Purchase Orders
 
     <!-- Modal content-->
     <div class="modal-content">
-    	{# Modal header #}
+      {# Modal header #}
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title">Upload images</h4>
@@ -260,15 +305,15 @@ Related Purchase Orders
 
       {# Modal body #}
       <div class="modal-body">
-		<form id="fileupload" action="{% url 'item_attachment_add' object.id %}" method="POST" enctype="multipart/form-data">
-			{% csrf_token %}
-			{{ attachment_form|crispy }}
+	<form id="fileupload" action="{% url 'item_attachment_add' object.id %}" method="POST" enctype="multipart/form-data">
+	  {% csrf_token %}
+	  {{ attachment_form|crispy }}
 
-			<button type="submit" class="btn btn-primary start">
-				<i class="fa fa-upload"></i>
-				<span>Start upload</span>
-			</button>
-		</form>
+	  <button type="submit" class="btn btn-primary start">
+	    <i class="fa fa-upload"></i>
+	    <span>Start upload</span>
+	  </button>
+	</form>
       </div>
 
       {# Modal footer #}
@@ -286,7 +331,7 @@ Related Purchase Orders
     <!-- Modal content-->
     <div class="modal-content">
 
-    	{# Modal header #}
+      {# Modal header #}
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title">Add product to order</h4>
@@ -294,54 +339,54 @@ Related Purchase Orders
 
       {# Modal body #}
       <div class="modal-body">
-			{% csrf_token %}
+	{% csrf_token %}
 
-			<h5 class="my-section-header">Select an order</h5>
-			<div class="row">
-				<input name="item-inv" id="item-inv" val="" type="hidden">
-				<input name="qty" id="selected-qty" val="" type="hidden">
-				<div class="col-md-5">
+	<h5 class="my-section-header">Select an order</h5>
+	<div class="row">
+	  <input name="item-inv" id="item-inv" val="" type="hidden">
+	  <input name="qty" id="selected-qty" val="" type="hidden">
+	  <div class="col-md-5">
 
-					<select class="my-select" name="so" id="so">
-						{% for so in sales_orders %}
-						<option value="{{ so.id }}">{{ so }}</option>
-						{% endfor %}
-					</select>
-				</div>
-				<div class="col-md-1"></div>
-			</div>
+	    <select class="my-select" name="so" id="so">
+	      {% for so in sales_orders %}
+	      <option value="{{ so.id }}">{{ so }}</option>
+	      {% endfor %}
+	    </select>
+	  </div>
+	  <div class="col-md-1"></div>
+	</div>
 
-			<h5 class="my-section-header">Review product information</h5>
-			<div class="row">
-				<div class="col-md-2"><label>Brand</label></div>
-				<div class="col-md-3 my-sf-display-border">{{ object.brand }}</div>
-				<div class="col-md-1"></div>
-				<div class="col-md-2"><label>Product</label></div>
-				<div class="col-md-3 my-sf-display-border">{{ object.name }}</div>
-				<div class="col-md-1"></div>
-			</div><div class="row ">
-				<div class="col-md-2"><label>Color</label></div>
-				<div class="col-md-3 my-sf-display-border">{{ object.color }}</div>
-				<div class="col-md-1"></div>
-				<div class="col-md-2"><label>Price</label></div>
-				<div class="col-md-3 my-sf-display-border">{{object.currency}}{{ object.price|floatformat:0 }}</div>
-				<div class="col-md-1"></div>
-			</div><div class="row ">
-				<div class="col-md-2"><label>Size</label></div>
-				<div class="col-md-3 my-sf-display-border" id="selected-size-display"></div>
-				<div class="col-md-1"></div>
-				<div class="col-md-2"><label>QTY</label></div>
-				<div class="col-md-3 my-sf-display-border" id="selected-qty-display"></div>
-				<div class="col-md-1"></div>
-			</div>
+	<h5 class="my-section-header">Review product information</h5>
+	<div class="row">
+	  <div class="col-md-2"><label>Brand</label></div>
+	  <div class="col-md-3 my-sf-display-border">{{ object.brand }}</div>
+	  <div class="col-md-1"></div>
+	  <div class="col-md-2"><label>Product</label></div>
+	  <div class="col-md-3 my-sf-display-border">{{ object.name }}</div>
+	  <div class="col-md-1"></div>
+	</div><div class="row ">
+	  <div class="col-md-2"><label>Color</label></div>
+	  <div class="col-md-3 my-sf-display-border">{{ object.color }}</div>
+	  <div class="col-md-1"></div>
+	  <div class="col-md-2"><label>Price</label></div>
+	  <div class="col-md-3 my-sf-display-border">{{object.currency}}{{ object.price|floatformat:0 }}</div>
+	  <div class="col-md-1"></div>
+	</div><div class="row ">
+	  <div class="col-md-2"><label>Size</label></div>
+	  <div class="col-md-3 my-sf-display-border" id="selected-size-display"></div>
+	  <div class="col-md-1"></div>
+	  <div class="col-md-2"><label>QTY</label></div>
+	  <div class="col-md-3 my-sf-display-border" id="selected-qty-display"></div>
+	  <div class="col-md-1"></div>
+	</div>
       </div>
 
       {# Modal footer #}
       <div class="modal-footer">
-		<button class="btn btn-primary start" id="btn-so-add-item">
-			<i class="fa fa-plus"></i>
-			<span>Add Item</span>
-		</button>
+	<button class="btn btn-primary start" id="btn-so-add-item">
+	  <i class="fa fa-plus"></i>
+	  <span>Add Item</span>
+	</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -350,99 +395,99 @@ Related Purchase Orders
 
 {# Add vendor item modal #}
 <div id="new_vendor_item" class="modal fade" role="dialog">
-<div class="modal-dialog">
-<form action="{% url 'vendor_item_add' %}" method="POST">
-    <!-- Modal content-->
-    <div class="modal-content">
-		{# Modal header #}
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Add sourcing information</h4>
-		</div>
-
-	    {# Modal body #}
-	    <div class="modal-body">
-			{% csrf_token %}
-			{{ vendor_item_form|crispy }}
-		</div>
-
-	      {# Modal footer #}
-		<div class="modal-footer">
-			<button class="btn btn-primary"  type="submit">
-				<i class="fa fa-save"></i>
-				<span>Create</span>
-			</button>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-		</div>
+  <div class="modal-dialog">
+    <form action="{% url 'vendor_item_add' %}" method="POST">
+      <!-- Modal content-->
+      <div class="modal-content">
+	{# Modal header #}
+	<div class="modal-header">
+	  <button type="button" class="close" data-dismiss="modal">&times;</button>
+	  <h4 class="modal-title">Add sourcing information</h4>
 	</div>
-</form>
-</div>
+
+	{# Modal body #}
+	<div class="modal-body">
+	  {% csrf_token %}
+	  {{ vendor_item_form|crispy }}
+	</div>
+
+	{# Modal footer #}
+	<div class="modal-footer">
+	  <button class="btn btn-primary"  type="submit">
+	    <i class="fa fa-save"></i>
+	    <span>Create</span>
+	  </button>
+	  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	</div>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
 
 {% block custom_js %}
 <script type="text/javascript">
-var j$ = jQuery.noConflict();
-j$(document).ready(function(){
-	// add-item-to-so button is disabled by default
-	j$('#btn-add-to-shopping-cart').prop('disabled',true);
+ var j$ = jQuery.noConflict();
+ j$(document).ready(function(){
+   // add-item-to-so button is disabled by default
+   j$('#btn-add-to-shopping-cart').prop('disabled',true);
 
 
-	j$('#size-chart > li').click(function(){
-		j$(this).siblings().find('span:first-child').removeClass('item-size-selected');
-		var me = j$(this).find('span:first-child');
-		me.toggleClass('item-size-selected');
-		if (me.hasClass('item-size-selected')){
-			var qty = j$('#qty').val();
-			j$('#selected-qty').val(qty);
-			j$('#selected-qty-display').html(qty);
+   j$('#size-chart > li').click(function(){
+     j$(this).siblings().find('span:first-child').removeClass('item-size-selected');
+     var me = j$(this).find('span:first-child');
+     me.toggleClass('item-size-selected');
+     if (me.hasClass('item-size-selected')){
+       var qty = j$('#qty').val();
+       j$('#selected-qty').val(qty);
+       j$('#selected-qty-display').html(qty);
 
-			var item_inv = j$(this).attr("data-object");
-			j$('#item-inv').val(item_inv);
-			j$('#selected-size-display').html(j$(this).find('span:first-child').html());
+       var item_inv = j$(this).attr("data-object");
+       j$('#item-inv').val(item_inv);
+       j$('#selected-size-display').html(j$(this).find('span:first-child').html());
 
-			// enable buttont to click
-			j$('#btn-add-to-shopping-cart').prop('disabled',false);
-		}else{
-			j$('#item-inv').val('');
-			j$('#selected-size-display').html();
-			j$('#selected-qty').val('');
-			j$('#selected-qty-display').html();
+       // enable buttont to click
+       j$('#btn-add-to-shopping-cart').prop('disabled',false);
+     }else{
+       j$('#item-inv').val('');
+       j$('#selected-size-display').html();
+       j$('#selected-qty').val('');
+       j$('#selected-qty-display').html();
 
-			// disable buttont to click
-			j$('#btn-add-to-shopping-cart').prop('disabled',true);
+       // disable buttont to click
+       j$('#btn-add-to-shopping-cart').prop('disabled',true);
 
-		}
-	});
+     }
+   });
 
-	j$('#qty').change(function(){
-		if (j$('#size-chart > li > span').hasClass('item-size-selected')){
-			var qty = j$('#qty').val();
-			j$('#selected-qty').val(qty);
-			j$('#selected-qty-display').html(qty);
-		}
-	});
+   j$('#qty').change(function(){
+     if (j$('#size-chart > li > span').hasClass('item-size-selected')){
+       var qty = j$('#qty').val();
+       j$('#selected-qty').val(qty);
+       j$('#selected-qty-display').html(qty);
+     }
+   });
 
-	j$('#btn-so-add-item').click(function(){
-        j$.post("{% url 'so_add_item' %}", // passed in from view
-			{
-				'so': j$('#so').val(),
-				'item-inv':j$('#item-inv').val(),
-				'qty':j$('#selected-qty').val()
-			}
-		).done(function(resp) { // success callback
-            	toastr.success('Item added to SO');
-            }
-        ).always(function(){
-			j$('#select-cart').modal('hide');
-        });
-	})
+   j$('#btn-so-add-item').click(function(){
+     j$.post("{% url 'so_add_item' %}", // passed in from view
+	     {
+	       'so': j$('#so').val(),
+	       'item-inv':j$('#item-inv').val(),
+	       'qty':j$('#selected-qty').val()
+	     }
+     ).done(function(resp) { // success callback
+       toastr.success('Item added to SO');
+     }
+     ).always(function(){
+       j$('#select-cart').modal('hide');
+     });
+   })
 
-	// barcode, https://github.com/lindell/JsBarcode
-	j$("#barcode").JsBarcode(
-		"{{ object.product_id }}",
-		{format:"CODE39", displayValue:false, fontSize:16}
-	);
-});
+   // barcode, https://github.com/lindell/JsBarcode
+   j$("#barcode").JsBarcode(
+     "{{ object.product_id }}",
+     {format:"CODE39", displayValue:false, fontSize:16}
+   );
+ });
 </script>
 {% endblock %}

@@ -3,508 +3,524 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block page-header %}
-	Sales order: {{ object.code }}
-	{% if not object.is_editable %}
-		<i class="fa fa-lock"></i>
-	{% endif %}
+Sales order: {{ object.code }}
+{% if not object.is_editable %}
+<i class="fa fa-lock"></i>
+{% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="row text-center">
-	{% if object.is_editable %}
-		<button class="btn btn-small btn-default"
-		data-toggle="modal" data-target="#so-edit">
-			<i class='fa fa-pencil'></i>
-			Edit
-		</button>
-		<button class="btn btn-small btn-danger"
-		data-toggle="modal" data-target="#so-delete">
-			<i class='fa fa-pencil'></i>
-			Cancel order
-		</button>
-	{% endif %}
+  {% if object.is_editable %}
+  <button class="btn btn-small btn-default"
+          data-toggle="modal"
+          data-target="#so-edit">
+    <i class='fa fa-pencil'></i>
+    Edit
+  </button>
+  <button class="btn btn-small btn-danger"
+          data-toggle="modal"
+          data-target="#so-delete">
+    <i class='fa fa-pencil'></i>
+    Cancel order
+  </button>
+  {% endif %}
 
-	{% if object.qty_balance > 0 %}
-	<button class="btn btn-small my-command-btn">
-		<a href="{% url 'so_fulfill_add' object.id %}">
-			<i class='fa fa-pencil'></i>
-			Create a fulfillment
-		</a>
-	</button>
-	{% endif %}
+  {% if object.qty_balance > 0 %}
+  <button class="btn btn-small my-command-btn">
+    <a href="{% url 'so_fulfill_add' object.id %}">
+      <i class='fa fa-pencil'></i>
+      Create a fulfillment
+    </a>
+  </button>
+  {% endif %}
 
-	{% if object.fulfill_qty > 0 %}
-	<button class="btn btn-small my-command-btn">
-		<a href="{% url 'so_return_add' object.id %}">
-			<i class='fa fa-pencil'></i>
-			Create a return
-		</a>
-	</button>
-	{% endif %}
+  {% if object.fulfill_qty > 0 %}
+  <button class="btn btn-small my-command-btn">
+    <a href="{% url 'so_return_add' object.id %}">
+      <i class='fa fa-pencil'></i>
+      Create a return
+    </a>
+  </button>
+  {% endif %}
 </div>
 
 {# order header #}
 <h2>Summary</h2>
 <div class="panel panel-default">
-  	<div class="panel-body">
-	<div class="row ">
-		<div class="col-md-2"><label>Customer</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.customer }}</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Sales</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.sales }}</div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Created On</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.created_on }}</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Created By</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.created_by }}</div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Discount</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.discount_in_pcnt }}</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Sales Type</label></div>
-		<div class="col-md-3 my-sf-display-border">
-		<label class="label label-info">{{ object.business_model }}</label></div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Total Line Items</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.line_item_qty }}</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Total QTY</label></div>
-		<div class="col-md-3 my-sf-display-border dropdown">
-			<span class="dropdown-toggle" id="total-qty-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-				{{ object.total_qty }}
-				<span class="caret"></span>
-			</span>
-			<ul class="dropdown-menu" aria-labelledby="total-qty-dropdown">
-				{% for brand,data in items.iteritems %}
-					<li>
-						<a><label>{{ brand }}:</label> {{ data.total_qty }}</a>
-					</li>
-				{% endfor %}
-			</ul>
-		</div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Retail Value</label></div>
-		<div class="col-md-3 my-sf-display-border item-price-original">
-			{{object.customer.currency}}
-			{{ object.total_std_value|floatformat:0 }}
-		</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Value On Order</label></div>
-		<div class="col-md-3 my-sf-display-border dropdown">
-			<span class="dropdown-toggle" id="total-value-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-				{{object.customer.currency}}
-				{{ object.total_discount_value|floatformat:2 }}
-				<span class="caret"></span>
-			</span>
-			<ul class="dropdown-menu" aria-labelledby="total-value-dropdown">
-				{% for brand,data in items.iteritems %}
-					<li>
-						<a><label>{{ brand }}:</label>
-							{{object.customer.currency}}
-							{{ data.total_value|floatformat:2 }}
-						</a>
-					</li>
-				{% endfor %}
-			</ul>
-		</div>
-		<div class="col-md-1"></div>
-	</div>
+  <div class="panel-body">
+    <div class="row ">
+      <div class="col-md-2"><label>Customer</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.customer }}</div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Sales</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.sales }}</div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Created On</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.created_on }}</div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Created By</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.created_by }}</div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Discount</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.discount_in_pcnt }}</div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Sales Type</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	<label class="label label-info">{{ object.business_model }}</label></div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Total Line Items</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.line_item_qty }}</div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Total QTY</label></div>
+      <div class="col-md-3 my-sf-display-border dropdown">
+	<span class="dropdown-toggle" id="total-qty-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+	  {{ object.total_qty }}
+	  <span class="caret"></span>
+	</span>
+	<ul class="dropdown-menu" aria-labelledby="total-qty-dropdown">
+	  {% for brand,data in items.iteritems %}
+	  <li>
+	    <a><label>{{ brand }}:</label> {{ data.total_qty }}</a>
+	  </li>
+	  {% endfor %}
+	</ul>
+      </div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Retail Value</label></div>
+      <div class="col-md-3 my-sf-display-border item-price-original">
+	{{object.customer.currency}}
+	{{ object.total_std_value|floatformat:0 }}
+      </div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Value On Order</label></div>
+      <div class="col-md-3 my-sf-display-border dropdown">
+	<span class="dropdown-toggle" id="total-value-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+	  {{object.customer.currency}}
+	  {{ object.total_discount_value|floatformat:2 }}
+	  <span class="caret"></span>
+	</span>
+	<ul class="dropdown-menu" aria-labelledby="total-value-dropdown">
+	  {% for brand,data in items.iteritems %}
+	  <li>
+	    <a><label>{{ brand }}:</label>
+	      {{object.customer.currency}}
+	      {{ data.total_value|floatformat:2 }}
+	    </a>
+	  </li>
+	  {% endfor %}
+	</ul>
+      </div>
+      <div class="col-md-1"></div>
+    </div>
   </div>
 </div>
 
 <h2>Fulfillments</h2>
 <div class="panel panel-default">
-  	<div class="panel-body">
-	<div class="row">
-		<div class="col-md-2"><label>Fulfiller</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.default_storage }}</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Last Fulfillment Date</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.last_fulfill_date }}&nbsp;</div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Fulfilled QTY</label></div>
-		<div class="col-md-3 my-sf-display-border">
-			{% if object.fulfill_qty > 0 %}
-			<span class="dropdown-toggle" id="fulfillments-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-				{{ object.fulfill_qty|floatformat:0 }}
-				<span class="caret"></span>
-			</span>
-			<ul class="dropdown-menu" aria-labelledby="fulfillments-dropdown" style="padding:10px 20px;">
-				<table class="table table-striped table-hover table-responsive">
-					<thead>
-						<th>Fulfillment</th>
-						<th>QTY</th>
-						<th>Created On</th>
-					</thead>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-2"><label>Fulfiller</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.default_storage }}</div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Last Fulfillment Date</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.last_fulfill_date }}&nbsp;</div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Fulfilled QTY</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	{% if object.fulfill_qty > 0 %}
+	<span class="dropdown-toggle" id="fulfillments-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+	  {{ object.fulfill_qty|floatformat:0 }}
+	  <span class="caret"></span>
+	</span>
+	<ul class="dropdown-menu" aria-labelledby="fulfillments-dropdown" style="padding:10px 20px;">
+	  <table class="table table-striped table-hover table-responsive">
+	    <thead>
+	      <th>Fulfillment</th>
+	      <th>QTY</th>
+	      <th>Created On</th>
+	    </thead>
 
-					<tbody>
-						{% for f in object.fulfillments %}
-							<tr><td>
-								<a href="{% url 'so_fulfill_detail' f.id %}">
-									{{ f.code }}
-									{% if not f.is_editable %}
-										<i class="fa fa-lock"></i>
-									{% endif %}
-								</a>
-							</td><td>
-								{{ f.qty }}
-							</td><td>
-								{{ f.created_on }}
-							</td></tr>
-						{% endfor %}
-					</tbody>
-				</table>
-			</ul>
+	    <tbody>
+	      {% for f in object.fulfillments %}
+	      <tr><td>
+		<a href="{% url 'so_fulfill_detail' f.id %}">
+		  {{ f.code }}
+		  {% if not f.is_editable %}
+		  <i class="fa fa-lock"></i>
+		  {% endif %}
+		</a>
+	      </td><td>
+		{{ f.qty }}
+	      </td><td>
+		{{ f.created_on }}
+	      </td></tr>
+	      {% endfor %}
+	    </tbody>
+	  </table>
+	</ul>
 
-			{# Batch fulfill #}
-			<a class="pull-right" data-toggle="modal" data-target="#batch-finalize-fulfill">
-				<i class='fa fa-lock'></i>
-				finalize all
-			</a>
-			{% else %}
-				&nbsp;
-			{% endif %}
-		</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Fulfill Rate By QTY</label></div>
-		<div class="col-md-3 my-sf-display-border">
-			{{ object.fulfill_rate_by_qty|floatformat:0 }}%
-		</div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Fulfilled Value</label></div>
-		<div class="col-md-3 my-sf-display-border">
-		{{object.customer.currency}}
-		{{ object.fulfill_discount_value|floatformat:2 }}&nbsp;</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Fulfill Rate By Value</label></div>
-		<div class="col-md-3 my-sf-display-border">
-			{{ object.fulfill_rate_by_value|floatformat:0 }}%
-		</div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Returned QTY</label></div>
-		<div class="col-md-3 my-sf-display-border">
-			{% if object.return_qty > 0 %}
-			<span class="dropdown-toggle" id="returns-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-				{{ object.return_qty|floatformat:0 }}
-				<span class="caret"></span>
-			</span>
-			<ul class="dropdown-menu" aria-labelledby="returns-dropdown" style="padding:10px 20px;">
-				<table class="table table-striped table-hover table-responsive">
-					<thead>
-						<th>Return</th>
-						<th>QTY</th>
-						<th>Credit</th>
-						<th>Created On</th>
-					</thead>
+	{# Batch fulfill #}
+	<a class="pull-right" data-toggle="modal" data-target="#batch-finalize-fulfill">
+	  <i class='fa fa-lock'></i>
+	  finalize all
+	</a>
+	{% else %}
+	&nbsp;
+	{% endif %}
+      </div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Fulfill Rate By QTY</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	{{ object.fulfill_rate_by_qty|floatformat:0 }}%
+      </div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Fulfilled Value</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	{{object.customer.currency}}
+	{{ object.fulfill_discount_value|floatformat:2 }}&nbsp;</div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Fulfill Rate By Value</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	{{ object.fulfill_rate_by_value|floatformat:0 }}%
+      </div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Returned QTY</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	{% if object.return_qty > 0 %}
+	<span class="dropdown-toggle"
+              id="returns-dropdown"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="true">
+	  {{ object.return_qty|floatformat:0 }}
+	  <span class="caret"></span>
+	</span>
+	<ul class="dropdown-menu"
+            aria-labelledby="returns-dropdown"
+            style="padding:10px 20px;">
+	  <table class="table table-striped table-hover table-responsive">
+	    <thead>
+	      <th>Return</th>
+	      <th>QTY</th>
+	      <th>Credit</th>
+	      <th>Created On</th>
+	    </thead>
 
-					<tbody>
-						{% for f in object.returns %}
-							<tr><td>
-								<a href="{% url 'so_return_detail' f.id %}">
-									{{ f.code }}
-									{% if not f.is_editable %}
-										<i class="fa fa-lock"></i>
-									{% endif %}
-								</a>
-							</td><td>
-								{{ f.return_qty }}
-							</td><td>
-								{{ f.credit }}
-							</td><td>
-								{{ f.created_on }}
-							</td></tr>
-						{% endfor %}
-					</tbody>
-				</table>
-			</ul>
-			{% else %}
-				&nbsp;
-			{% endif %}
-		</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Return Credit</label></div>
-		<div class="col-md-3 my-sf-display-border">
-			{{object.customer.currency}}
-			{{ object.credit|floatformat:2 }}
-		</div>
-		<div class="col-md-1"></div>
-	</div>
-	</div>{# end of panel body #}
+	    <tbody>
+	      {% for f in object.returns %}
+	      <tr><td>
+		<a href="{% url 'so_return_detail' f.id %}">
+		  {{ f.code }}
+		  {% if not f.is_editable %}
+		  <i class="fa fa-lock"></i>
+		  {% endif %}
+		</a>
+	      </td><td>
+		{{ f.return_qty }}
+	      </td><td>
+		{{ f.credit }}
+	      </td><td>
+		{{ f.created_on }}
+	      </td></tr>
+	      {% endfor %}
+	    </tbody>
+	  </table>
+	</ul>
+	{% else %}
+	&nbsp;
+	{% endif %}
+      </div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Return Credit</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	{{object.customer.currency}}
+	{{ object.credit|floatformat:2 }}
+      </div>
+      <div class="col-md-1"></div>
+    </div>
+  </div>{# end of panel body #}
 </div>
 
 <h2>Payments</h2>
 <div class="panel panel-default">
-  	<div class="panel-body">
-	<div class="row">
-		<div class="col-md-2"><label>Paid</label></div>
-		<div class="col-md-3 my-sf-display-border">{{ object.total_payment|floatformat:2 }}</div>
-		<div class="col-md-1"></div>
-		<div class="col-md-2"><label>Total Account Receivable</label></div>
-		<div class="col-md-3 my-sf-display-border">
-			{{object.customer.currency}}
-			{{ object.account_receivable|floatformat:2 }}
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-2"><label>Paid</label></div>
+      <div class="col-md-3 my-sf-display-border">{{ object.total_payment|floatformat:2 }}</div>
+      <div class="col-md-1"></div>
+      <div class="col-md-2"><label>Total Account Receivable</label></div>
+      <div class="col-md-3 my-sf-display-border">
+	{{object.customer.currency}}
+	{{ object.account_receivable|floatformat:2 }}
 
-			<a class="pull-right" data-toggle="modal" data-target="#new-payment">
-				<i class='fa fa-money'></i>
-				make payment
-			</a>
-		</div>
-		<div class="col-md-1"></div>
-	</div><div class="row">
-		<div class="col-md-2"><label>Payment History</label></div>
-		<div class="col-md-9">
-			{% for f in object.payments %}
-				{% if f.is_deposit %}
-					<span data-toggle="tooltip" title="This is a deposit">
-					{{ f.amount|floatformat:2 }}
-					<sup>D</sup>
-					</span>
-				{% else %}
-					{{ f.amount|floatformat:2 }}
-					{% if f.is_editable %}
-						<sup>E</sup>
-					{% endif %}
-				{% endif %}
+	<a class="pull-right" data-toggle="modal" data-target="#new-payment">
+	  <i class='fa fa-money'></i>
+	  make payment
+	</a>
+      </div>
+      <div class="col-md-1"></div>
+    </div><div class="row">
+      <div class="col-md-2"><label>Payment History</label></div>
+      <div class="col-md-9">
+	{% for f in object.payments %}
+	{% if f.is_deposit %}
+	<span data-toggle="tooltip" title="This is a deposit">
+	  {{ f.amount|floatformat:2 }}
+	  <sup>D</sup>
+	</span>
+	{% else %}
+	{{ f.amount|floatformat:2 }}
+	{% if f.is_editable %}
+	<sup>E</sup>
+	{% endif %}
+	{% endif %}
 
-				{% if not forloop.last %}
-					+
-				{% endif %}
-			{% endfor %}
-		</div>
-		<div class="col-md-1"></div>
-	</div>
-	</div>
+	{% if not forloop.last %}
+	+
+	{% endif %}
+	{% endfor %}
+      </div>
+      <div class="col-md-1"></div>
+    </div>
+  </div>
 </div>
 
 {# order details #}
 <h2>Order Details</h2>
 <ul class="nav nav-tabs" role="tablist">
-	{% for brand,data in items.iteritems %}
-	<li>
-	  <a href="#brand-{{brand.id}}" role="tab" data-toggle="tab">
-	      <icon class="fa fa-folder"></icon> {{ brand }}
-	  </a>
-	</li>
-	{% endfor %}
+  {% for brand,data in items.iteritems %}
+  <li>
+    <a href="#brand-{{brand.id}}" role="tab" data-toggle="tab">
+      <icon class="fa fa-folder"></icon> {{ brand }}
+    </a>
+  </li>
+  {% endfor %}
 </ul>
 
 {# Item details by brand #}
 <div class="tab-content">
-{% for brand,data in items.iteritems %}
-	<div class="tab-pane" id="brand-{{brand.id}}">
-		{% for item,detail in data.items.iteritems %}
-		<div class="row" style="border-bottom:1px dashed #bcbcbc; padding:10px 0px;">
-			{# item image #}
-			<div class="col-md-2">
-				{% with item.attachments.all.0 as item_img %}
-					<img src="{{item_img.file.url}}"
-					data-type="attachment-thumbnail" class="img-responsive img-thumbnail"
-					style="width:90%;">
-				{% endwith %}
-			</div>
-			<div class="col-md-4">
-				<h4 style="font-weight:bold;font-size:20px;">
-				{{ item.name|upper }}
-				</h4>
-				<p>
-				<a href="{% url 'item_detail' item.id %}">
-					<i class="fa fa-hand-o-right"></i>
-					SKU {{ item.product_id }}
-				</a>
-				</p>
+  {% for brand,data in items.iteritems %}
+  <div class="tab-pane" id="brand-{{brand.id}}">
+    {% for item,detail in data.items.iteritems %}
+    <div class="row" style="border-bottom:1px dashed #bcbcbc; padding:10px 0px;">
+      {# item image #}
+      <div class="col-md-2">
+	{% with item.attachments.all.0 as item_img %}
+	<img src="{{item_img.file.url}}"
+             data-type="attachment-thumbnail"
+             class="img-responsive img-thumbnail"
+             style="width:90%;">
+	{% endwith %}
+      </div>
+      <div class="col-md-4">
+	<h4 style="font-weight:bold;font-size:20px;">
+	  {{ item.name|upper }}
+	</h4>
+	<p>
+	  <a href="{% url 'item_detail' item.id %}">
+	    <i class="fa fa-hand-o-right"></i>
+	    SKU {{ item.product_id }}
+	  </a>
+	</p>
 
-				{# color #}
-				<p>
-					<span class="item-label">COLOR:
-					</span><span class="item-value">{{ item.color }}</span>
-					<span class="item-label">SEASON:
-					</span><span class="item-value">{{ item.season }}</span>
-				</p>
+	{# color #}
+	<p>
+	  <span class="item-label">COLOR:
+	  </span><span class="item-value">{{ item.color }}</span>
+	  <span class="item-label">SEASON:
+	  </span><span class="item-value">{{ item.season }}</span>
+	</p>
 
-				<p class="item-price-original">
-					{{object.customer.currency}}
-					{{ item.price|floatformat:0 }}
-				</p>
-				<p class="on_sale">
-					<label>On sale:</label>
-					{{object.customer.currency}}
-					{{ detail.so_line_items.0.discount_price|floatformat:2 }}
-				</p>
-				<p>
-					<span class="badge">You save: </span>{{object.customer.currency}}{{ detail.so_line_items.0.you_save|floatformat:0 }}
-				</p>
-			</div>
+	<p class="item-price-original">
+	  {{object.customer.currency}}
+	  {{ item.price|floatformat:0 }}
+	</p>
+	<p class="on_sale">
+	  <label>On sale:</label>
+	  {{object.customer.currency}}
+	  {{ detail.so_line_items.0.discount_price|floatformat:2 }}
+	</p>
+	<p>
+	  <span class="badge">You save: </span>{{object.customer.currency}}{{ detail.so_line_items.0.you_save|floatformat:0 }}
+	</p>
+      </div>
 
-			{# fulfillment details #}
-			<div class="col-md-4">
-				<h4 class="my-section-header">
-				<span class="item-label">Order Value:</span>
-				<span class="">
-					{{object.customer.currency}}
-					{{ detail.value|floatformat:2 }}
-				</span>
-				</h4>
+      {# fulfillment details #}
+      <div class="col-md-4">
+	<h4 class="my-section-header">
+	  <span class="item-label">Order Value:</span>
+	  <span class="">
+	    {{object.customer.currency}}
+	    {{ detail.value|floatformat:2 }}
+	  </span>
+	</h4>
 
-				{# order QTY details #}
-				<dl class="dl-horizontal" style="margin-top:20px;">
-					<dt>Size:</dt><dd></dd>
+	{# order QTY details #}
+	<dl class="dl-horizontal" style="margin-top:20px;">
+	  <dt>Size:</dt><dd></dd>
 
-					{% for so_line_item in detail.so_line_items %}
+	  {% for so_line_item in detail.so_line_items %}
 
-					{# size #}
-					<dt>
-						{{so_line_item.item.size}}
-					</dt>
+	  {# size #}
+	  <dt>
+	    {{so_line_item.item.size}}
+	  </dt>
 
-					{# qty #}
-					<dd>
-						{% if so_line_item.is_editable %}
-							{# qty input box #}
-							<input type="number" value="{{so_line_item.qty}}" style="width:50px;" data-toggle="order-qty" id="line-item-{{so_line_item.id}}">
+	  {# qty #}
+	  <dd>
+	    {% if so_line_item.is_editable %}
+	    {# qty input box #}
+	    <input type="number"
+                   value="{{so_line_item.qty}}"
+                   style="width:50px;"
+                   data-toggle="order-qty"
+                   id="line-item-{{so_line_item.id}}">
 
-							{# remove line item #}
-							<a href="{% url 'so_remove_item' so_line_item.id %}"
-							data-toggle="tooltip"
-							title="Remove this from order">
-								<i class="fa fa-trash">remove</i>
-							</a>
-						{% else %}
-							{# qty input box #}
-							<input type="number" value="{{ so_line_item.fulfill_qty }}" style="width:50px;" disabled> / {{so_line_item.qty}}
-						{% endif %}
-					</dd>
-					{% endfor %}
-				</dl>
+	    {# remove line item #}
+	    <a href="{% url 'so_remove_item' so_line_item.id %}"
+               data-toggle="tooltip"
+               title="Remove this from order">
+	      <i class="fa fa-trash">remove</i>
+	    </a>
+	    {% else %}
+	    {# qty input box #}
+	    <input type="number"
+                   value="{{ so_line_item.fulfill_qty }}"
+                   style="width:50px;"
+                   disabled> / {{so_line_item.qty}}
+	    {% endif %}
+	  </dd>
+	  {% endfor %}
+	</dl>
 
-				<div style="border-top:1px solid #dcdcdc;" class="">
-					<dl class='dl-horizontal'>
-						<dt>
-							<label class="label label-default">Subtotal QTY</label>
-						</dt>
-						<dd>
-							<span class="item-value">
-								{{ detail.qty }}
-							</span>
-						</dd>
-					</dl>
-				</div>
-			</div>
-		</div>
-		{% endfor %}
-
-		<div class="row" style="margin-top:10px;">
-			<div class="col-md-3 text-right">
-				<label class="">{{brand}} total QTY:</label>
-			</div><div class="col-md-2">
-				<span class="item-total">{{ data.total_qty }}</span>
-			</div>
-		</div><div class="row">
-			<div class="col-md-3 text-right">
-				<label class="">{{brand}} total value:</label>
-			</div><div class="col-md-2">
-				<span class="item-total">
-				{{object.customer.currency}}{{ data.total_value|floatformat:2 }}
-				</span>
-			</div>
-		</div>
+	<div style="border-top:1px solid #dcdcdc;" class="">
+	  <dl class='dl-horizontal'>
+	    <dt>
+	      <label class="label label-default">Subtotal QTY</label>
+	    </dt>
+	    <dd>
+	      <span class="item-value">
+		{{ detail.qty }}
+	      </span>
+	    </dd>
+	  </dl>
 	</div>
-{% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="row" style="margin-top:10px;">
+      <div class="col-md-3 text-right">
+	<label class="">{{brand}} total QTY:</label>
+      </div><div class="col-md-2">
+	<span class="item-total">{{ data.total_qty }}</span>
+      </div>
+    </div><div class="row">
+      <div class="col-md-3 text-right">
+	<label class="">{{brand}} total value:</label>
+      </div><div class="col-md-2">
+	<span class="item-total">
+	  {{object.customer.currency}}{{ data.total_value|floatformat:2 }}
+	</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 
 {% if purchase_orders %}
 {# Related Order Section #}
 <h2 class="page-header">
-<i class="fa fa-book"></i>
-Related Purchase Orders
+  <i class="fa fa-book"></i>
+  Related Purchase Orders
 </h2>
 <table class="table table-striped table-hover table-responsive">
-	<thead>
-		<th>PO</th>
-		<th>VENDOR</th>
-		<th>TOTAL QTY</th>
-		<th>TOTAL VALUE</th>
-		<th>AVAILABILITY</th>
-		<th>STATUS</th>
-	</thead>
-	<tbody>
-		{% for po in purchase_orders %}
-		<tr><td>
-			<a href="{% url 'po_detail' po.id %}">{{ po.code }}
-				{% if not po.is_editable %}
-					<i class="fa fa-lock"></i>
-				{% endif %}
-			</a>
-		</td><td>
-			{{ po.vendor }}
-		</td><td>
-			{{ po.order_qty }}
-		</td><td>
-			{{po.vendor.currency}}{{ po.order_value|floatformat:2 }}
-		</td><td>
-			{% for available in po.available_in %}
-				{{ available }}
-			{% endfor %}
-		</td><td>
-			{% if po.is_editable %}
-				<a data-toggle="modal" data-target="#po-place-{{po.id}}">Place</a>
-			{% else %}
-				Order sent on {{ po.placed_on }}
-			{% endif %}
-		</td></tr>
-		{% endfor %}
-	</tbody>
+  <thead>
+    <th>PO</th>
+    <th>VENDOR</th>
+    <th>TOTAL QTY</th>
+    <th>TOTAL VALUE</th>
+    <th>AVAILABILITY</th>
+    <th>STATUS</th>
+  </thead>
+  <tbody>
+    {% for po in purchase_orders %}
+    <tr><td>
+      <a href="{% url 'po_detail' po.id %}">{{ po.code }}
+	{% if not po.is_editable %}
+	<i class="fa fa-lock"></i>
+	{% endif %}
+      </a>
+    </td><td>
+      {{ po.vendor }}
+    </td><td>
+      {{ po.order_qty }}
+    </td><td>
+      {{po.vendor.currency}}{{ po.order_value|floatformat:2 }}
+    </td><td>
+      {% for available in po.available_in %}
+      {{ available }}
+      {% endfor %}
+    </td><td>
+      {% if po.is_editable %}
+      <a data-toggle="modal" data-target="#po-place-{{po.id}}">Place</a>
+      {% else %}
+      Order sent on {{ po.placed_on }}
+      {% endif %}
+    </td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endif %}
 
 {% if object.payments %}
 {# Related payment Section #}
 <h2 class="page-header">
-<i class="fa fa-book"></i>
-Related payments
+  <i class="fa fa-book"></i>
+  Related payments
 </h2>
 <table class="table table-striped table-hover table-responsive">
-	<thead>
-		<th></th>
-		<th>PAYMENT</th>
-		<th>AMOUNT</th>
-		<th>METHOD</th>
-		<th>CREATED ON</th>
-		<th>CREATED BY</th>
-		<th>REVIEWED ON</th>
-		<th>REVIEWED BY</th>
-	</thead>
-	<tbody>
-		{% for payment in object.payments %}
-		<tr><td>
-			{% if payment.is_editable %}
-				<a data-toggle="modal" data-target="#finalize-payment-{{payment.id}}">Review</a>
-			{% endif %}
-		</td><td>
-			{{ payment.code }}
-		</td><td>
-			{{ payment.amount }}
-		</td><td>
-			{{ payment.payment_method }}
-		</td><td>
-			{{ payment.created_on }}
-		</td><td>
-			{{ payment.created_by }}
-		</td><td>
-			{{ payment.reviewed_on }}
-		</td><td>
-			{{ payment.reviewed_by }}
-		</td></tr>
-		{% endfor %}
-	</tbody>
+  <thead>
+    <th></th>
+    <th>PAYMENT</th>
+    <th>AMOUNT</th>
+    <th>METHOD</th>
+    <th>CREATED ON</th>
+    <th>CREATED BY</th>
+    <th>REVIEWED ON</th>
+    <th>REVIEWED BY</th>
+  </thead>
+  <tbody>
+    {% for payment in object.payments %}
+    <tr><td>
+      {% if payment.is_editable %}
+      <a data-toggle="modal" data-target="#finalize-payment-{{payment.id}}">Review</a>
+      {% endif %}
+    </td><td>
+      {{ payment.code }}
+    </td><td>
+      {{ payment.amount }}
+    </td><td>
+      {{ payment.payment_method }}
+    </td><td>
+      {{ payment.created_on }}
+    </td><td>
+      {{ payment.created_by }}
+    </td><td>
+      {{ payment.reviewed_on }}
+    </td><td>
+      {{ payment.reviewed_by }}
+    </td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endif %}
 {% endblock %}
@@ -513,229 +529,237 @@ Related payments
 {% block modal %}
 {# SO edit modal #}
 <div id="so-edit" class="modal fade" role="dialog">
-<div class="modal-dialog">
-<form action="{% url 'so_edit' object.id %}" method="POST">
+  <div class="modal-dialog">
+    <form action="{% url 'so_edit' object.id %}" method="POST">
 
-    <!-- Modal content-->
-    <div class="modal-content">
+      <!-- Modal content-->
+      <div class="modal-content">
+        {# Modal header #}
+        <div class="modal-header">
+          <button type="button"
+                  class="close"
+                  data-dismiss="modal">
+            &times;
+          </button>
+          <h4 class="modal-title">
+            Edit {{ object.code }}
+          </h4>
+        </div>
 
-    	{# Modal header #}
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Edit {{ object.code }}</h4>
+        {# Modal body #}
+        <div class="modal-body">
+	  {% csrf_token %}
+	  {{ so_edit_form|crispy }}
+        </div>
+
+        {# Modal footer #}
+        <div class="modal-footer">
+	  <button class="btn btn-primary"
+                  type="submit">
+	    <i class="fa fa-save"></i>
+	    <span>Save</span>
+	  </button>
+          <button type="button"
+                  class="btn btn-default"
+                  data-dismiss="modal">Cancel</button>
+        </div>
       </div>
-
-      {# Modal body #}
-      <div class="modal-body">
-			{% csrf_token %}
-			{{ so_edit_form|crispy }}
-      </div>
-
-      {# Modal footer #}
-      <div class="modal-footer">
-		<button class="btn btn-primary" type="submit">
-			<i class="fa fa-save"></i>
-			<span>Save</span>
-		</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
-</form>
-</div>
+    </form>
+  </div>
 </div>
 
 {# Add payment modal #}
 <div id="new-payment" class="modal fade" role="dialog">
-<div class="modal-dialog">
-<form action="{% url 'so_payment_add' %}" method="POST">
-    <!-- Modal content-->
-    <div class="modal-content">
-		{# Modal header #}
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Register a payment</h4>
-		</div>
-
-	    {# Modal body #}
-	    <div class="modal-body">
-			{% csrf_token %}
-			{{ so_payment_add_form|crispy }}
-		</div>
-
-	      {# Modal footer #}
-		<div class="modal-footer">
-			<button class="btn btn-primary"  type="submit">
-				<i class="fa fa-save"></i>
-				<span>Register payment</span>
-			</button>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-		</div>
+  <div class="modal-dialog">
+    <form action="{% url 'so_payment_add' %}" method="POST">
+      <!-- Modal content-->
+      <div class="modal-content">
+	{# Modal header #}
+	<div class="modal-header">
+	  <button type="button" class="close" data-dismiss="modal">&times;</button>
+	  <h4 class="modal-title">Register a payment</h4>
 	</div>
-</form>
-</div>
+
+	{# Modal body #}
+	<div class="modal-body">
+	  {% csrf_token %}
+	  {{ so_payment_add_form|crispy }}
+	</div>
+
+	{# Modal footer #}
+	<div class="modal-footer">
+	  <button class="btn btn-primary"  type="submit">
+	    <i class="fa fa-save"></i>
+	    <span>Register payment</span>
+	  </button>
+	  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	</div>
+      </div>
+    </form>
+  </div>
 </div>
 
 {# Delete SO modal #}
 <div id="so-delete" class="modal fade" role="dialog">
-<div class="modal-dialog">
-<form action="{% url 'so_delete' object.id %}" method="POST">
+  <div class="modal-dialog">
+    <form action="{% url 'so_delete' object.id %}" method="POST">
 
-    <!-- Modal content-->
-    <div class="modal-content">
+      <!-- Modal content-->
+      <div class="modal-content">
 
     	{# Modal header #}
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">To Cancel {{ object.code }}</h4>
-      </div>
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">To Cancel {{ object.code }}</h4>
+        </div>
 
-      {# Modal body #}
-      <div class="modal-body">
-			{% csrf_token %}
-			<p>
-			Order cancellation is not recoverable. All history of this order will
-			be lost.
-			</p>
+        {# Modal body #}
+        <div class="modal-body">
+	  {% csrf_token %}
+	  <p>
+	    Order cancellation is not recoverable. All history of this order will
+	    be lost.
+	  </p>
 
-			<p class="alert alert-warning">
-			Are you sure to cancel this order?
-			</p>
-      </div>
+	  <p class="alert alert-warning">
+	    Are you sure to cancel this order?
+	  </p>
+        </div>
 
-      {# Modal footer #}
-      <div class="modal-footer">
-		<button class="btn btn-primary" type="submit">
-			<i class="fa fa-check">Yes</i>
-		</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal">
-        	<i class="fa fa-close">No</i>
-        </button>
+        {# Modal footer #}
+        <div class="modal-footer">
+	  <button class="btn btn-primary" type="submit">
+	    <i class="fa fa-check">Yes</i>
+	  </button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            <i class="fa fa-close">No</i>
+          </button>
+        </div>
       </div>
-    </div>
-</form>
-</div>
+    </form>
+  </div>
 </div>
 
 {# Batch finalizing fulfillments modal #}
 <div id="batch-finalize-fulfill" class="modal fade" role="dialog">
-<div class="modal-dialog">
-<form action="{% url 'so_fulfill_review_batch' object.id %}" method="POST">
-	{% csrf_token %}
+  <div class="modal-dialog">
+    <form action="{% url 'so_fulfill_review_batch' object.id %}" method="POST">
+      {% csrf_token %}
 
-    <!-- Modal content-->
-    <div class="modal-content">
-		{# Modal header #}
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Finalize fulfillments</h4>
-		</div>
-
-	    {# Modal body #}
-	    <div class="modal-body">
-	    	<p>
-			This will finalize all open fulfillments that are associated
-			with this sales order. You will not
-			be able make further change to it once a fulfillment has been finalized.
-			</p>
-
-			<p class="alert alert-warning">
-			Are you sure to proceed?
-			</p>
-		</div>
-
-	      {# Modal footer #}
-		<div class="modal-footer">
-			<button class="btn btn-primary"  type="submit">
-				<i class="fa fa-lock"></i>
-				<span>Yes</span>
-			</button>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-		</div>
+      <!-- Modal content-->
+      <div class="modal-content">
+	{# Modal header #}
+	<div class="modal-header">
+	  <button type="button" class="close" data-dismiss="modal">&times;</button>
+	  <h4 class="modal-title">Finalize fulfillments</h4>
 	</div>
-</form>
-</div>
+
+	{# Modal body #}
+	<div class="modal-body">
+	  <p>
+	    This will finalize all open fulfillments that are associated
+	    with this sales order. You will not
+	    be able make further change to it once a fulfillment has been finalized.
+	  </p>
+
+	  <p class="alert alert-warning">
+	    Are you sure to proceed?
+	  </p>
+	</div>
+
+	{# Modal footer #}
+	<div class="modal-footer">
+	  <button class="btn btn-primary"  type="submit">
+	    <i class="fa fa-lock"></i>
+	    <span>Yes</span>
+	  </button>
+	  <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+	</div>
+      </div>
+    </form>
+  </div>
 </div>
 
 {# Batch finalizing returns modal #}
 <div id="batch-finalize-return" class="modal fade" role="dialog">
-<div class="modal-dialog">
-<form action="{% url 'so_return_review_batch' object.id %}" method="POST">
-	{% csrf_token %}
+  <div class="modal-dialog">
+    <form action="{% url 'so_return_review_batch' object.id %}" method="POST">
+      {% csrf_token %}
 
-    <!-- Modal content-->
-    <div class="modal-content">
-		{# Modal header #}
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Finalize returns</h4>
-		</div>
-
-	    {# Modal body #}
-	    <div class="modal-body">
-	    	<p>
-			This will finalize all open returns that are associated
-			with this sales order. You will not
-			be able make further change to it once a return has been finalized.
-			</p>
-
-			<p class="alert alert-warning">
-			Are you sure to proceed?
-			</p>
-		</div>
-
-	      {# Modal footer #}
-		<div class="modal-footer">
-			<button class="btn btn-primary"  type="submit">
-				<i class="fa fa-lock"></i>
-				<span>Yes</span>
-			</button>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-		</div>
+      <!-- Modal content-->
+      <div class="modal-content">
+	{# Modal header #}
+	<div class="modal-header">
+	  <button type="button" class="close" data-dismiss="modal">&times;</button>
+	  <h4 class="modal-title">Finalize returns</h4>
 	</div>
-</form>
-</div>
+
+	{# Modal body #}
+	<div class="modal-body">
+	  <p>
+	    This will finalize all open returns that are associated
+	    with this sales order. You will not
+	    be able make further change to it once a return has been finalized.
+	  </p>
+
+	  <p class="alert alert-warning">
+	    Are you sure to proceed?
+	  </p>
+	</div>
+
+	{# Modal footer #}
+	<div class="modal-footer">
+	  <button class="btn btn-primary"  type="submit">
+	    <i class="fa fa-lock"></i>
+	    <span>Yes</span>
+	  </button>
+	  <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+	</div>
+      </div>
+    </form>
+  </div>
 </div>
 
 {# Place order modal #}
 {% for po in purchase_orders %}
 {% if po.is_editable %}
-	<div id="po-place-{{po.id}}" class="modal fade" role="dialog">
-	<div class="modal-dialog">
-	<form action="{% url 'po_place' po.id %}" method="POST">
-		{% csrf_token %}
+<div id="po-place-{{po.id}}" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <form action="{% url 'po_place' po.id %}" method="POST">
+      {% csrf_token %}
 
-	    <!-- Modal content-->
-	    <div class="modal-content">
-			{# Modal header #}
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-		        <h4 class="modal-title">Place order</h4>
-			</div>
-
-		    {# Modal body #}
-		    <div class="modal-body">
-		    	<p>
-				This will send order to {{ po.vendor }}. Depending on your term with
-				{{po.vendor}}, you may not be able to recall this order and thus have a responsibility to make proper payment to this vendor.
-				</p>
-
-				<p class="alert alert-warning">
-				Are you sure to proceed?
-				</p>
-			</div>
-
-		      {# Modal footer #}
-			<div class="modal-footer">
-				<button class="btn btn-primary"  type="submit">
-					<i class="fa fa-lock"></i>
-					<span>Yes</span>
-				</button>
-		        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-			</div>
-		</div>
-	</form>
+      <!-- Modal content-->
+      <div class="modal-content">
+	{# Modal header #}
+	<div class="modal-header">
+	  <button type="button" class="close" data-dismiss="modal">&times;</button>
+	  <h4 class="modal-title">Place order</h4>
 	</div>
+
+	{# Modal body #}
+	<div class="modal-body">
+	  <p>
+	    This will send order to {{ po.vendor }}. Depending on your term with
+	    {{po.vendor}}, you may not be able to recall this order and thus have a responsibility to make proper payment to this vendor.
+	  </p>
+
+	  <p class="alert alert-warning">
+	    Are you sure to proceed?
+	  </p>
 	</div>
+
+	{# Modal footer #}
+	<div class="modal-footer">
+	  <button class="btn btn-primary"  type="submit">
+	    <i class="fa fa-lock"></i>
+	    <span>Yes</span>
+	  </button>
+	  <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+	</div>
+      </div>
+    </form>
+  </div>
+</div>
 {% endif %}
 {% endfor %}
 
@@ -743,40 +767,40 @@ Related payments
 {% for payment in object.payments %}
 {% if payment.is_editable %}
 <div id="finalize-payment-{{payment.id}}" class="modal fade" role="dialog">
-<div class="modal-dialog">
-<form action="{% url 'so_payment_review' payment.id %}" method="POST">
-	{% csrf_token %}
+  <div class="modal-dialog">
+    <form action="{% url 'so_payment_review' payment.id %}" method="POST">
+      {% csrf_token %}
 
-    <!-- Modal content-->
-    <div class="modal-content">
-		{# Modal header #}
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Finalize payment {{ payment.code }}</h4>
-		</div>
-
-	    {# Modal body #}
-	    <div class="modal-body">
-	    	<p>
-			Payment {{ payment.code }} can not be edited or deleted after it has been finalized.
-			</p>
-
-			<p class="alert alert-warning">
-			Are you sure to proceed?
-			</p>
-		</div>
-
-	      {# Modal footer #}
-		<div class="modal-footer">
-			<button class="btn btn-primary"  type="submit">
-				<i class="fa fa-lock"></i>
-				<span>Yes</span>
-			</button>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-		</div>
+      <!-- Modal content-->
+      <div class="modal-content">
+	{# Modal header #}
+	<div class="modal-header">
+	  <button type="button" class="close" data-dismiss="modal">&times;</button>
+	  <h4 class="modal-title">Finalize payment {{ payment.code }}</h4>
 	</div>
-</form>
-</div>
+
+	{# Modal body #}
+	<div class="modal-body">
+	  <p>
+	    Payment {{ payment.code }} can not be edited or deleted after it has been finalized.
+	  </p>
+
+	  <p class="alert alert-warning">
+	    Are you sure to proceed?
+	  </p>
+	</div>
+
+	{# Modal footer #}
+	<div class="modal-footer">
+	  <button class="btn btn-primary"  type="submit">
+	    <i class="fa fa-lock"></i>
+	    <span>Yes</span>
+	  </button>
+	  <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+	</div>
+      </div>
+    </form>
+  </div>
 </div>
 {% endif %}
 {% endfor %}
@@ -784,23 +808,23 @@ Related payments
 
 {% block custom_js %}
 <script type="text/javascript">
-var j$ = jQuery.noConflict();
-j$(document).ready(function(){
-	// starting first tab
-	j$('[data-toggle="tab"]:first').tab('show');
+ var j$ = jQuery.noConflict();
+ j$(document).ready(function(){
+   // starting first tab
+   j$('[data-toggle="tab"]:first').tab('show');
 
-	j$('[data-toggle="order-qty"]').change(function(){
-		j$.post(
-			"{% url 'so_update_qty' %}",
-			{
-				'id':j$(this).attr('id'),
-				'val':j$(this).val()
-			},
-			function(){
-				toastr.success('Item qty has been updated.');
-			}
-		);
-	});
-});
+   j$('[data-toggle="order-qty"]').change(function(){
+     j$.post(
+       "{% url 'so_update_qty' %}",
+       {
+	 'id':j$(this).attr('id'),
+	 'val':j$(this).val()
+       },
+       function(){
+	 toastr.success('Item qty has been updated.');
+       }
+     );
+   });
+ });
 </script>
 {% endblock %}
